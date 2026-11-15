@@ -378,8 +378,8 @@ function droppedLantern(g: THREE.Group, rust = '#6b4428'): THREE.Group {
   return g;
 }
 /** A recipe with its dead pose resolved (kit/poses.ts names, the rig's own presets, or one picked by the seed). */
-export function withDeadPose<T extends { deadPose?: unknown; armor?: { kind?: string }; skirt?: unknown; underskirt?: unknown }>(r: T, seed: string): Omit<T, 'deadPose'> & { deadPose: HeroFigure['deadPose'] } {
-  return { ...r, deadPose: deadPose(r.deadPose, seed, { plate: r.armor?.kind === 'plate', gown: !!(r.skirt && r.underskirt) }) as HeroFigure['deadPose'] };
+export function withDeadPose<T extends { deadPose?: unknown }>(r: T, seed: string): Omit<T, 'deadPose'> & { deadPose: HeroFigure['deadPose'] } {
+  return { ...r, deadPose: deadPose(r.deadPose, seed) as HeroFigure['deadPose'] };
 }
 
 /** Build a people-shaped monster and fit its extras to the body's mounts. `seed` (a token's id) picks one of the

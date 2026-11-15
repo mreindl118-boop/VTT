@@ -105,17 +105,12 @@ export const DEAD_POSES = {
 } satisfies Record<string, DeadPose>;
 export type DeadPoseName = keyof typeof DEAD_POSES;
 /** The dead pose for a recipe: one of these by name, one of the rig's own presets by name (passed through), joint
- *  angles as given, or, with nothing set, one picked from the everyday ones by a seed so a field of bodies does not match
- *  (`wear`: whether the body wears plate or a gown). */
-export function deadPose(name: unknown, seed = '', wear: { plate?: boolean; gown?: boolean } = {}): HeroPose | string {
+ *  angles as given, or, with nothing set, one picked from the everyday ones by a seed so a field of bodies does not match. */
+export function deadPose(name: unknown, seed = ''): HeroPose | string {
   if (typeof name === 'string') return name in DEAD_POSES ? DEAD_POSES[name as DeadPoseName] : name;
   if (name && typeof name === 'object') return name as HeroPose;
   let h = 7; for (const c of seed) h = (h * 31 + c.charCodeAt(0)) >>> 0;
-  const pick = (['crumpled', 'comic', 'sprawl', 'crumpled', 'prone', 'comic', 'swoon'] as const)[h % 7];
-  // (a body in plate falls face down flat instead of folding onto its face, rump up: its tassets go no further up the
-  // thigh than the hip bends in a stride; and one in a gown swoons instead of crumpling in a heap, where the arm folded
-  // under it would lie in the skirt)
-  return DEAD_POSES[wear.plate && pick === 'comic' ? 'prone' : wear.gown && pick === 'crumpled' ? 'swoon' : pick];
+  return DEAD_POSES[(['crumpled', 'comic', 'sprawl', 'crumpled', 'prone', 'comic', 'swoon'] as const)[h % 7]];
 }
 
 /** A figure recipe whose `pose` and `battlePose` may name one of these poses: the same recipe with those names replaced

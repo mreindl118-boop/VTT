@@ -3,9 +3,9 @@
 // without an id shows it and as three tokens' ids vary it (the looks a creature has, and the faces, heights and falls
 // an id picks), and each look only an encounter's alias calls up, in every stance its band takes. Nothing is let off:
 // no limb, held weapon or put-away weapon may pass into the body or another limb. Nor, by the cloth check
-// (kit/clothcheck.ts), may any cloth a figure wears let its own arms, legs, neck or trunk through, standing or dead.
-// And where gear hangs at the belt (at rest and in a battle stance), nothing worn under the belt reaches into it: it
-// hangs outside the cloth, the belt riding over it.
+// (kit/clothcheck.ts), may any cloth a figure wears let its own arms, legs, neck or trunk through, or a plate hung
+// under it (a culet or a tasset under a cloak), standing or dead. And where gear hangs at the belt (at rest and in a
+// battle stance), nothing worn under the belt reaches into it: it hangs outside the cloth, the belt riding over it.
 import { BESTIARY, figureFor } from '../app/src/bestiary';
 import { describeClips, findClips } from '../app/src/kit/clipcheck';
 import { findPokes } from '../app/src/kit/clothcheck';
@@ -33,7 +33,8 @@ export function namedTokens(id: string): { hint: string; seeds: string[] }[] {
 const OVER_BELT = ['cloak', 'mantle', 'tails'];
 
 /** Every clip in every jointed NPC miniature in one state: how many figures were checked, a line per clipped one, and
- *  a line per figure whose cloth lets its own body through (an arm, a leg, the neck or the trunk); and, standing (at
+ *  a line per figure whose cloth lets its own body through (an arm, a leg, the neck or the trunk, or a plate hung under
+ *  the cloth); and, standing (at
  *  rest or in a battle stance), how many carry gear at the belt and a line for each where cloth worn under the belt
  *  reaches into that gear. */
 export function clipsIn(state: 'rest' | 'battle' | 'dead', seen: Seen): { checked: number; clips: string[]; cloth: string[]; belted: number; underBelt: string[] } {
@@ -48,7 +49,7 @@ export function clipsIn(state: 'rest' | 'battle' | 'dead', seen: Seen): { checke
     checked++;
     const who = `${e.id}${hint ? ` "${hint}"` : ''}${seed ? ' #' + seed : ''}`;
     const hits = findClips(g, f); if (hits.length) clips.push(`${who}: ${describeClips(hits)}`);
-    const pokes = findPokes(g), body = pokes.filter((p) => p.part !== 'stowed');
+    const pokes = findPokes(g, { plates: true }), body = pokes.filter((p) => p.part !== 'stowed');
     if (body.length) cloth.push(`${who}: ${body.map((p) => `${p.part} through the ${p.garment} ${p.depth.toFixed(3)} (${p.points} points)`).join(', ')}`);
     if (state === 'dead' || !(f.gear?.beltR || f.gear?.beltL)) continue;
     belted++;

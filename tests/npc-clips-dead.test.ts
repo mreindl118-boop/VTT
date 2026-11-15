@@ -18,7 +18,7 @@ it('every NPC miniature fallen dead: no limb, held weapon or put-away weapon pas
   expect(clips).toEqual([]);
 });
 
-it('every NPC miniature fallen dead: no cloth it wears lets its own arms, legs, neck or trunk through', { timeout: 600000 }, () => {
+it('every NPC miniature fallen dead: no cloth it wears lets its own arms, legs, neck, trunk or plate through', { timeout: 600000 }, () => {
   const { checked, cloth } = all();
   expect(checked).toBeGreaterThan(350);
   expect(cloth).toEqual([]);

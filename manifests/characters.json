@@ -2279,7 +2279,7 @@
       "grip": "#5a3a26"
      }
     },
-    "pose": "weightR easy R:skirt L:chest",
+    "pose": "weightR easy R:hang L:chest",
     "battlePose": "thrust",
     "frame": "feminine",
     "build": "curvy"

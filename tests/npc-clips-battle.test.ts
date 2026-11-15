@@ -18,7 +18,7 @@ it('every NPC miniature in a battle stance: no limb, held weapon or put-away wea
   expect(clips).toEqual([]);
 });
 
-it('every NPC miniature in a battle stance: no cloth it wears lets its own arms, legs, neck or trunk through', { timeout: 600000 }, () => {
+it('every NPC miniature in a battle stance: no cloth it wears lets its own arms, legs, neck, trunk or plate through', { timeout: 600000 }, () => {
   const { checked, cloth } = all();
   expect(checked).toBeGreaterThan(350);
   expect(cloth).toEqual([]);
