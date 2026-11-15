@@ -6,7 +6,10 @@
 // surface crosses a garment, the cloth there lies inside the part and the part shows through it (a knee through a
 // gown, an elbow through a cape); how far the surface lies past the cloth is the depth. Cloth just touching the skin
 // (within the tolerance) is not a poke. What a garment's trims add on top of it (a hem band, clasps, a hood, marked
-// `userData.cloth`) is cloth, not body. Pure geometry: no rendering, so tests can run it on every figure in every pose.
+// `userData.cloth`) is cloth, not body. Asked to (`plates`), it reads each plate hung like cloth (a culet, a tasset,
+// marked `userData.plate`) as a part too, against the cloth worn over or beside it (any garment but a plate, on its
+// `userData.layer` or a higher one): a culet standing up through a cloak over the rump, or through coat tails. Pure
+// geometry: no rendering, so tests can run it on every figure in every pose.
 import * as THREE from 'three';
 
 /** A part of the body passing out through a garment: `depth` is how far past the cloth its deepest point lies (feet),
@@ -16,6 +19,9 @@ export interface PokeOptions {
   /** How far (feet, at the figure's own scale) skin may lie past the cloth before it counts: cloth resting on the skin
    *  is not a poke. Default 0.03. */
   tolerance?: number;
+  /** Also read each plate hung like cloth against the cloth worn over or beside it, any garment but a plate on its
+   *  layer or a higher one (part named after the plate). */
+  plates?: boolean;
 }
 
 // (a see-through part's depth-only twin, userData.veil, is no surface: kit/monsters.ts)
@@ -30,11 +36,11 @@ export function findPokes(figure: THREE.Object3D, o: PokeOptions = {}): Poke[] {
   const s = J.neck.position.y / 2.24, tol = (o.tolerance ?? 0.03) * s;
   const at = (n: string) => J[n]?.getWorldPosition(new THREE.Vector3());
   // the garments' triangles (world), binned in a grid of cells
-  const tri: number[] = [], owner: string[] = [];
+  const tri: number[] = [], owner: string[] = [], layer: number[] = [], plate: boolean[] = [];
   figure.traverse((c) => {
     if (!solid(c) || !c.userData.garment) return;
     const g = c.geometry, p = g.getAttribute('position') as THREE.BufferAttribute, idx = g.index, n = (idx ? idx.count : p.count) / 3, v = new THREE.Vector3();
-    for (let t = 0; t < n; t++) { for (let k = 0; k < 3; k++) { v.fromBufferAttribute(p, idx ? idx.getX(t * 3 + k) : t * 3 + k).applyMatrix4(c.matrixWorld); tri.push(v.x, v.y, v.z); } owner.push(String(c.userData.garment)); }
+    for (let t = 0; t < n; t++) { for (let k = 0; k < 3; k++) { v.fromBufferAttribute(p, idx ? idx.getX(t * 3 + k) : t * 3 + k).applyMatrix4(c.matrixWorld); tri.push(v.x, v.y, v.z); } owner.push(String(c.userData.garment)); layer.push(c.userData.layer ?? 0); plate.push(!!c.userData.plate); }
   });
   if (!owner.length) return [];
   const h = 0.25 * s;
@@ -46,7 +52,8 @@ export function findPokes(figure: THREE.Object3D, o: PokeOptions = {}): Poke[] {
     }
   }
   // the parts: their meshes and the line of their bones
-  type Part = { name: string; meshes: THREE.Mesh[]; bones: THREE.Vector3[] };
+  // (`under`: a plate, crossed only by the cloth worn over or beside it, never by what lies under it or by a plate)
+  type Part = { name: string; meshes: THREE.Mesh[]; bones: THREE.Vector3[]; under?: number };
   const parts: Part[] = [], direct = (n: string) => (J[n] ? J[n].children.filter(flesh) : []), deep = (n: string) => { const out: THREE.Mesh[] = []; J[n]?.traverse((c) => { if (flesh(c)) out.push(c); }); return out; };
   const spine = [at('hips')!, at('chest')!, at('neck')!];
   // (of the trunk, only its skin and what is worn close on it: the rig marks them `userData.skin`; gear hung on it, a
@@ -76,6 +83,16 @@ export function findPokes(figure: THREE.Object3D, o: PokeOptions = {}): Poke[] {
     for (const m of ms) { m.geometry.computeBoundingBox(); bb.copy(m.geometry.boundingBox!).applyMatrix4(inv.clone().multiply(m.matrixWorld)); lo = Math.min(lo, bb.min.y); hi = Math.max(hi, bb.max.y); }
     if (ms.length) parts.push({ name: 'stowed', meshes: ms, bones: [g.localToWorld(new THREE.Vector3(0, lo, 0)), g.localToWorld(new THREE.Vector3(0, hi, 0))] });
   }
+  // plates hung like cloth, each read from the line of the trunk or the leg it lies nearest (a culet over the rump from the
+  // spine, a tasset from its thigh)
+  if (o.plates) figure.traverse((c) => {
+    if (!solid(c) || !c.userData.garment || !c.userData.plate) return;
+    c.geometry.computeBoundingBox(); const mid = c.geometry.boundingBox!.getCenter(new THREE.Vector3()).applyMatrix4(c.matrixWorld);
+    const lines = ['R', 'L'].map((sd) => [at('hip' + sd), at('knee' + sd), at('ankle' + sd)]).filter((l): l is THREE.Vector3[] => l.every(Boolean));
+    let best = spine, bd = Infinity;
+    for (const l of [spine, ...lines]) for (let i = 0; i + 1 < l.length; i++) { const d = new THREE.Line3(l[i], l[i + 1]).closestPointToPoint(mid, true, new THREE.Vector3()).distanceTo(mid); if (d < bd) { bd = d; best = l; } }
+    parts.push({ name: String(c.userData.garment), meshes: [c], bones: best, under: c.userData.layer ?? 0 });
+  });
   // each surface point against the cloth crossing the line in to its bone
   const stamp = new Int32Array(owner.length).fill(-1), e1 = new THREE.Vector3(), e2 = new THREE.Vector3(), pv = new THREE.Vector3(), tv = new THREE.Vector3(), qv = new THREE.Vector3(), d = new THREE.Vector3();
   const near = (p: THREE.Vector3, bones: THREE.Vector3[], out: THREE.Vector3) => {
@@ -99,6 +116,7 @@ export function findPokes(figure: THREE.Object3D, o: PokeOptions = {}): Poke[] {
         const l = grid.get(((x + 512) * 1024 + y + 512) * 1024 + z + 512); if (!l) continue;
         for (const t of l) {
           if (stamp[t] === seq) continue; stamp[t] = seq;
+          if (part.under !== undefined && (layer[t] < part.under || plate[t])) continue;
           // the line from the bone to the point against the triangle (Moller-Trumbore)
           const b = t * 9; e1.set(tri[b + 3] - tri[b], tri[b + 4] - tri[b + 1], tri[b + 5] - tri[b + 2]); e2.set(tri[b + 6] - tri[b], tri[b + 7] - tri[b + 1], tri[b + 8] - tri[b + 2]);
           pv.crossVectors(dir, e2); const det = e1.dot(pv); if (Math.abs(det) < 1e-12) continue;
