@@ -55,6 +55,13 @@ describe('cloth lifted out of gear put away in pieces', () => {
     }
   });
 
+  it('an empty list of pieces falls back to the part read from its bone', () => {
+    const none = world({ bones: new Map([['stowed', B.bone]]), surface: new Map([['stowed', B.surface]]), pieces: new Map([['stowed', []]]) });
+    const bone = world({ bones: new Map([['stowed', B.bone]]), surface: new Map([['stowed', B.surface]]) });
+    expect(moved(lift(none, -0.52), patch(-0.52).P)).toBeGreaterThan(0.04);
+    expect(Array.from(lift(none, -0.52))).toEqual(Array.from(lift(bone, -0.52)));
+  });
+
   it('one piece lifts exactly as the part read from its bone', () => {
     const one = world({ pieces: new Map([['stowed', [B]]]) }), bone = world({ bones: new Map([['stowed', B.bone]]), surface: new Map([['stowed', B.surface]]) });
     for (const at of [-0.52, -0.48, -0.25]) expect(Array.from(lift(one, at))).toEqual(Array.from(lift(bone, at)));
