@@ -935,7 +935,7 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
   };
   const LEGS = ['thighR', 'thighL', 'shinR', 'shinL'], FEET = ['footR', 'footL'], ARMS = ['upperArmR', 'upperArmL', 'forearmR', 'forearmL'], HANDS = ['handR', 'handL'], LOWER_ARMS = ['forearmR', 'forearmL', ...HANDS];
   // the tunic's skirt: over the thighs (a lifted knee tents it), inside a hand resting on the hip
-  if (hem) wear('hem', hem, up, DRAPE_COLS, HEM_ROWS + 1, { closed: true, covers: ['torso', 'pelvis', ...LEGS], outside: LOWER_ARMS, layer: 0, clear: 0.035 * s, spread: 5, hang: 0.8 });
+  if (hem) wear('hem', hem, up, DRAPE_COLS, HEM_ROWS + 1, { closed: true, covers: ['torso', 'pelvis', ...LEGS, ...FEET], outside: LOWER_ARMS, layer: 0, clear: 0.035 * s, spread: 5, hang: 0.8 });
   const wpn = f.gear?.handR ? 'none' : f.weapon; // (gear in the hand takes the place of the figure's own weapon)
   // (held by the grip below the guard: the index finger and the thumb close under it, not into it)
   if (wpn === 'sword') gR.add(at(box(0.12 * s, 2.6 * s, 0.32 * s, '#c8ccd2'), 0, 1.57 * s, 0), at(box(0.7 * s, 0.12 * s, 0.14 * s, '#a07a3a'), 0, 0.27 * s, 0), at(box(0.12 * s, 0.5 * s, 0.12 * s, '#3b2a20'), 0, -0.03 * s, 0));
@@ -1894,7 +1894,9 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
   }
   // a body that lies settles as it would fall (see settleLay); it is turned and put on the floor below
   const laid = P.lie ? settleLay(P.lie, s, { body, up, neck, arm, leg }, own, [gR, gL]) : undefined;
-  if (laid && garments.length) laid.lift = 0.02 * s; // (it lies on its clothes: what of them is under it lies under it)
+  // (it lies on its clothes: what of them is under it lies under it, each garment worn over another a layer nearer the
+  // floor (kit/cloth.ts), so the more it wears one over another, the higher it lies on them)
+  if (laid && garments.length) { const ls = garments.map((g) => g.layer); laid.lift = Math.max(0.02 * s, 0.005 + 0.012 * (Math.max(0, ...ls) - Math.min(...ls)) + 0.01 * s); }
   // the cloth hangs on the posed body (on one laid out, the way it lies)
   if (garments.length) hangGarments(garments, drapeWorld(body, { pel, up, neck, arm, leg, gR, gL }, fr, s, P, dead, laid));
   // a bow or a crossbow slung on the back lies over what hangs there (a cloak, a coat's tails, a mantle), never through it

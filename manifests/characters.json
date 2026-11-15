@@ -1535,8 +1535,9 @@
       "grip": "#3a2a20"
      }
     },
-    "pose": "weightR easy R:hip L:hang",
+    "pose": "weightR easy R:hip L:skirt",
     "battlePose": "ready turnL R:ward L:claw",
+    "deadPose": "crumpled",
     "frame": "feminine",
     "build": "curvy"
    },
@@ -2278,7 +2279,7 @@
       "grip": "#5a3a26"
      }
     },
-    "pose": "weightR easy R:hang L:chest",
+    "pose": "weightR easy R:skirt L:chest",
     "battlePose": "thrust",
     "frame": "feminine",
     "build": "curvy"
