@@ -929,12 +929,13 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
   const wear = (name: string, m: M, parent: THREE.Object3D, cols: number, rows: number, o: Omit<Garment, 'name' | 'mesh' | 'cols' | 'rows' | 'axis'> & { axis?: [number, number] }): Garment => {
     if (m.parent !== parent) parent.add(m);
     m.updateMatrix(); m.geometry.applyMatrix4(m.matrix); m.position.set(0, 0, 0); m.rotation.set(0, 0, 0); m.scale.set(1, 1, 1);
-    m.userData.garment = name;
+    m.userData.garment = name; m.userData.layer = o.layer; if (o.stiff) m.userData.plate = true; // (kit/clothcheck.ts reads a plate under what is worn over it)
     const { axis, ...rest } = o, g: Garment = { name, mesh: m, cols, rows, axis: new THREE.Vector3(axis?.[0] ?? 0, 0, axis?.[1] ?? 0), ...rest };
     garments.push(g); return g;
   };
   const LEGS = ['thighR', 'thighL', 'shinR', 'shinL'], FEET = ['footR', 'footL'], ARMS = ['upperArmR', 'upperArmL', 'forearmR', 'forearmL'], HANDS = ['handR', 'handL'], LOWER_ARMS = ['forearmR', 'forearmL', ...HANDS];
-  // the tunic's skirt: over the thighs (a lifted knee tents it), inside a hand resting on the hip
+  // the tunic's skirt: over the thighs (a lifted knee tents it) and over a foot drawn up under it (a body fallen on its
+  // knees), inside a hand resting on the hip
   if (hem) wear('hem', hem, up, DRAPE_COLS, HEM_ROWS + 1, { closed: true, covers: ['torso', 'pelvis', ...LEGS, ...FEET], outside: LOWER_ARMS, layer: 0, clear: 0.035 * s, spread: 5, hang: 0.8 });
   const wpn = f.gear?.handR ? 'none' : f.weapon; // (gear in the hand takes the place of the figure's own weapon)
   // (held by the grip below the guard: the index finger and the thumb close under it, not into it)
@@ -970,7 +971,8 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
   // a coat: tails behind, lapels in front
   if (f.coat) {
     const tails = drape(0.62 * s, 0.75 * s, 1.6 * s, f.coat.tails, { folds: 5, amp: 0.08, jag: 0.25 * s, gap: Math.PI * 1.2, rows: 16 }); tails.position.y = -0.55 * s;
-    wear('tails', tails, up, DRAPE_COLS, 17, { closed: false, covers: ['pelvis', ...LEGS, ...FEET, 'hem', 'stowed'], outside: LOWER_ARMS, layer: 1, clear: 0.04 * s, spread: 5, hang: 0.9 });
+    // (over plates hung from the waist as well, the culet and the tassets, which hang first on their layer)
+    wear('tails', tails, up, DRAPE_COLS, 17, { closed: false, covers: ['pelvis', ...LEGS, ...FEET, 'hem', 'stowed', 'culet', 'tassetR', 'tassetL'], outside: LOWER_ARMS, layer: 1, clear: 0.04 * s, spread: 5, hang: 0.9 });
     for (const sx of [-1, 1]) { const lp = box(0.16 * s, 0.9 * s, 0.05 * s, f.coat.lapel ?? f.coat.tails); lp.rotation.z = sx * 0.25; up.add(at(lp, sx * 0.24 * s, 1.75 * s, 0.42 * s)); up.add(at(box(0.07 * s, 0.32 * s, 0.05 * s, '#c9c2b0'), sx * 0.45 * s, 1.0 * s, 0.4 * s)); }
   }
 
@@ -1075,13 +1077,13 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
       const L = lamesGeometry(rings, sx * 0.42 - 1.05, 2.1, [[0.02, -0.4, 1.3, 1.38], [-0.35, -0.74, 1.32, 1.42]], s);
       L.geo.translate(sx * hx, 0, 0);
       const m = sm(L.geo, f.armor.color, true);
-      wear('tasset' + sd, m, lames[3], L.cols, L.rows, { closed: false, axis: [sx * hx, 0], covers: [`thigh${sd}`], layer: 1, clear: 0.03 * s, spread: 0, hang: 0, stiff: true, after: (G) => plateTrims(G, L.rims, lames[3]) });
+      wear('tasset' + sd, m, lames[3], L.cols, L.rows, { closed: false, axis: [sx * hx, 0], covers: [`thigh${sd}`], layer: 1, clear: 0.03 * s, spread: 0, hang: 0, stiff: true, lames: L.rims, after: (G) => plateTrims(G, L.rims, lames[3]) });
     }
     // (the culet hangs straight down from the rim, as wide as the hips are at the tops of the thighs: below that the
     // seat narrows into the fork, which a plate cannot follow, and the thighs there would stand out past it; it rides out
     // over a full seat as over a thigh)
     { const seatRings = hips.map((r) => (r.y < -0.05 ? { ...ringAt(hips, -0.05), y: r.y } : r)), L = lamesGeometry(seatRings, Math.PI - 1.1, 2.2, [[-0.02, -0.3, 1.24, 1.32], [-0.26, -0.5, 1.3, 1.42]], s, 15, 4, (th, y) => 0.5 * seatBump(th, y));
-      wear('culet', sm(L.geo, lighter, true), lames[3], L.cols, L.rows, { closed: false, covers: ['thighR', 'thighL', 'pelvis'], layer: 1, clear: 0.03 * s, spread: 0, hang: 0, stiff: true, after: (G) => plateTrims(G, L.rims, lames[3]) }); }
+      wear('culet', sm(L.geo, lighter, true), lames[3], L.cols, L.rows, { closed: false, covers: ['thighR', 'thighL', 'pelvis'], layer: 1, clear: 0.03 * s, spread: 0, hang: 0, stiff: true, lames: L.rims, after: (G) => plateTrims(G, L.rims, lames[3]) }); }
     for (const l of leg) {                                                                              // knees and greaves
       // the knee cop: a shaped plate over the front of the knee with a fan at its outside, on the knee's middle line, so
       // it sits on the bend whatever the knee does (see bendLimb)
@@ -1097,9 +1099,9 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
   }
   if (f.armor?.kind === 'mail') {
     // the shirt: close on the body to the hips, hanging from there over the tops of the thighs (kit/cloth.ts lifts it over
-    // a thigh), with bright rows of rings laid round it
+    // a thigh, and a foot drawn up under it), with bright rows of rings laid round it
     const ringC = tone(f.armor.color, '#ffffff', 0.15);
-    wear('mail', bodyCut(tr, pelvisRings(fr), s, f.armor.trim ?? f.armor.color, { top: MAIL_TOP, hem: MAIL_HEM, rows: MAIL_ROWS, ease: [1.08, 1.1], flare: 0.12, flareFrom: 0, warp: bustWarp, seat: seatBump }), up, DRAPE_COLS, MAIL_ROWS + 1, { closed: true, covers: ['torso', 'pelvis', ...LEGS, 'hem'], outside: [...ARMS, ...HANDS], layer: 1, clear: 0.03 * s, spread: 4, hang: 0.6, after: (G) => {
+    wear('mail', bodyCut(tr, pelvisRings(fr), s, f.armor.trim ?? f.armor.color, { top: MAIL_TOP, hem: MAIL_HEM, rows: MAIL_ROWS, ease: [1.08, 1.1], flare: 0.12, flareFrom: 0, warp: bustWarp, seat: seatBump }), up, DRAPE_COLS, MAIL_ROWS + 1, { closed: true, covers: ['torso', 'pelvis', ...LEGS, ...FEET, 'hem'], outside: [...ARMS, ...HANDS], layer: 1, clear: 0.03 * s, spread: 4, hang: 0.6, after: (G) => {
       for (const y of [1.15, 0.8, 0.45, 0.1, MAIL_HEM + 0.03]) { const pts: THREE.Vector3[] = []; for (let j = 0; j < 40; j++) pts.push(clothPoint(G, j / 40, (MAIL_TOP - y) / (MAIL_TOP - MAIL_HEM), 0.012 * s)); up.add(tube(pts, 0.018 * s, ringC, true)); }
     } });
     const band = (rings: Parameters<typeof loftGeometry>[0], y: number, h: number, k: number, c: string, seg = 16) => { const r = ringAt(rings, y); return sm(loftGeometry([{ ...r, y: y - h / 2 }, { ...r, y: y + h / 2 }], s, { seg, k, rows: 1 }), c); };
@@ -1123,12 +1125,14 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
       for (const u of [0, 1]) { const pts: THREE.Vector3[] = []; for (let i = 0; i <= 16; i++) pts.push(clothPoint(G, u, 0.03 + 0.95 * i / 16, 0.012 * s)); up.add(tube(pts, 0.035 * s, f.cloakTrim)); }
     };
     if (gown) { const c = drape(1.0 * s, 1.35 * s, 3.9 * s, f.cloak, { folds: 7, amp: 0.12, jag, seed: 0.3, gap: Math.PI * 1.25, rows: 24 }); c.scale.z = 0.5; c.position.set(0, -0.55 * s, -0.2 * s);
-      wear('cloak', c, up, DRAPE_COLS, 25, { closed: false, axis: [0, -0.2 * s], covers: [...under, 'gown'], outside: ['shield'], layer: 2, anchored: 0.15 * s, clear: 0.05 * s, spread: 6, hang: 0.9, after: edges }); }
+      wear('cloak', c, up, DRAPE_COLS, 25, { closed: false, axis: [0, -0.2 * s], covers: [...under, 'gown', 'culet', 'tassetR', 'tassetL'], outside: ['shield'], layer: 2, anchored: 0.15 * s, clear: 0.05 * s, spread: 6, hang: 0.9, after: edges }); }
     else {
       const rt = ringAt(tr, 2.0), rTop = rt.w * 1.05 + 0.06, dz = -0.05, top = 2.02, hem = -2.45;
       const c = drape(rTop * s, rTop * 1.6 * s, (top - hem) * s, f.cloak, { folds: 6, amp: 0.12, jag, seed: 0.3, gap: Math.PI * 1.15, rows: 26, zs: [(rt.b + 0.06 + dz) / rTop, 0.55] });
       c.position.set(0, (top + hem) / 2 * s, dz * s);
-      wear('cloak', c, up, DRAPE_COLS, 27, { closed: false, axis: [0, dz * s], covers: [...under, 'hem', 'mail', 'tails', 'skirt'], outside: ['shield'], layer: 2, anchored: 0.15 * s, clear: 0.05 * s, spread: 6, hang: 0.9, after: edges });
+      // (over the plates hung from the waist too, the culet and the tassets: on a body fallen face down they lie on the seat
+      // and on the floor beside the hips, where the cloak falls over them)
+      wear('cloak', c, up, DRAPE_COLS, 27, { closed: false, axis: [0, dz * s], covers: [...under, 'hem', 'mail', 'tails', 'skirt', 'culet', 'tassetR', 'tassetL'], outside: ['shield'], layer: 2, anchored: 0.15 * s, clear: 0.05 * s, spread: 6, hang: 0.9, after: edges });
       // the capelet over it: clasped at the top of its opening, a folded hood resting on it behind
       wear('mantle', capelet(tr, fr, s, f.cloak), up, DRAPE_COLS, CAPE_ROWS + 1, { closed: false, covers: ['torso', 'upperArmR', 'upperArmL', 'cloak', 'mail', 'stowed'], outside: [...LOWER_ARMS, 'shield'], holds: ['upperArmR', 'upperArmL'], layer: 3, anchored: 0, clear: 0.04 * s, spread: 6, hang: 0.5, after: (G) => {
         if (f.clasps) for (const u of [0, 1]) {
@@ -1989,6 +1993,10 @@ function drapeWorld(body: THREE.Group, j: { pel: THREE.Group; up: THREE.Group; n
   const part = (n: string, ms: M[], cap: number) => { const p = sample(ms, cap); parts.set(n, p); surface.set(n, every(ms)); return p; };
   part('torso', meshes(j.up, [j.neck, ...collars, ...mounts]), 2400); volumes.set('torso', vol(j.up, tr));
   part('pelvis', meshes(j.pel, [j.up, ...j.leg.map((l) => l.root)]), 1400); volumes.set('pelvis', vol(j.pel, pelvisRings(fr)));
+  // (the neck, which nothing is hung over, is still in the way of cloth falling past it: a capelet's collar on a body
+  // laid on its side falls onto the back of the neck, not into it; its rings reach on down past the neck's foot, where
+  // the collar lies)
+  { const nr = neckRings(fr); part('neck', j.neck.children.filter(solid), 300); volumes.set('neck', vol(j.neck, [{ ...nr[0], y: nr[0].y - 0.08 }, ...nr])); }
   j.leg.forEach((l, k) => {
     const sd = k === 0 ? 'R' : 'L';
     part('thigh' + sd, l.root.children.filter(solid), 500); volumes.set('thigh' + sd, vol(l.root, thighRings(fr)));
@@ -2054,9 +2062,12 @@ function drapeWorld(body: THREE.Group, j: { pel: THREE.Group; up: THREE.Group; n
     bones.set('upperArm' + sd, line); bones.set('forearm' + sd, line); bones.set('hand' + sd, [line[1], line[2], hand ? wp(hand) : line[2]]);
   });
   if (stowLine) bones.set('stowed', stowLine); // (along its length: a haft, a blade; with several pieces, the first one's, as `pieces` holds each)
+  // (on a body laid out, the trunk's own skin, for a plate in lames to rest on: read only when one does)
+  const skinOf = (o: THREE.Object3D) => every(o.children.filter((c): c is M => solid(c) && !!c.userData.skin));
+  let skin: Map<string, THREE.Vector3[]> | undefined;
   // (gear put away moves with the trunk: what of it stands above a cloak's top, the head of a weapon slung on the back, is
   // not under the cloak)
-  return { parts, down, floor, volumes, bones, surface, pieces, trunk: ['torso', 'pelvis', 'stowed'], lying: !!P.lie };
+  return { parts, down, floor, volumes, bones, surface, pieces, size: s, get skin() { return P.lie ? (skin ??= new Map([['torso', skinOf(j.up)], ['pelvis', skinOf(j.pel)]])) : undefined; }, trunk: ['torso', 'pelvis', 'stowed'], lying: !!P.lie };
 }
 
 // The hand functions below take `sx` as the hand's handedness: +1 for a right hand, -1 for a left, which is -SIDE_X of
