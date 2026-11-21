@@ -485,6 +485,59 @@ function drape(rTop: number, rBot: number, h: number, c: string, o: { folds: num
   return sm(g, c, true);
 }
 
+/** A cloak hung from the back (a gown's, below the bare shoulders) is cut round, and a back is flatter than that round:
+ *  hung, its top edge stands well off the back at the middle. Once it has hung, its top edge is brought forward to a line
+ *  from just behind the back at the middle out to its corners, which stay where they are, behind the arms, and the cloth
+ *  below comes less and less of that way down to `rows` rows from the top, below which it hangs as it fell: a sheet from
+ *  the shoulder blades out over the skirt. It comes no nearer than `room` to anything on the figure but the head and what
+ *  hangs from it (the hair lies over it), and never moves back. `G` is the hung cloak, its mesh in the trunk's frame
+ *  (`tr` the trunk's rings); `skip` the head. */
+function snugBack(G: Garment, tr: Ring[], s: number, skip: THREE.Object3D, rows = 6): void {
+  const m = G.mesh, pos = m.geometry.getAttribute('position') as THREE.BufferAttribute, C = G.cols, R = G.rows, up = m.parent;
+  if (!up || pos.count !== C * R || R <= rows) return;
+  const room = 0.07 * s, mid = Math.floor(C / 2), X = (i: number) => pos.getX(i), Y = (i: number) => pos.getY(i), Z = (i: number) => pos.getZ(i);
+  const ring = ringAt(tr, Y(mid) / s), n = ring.n ?? 2;
+  // how far forward the top edge may come at a point across the back: `room` behind the back's own curve there
+  const limit = (x: number) => { const u = Math.abs(x / s - (ring.x ?? 0)) / ring.w; return u >= 1 ? Infinity : ((ring.z ?? 0) - ring.b * (1 - u ** n) ** (1 / n)) * s - room; };
+  const xc = Math.max(Math.abs(X(0)), Math.abs(X(C - 1))), zc = Math.min(Z(0), Z(C - 1)), zMid = limit(0);
+  if (!(xc > 0) || !(zMid > zc)) return;
+  const want = new Float64Array(C);
+  for (let k = 0; k < C; k++) { const x = X(k); want[k] = Math.max(0, Math.min(zMid + (zc - zMid) * Math.min(1, (x / xc) ** 2), limit(x)) - Z(k)); }
+  // what lies in front of the rows that move (the back, what is worn on it, the arms), in the trunk's frame
+  let lo = [Infinity, Infinity, Infinity], hi = [-Infinity, -Infinity, -Infinity];
+  for (let i = 0; i < rows * C; i++) { const v = [X(i), Y(i), Z(i)]; lo = lo.map((a, j) => Math.min(a, v[j])); hi = hi.map((a, j) => Math.max(a, v[j])); }
+  let root: THREE.Object3D = up; while (root.parent) root = root.parent;
+  root.updateMatrixWorld(true);
+  const toUp = up.matrixWorld.clone().invert(), v = new THREE.Vector3(), near: number[] = [], under = (o: THREE.Object3D | null): boolean => !!o && (o === skip || under(o.parent));
+  const region = new THREE.Box3(new THREE.Vector3(lo[0] - room, lo[1] - 0.2 * s, lo[2]), new THREE.Vector3(hi[0] + room, hi[1] + room, Infinity)), box = new THREE.Box3();
+  root.traverse((o) => {
+    const q = o as M; if (!q.isMesh || q === m || under(q) || (q.material as THREE.Material).transparent) return;
+    const p = q.geometry.getAttribute('position') as THREE.BufferAttribute, w = q.matrixWorld.clone().premultiply(toUp);
+    if (!box.setFromBufferAttribute(p).applyMatrix4(w).intersectsBox(region)) return; // (not left on the geometry: it may yet move)
+    for (let i = 0; i < p.count; i++) { v.fromBufferAttribute(p, i).applyMatrix4(w); if (v.x > lo[0] - room && v.x < hi[0] + room && v.y > lo[1] - 0.2 * s && v.y < hi[1] + room && v.z > lo[2]) near.push(v.x, v.y, v.z); }
+  });
+  // each column comes no further than keeps every row that moves `room` clear of what lies in front of it (anything
+  // within half a row of it, either way, and across)
+  const most = Float64Array.from(want), reach = Math.max(room, 0.6 * Math.abs(Y(mid) - Y(C + mid))), bins = new Map<number, number[]>(), cell = (x: number, y: number) => Math.floor(x / reach) * 4096 + Math.floor(y / reach);
+  for (let j = 0; j < near.length; j += 3) { const b = cell(near[j], near[j + 1]); let l = bins.get(b); if (!l) bins.set(b, (l = [])); l.push(j); }
+  for (let k = 0; k < C; k++) for (let r = 0; r < rows && most[k] > 0; r++) {
+    const i = r * C + k, x = X(i), y = Y(i), z = Z(i), w = 1 - r / rows, b = cell(x, y);
+    for (const bb of [b - 4097, b - 4096, b - 4095, b - 1, b, b + 1, b + 4095, b + 4096, b + 4097]) for (const j of bins.get(bb) ?? []) {
+      const dx = near[j] - x, dy = near[j + 1] - y; if (dx * dx + dy * dy >= reach * reach || near[j + 2] <= z) continue;
+      most[k] = Math.min(most[k], Math.max(0, (near[j + 2] - z - room) / w));
+    }
+  }
+  // the edge kept smooth across the columns: no column comes further than its neighbours let it, then the line is eased
+  const er = Float64Array.from(most, (_, k) => { let a = Infinity; for (let j = Math.max(0, k - 2); j <= Math.min(C - 1, k + 2); j++) a = Math.min(a, most[j]); return a; });
+  for (let k = 0; k < C; k++) {
+    let sum = 0, cnt = 0; for (let j = Math.max(0, k - 2); j <= Math.min(C - 1, k + 2); j++) { sum += er[j]; cnt++; }
+    // (and less of it near the corners, the cloth there turning on toward them as it was cut)
+    const e = Math.min(1, Math.min(k, C - 1 - k) / 10), d = Math.min(most[k], sum / cnt) * e * e * (3 - 2 * e); if (d <= 0) continue;
+    for (let r = 0; r < rows; r++) pos.setZ(r * C + k, Z(r * C + k) + d * (1 - r / rows));
+  }
+  pos.needsUpdate = true; m.geometry.computeVertexNormals();
+}
+
 /** Faces are painted onto a clean head (the stylised look); false brings back the sculpted standard face below. */
 const PAINTED_FACES = true as boolean;
 /** The head, sculpted like a miniature's: one shaped skull (temples, cheekbones over hollow cheeks, a brow over deep-set
@@ -2152,6 +2205,8 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
     // frills)
     if (gown && !f.shoulderCloak) { const c = drape(1.0 * s, 1.35 * s, 3.9 * s, f.cloak, { folds: 7, amp: 0.12, jag, seed: 0.3, gap: Math.PI * (f.fullSleeves ? 1.4 : 1.25), rows: 24 }); c.scale.z = 0.5; c.position.set(0, -0.55 * s, -0.2 * s);
       wear('cloak', c, up, DRAPE_COLS, 25, { closed: false, axis: [0, -0.2 * s], covers: [...under, 'gown', 'culet', 'tassetR', 'tassetL'], outside: ['shield'], layer: 2, anchored: 0.15 * s, clear: 0.05 * s, spread: 6, hang: 0.9, after: (G) => {
+        // (standing, its top edge brought in to the back; on a body laid out it lies as it fell)
+        if (!laid) snugBack(G, tr, s, head);
         if (f.brooch) { const on = clothFace(G, laid?.n.clone().transformDirection(up.matrixWorld.clone().invert())); for (const u of [0.07, 0.93]) pin(G, on, u, 0.09); }
         cloakVines(G);
       } }); }
