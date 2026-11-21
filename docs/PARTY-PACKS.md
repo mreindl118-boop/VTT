@@ -73,6 +73,25 @@ and lips; `lips` sets their colour) and hair is a smooth cap with its style on t
 the gown hangs open over the underskirt in folds with a pointed hem and embroidered edges), and `glow` (the spell a
 battle stance holds).
 
+Plate can be an engraved harness: `armor.knotwork` (a colour, a worn silver say) makes the breastplate one sculpted
+plate with a keel and no rims across its front, the pauldrons three lames (a shallow plate over the shoulder and two
+on the upper arm, a strap buckled round the arm beneath), adds vambraces with a flared cuff over plated gauntlets,
+cuts the tassets in three lames and the greaves as one plate over the boot's cuff, lines every edge finely in the
+armour's `trim` and lays a band of knotwork in that colour on each major plate. `armor.corset`
+(`{color, belts, lacing}`) cuts the breastplate's lower edge to a point under the bust over a laced leather corset:
+the fauld's lames become its leather girdle with two buckled belts round it (`belts` their leather, the buckles in
+`buckle`), and a coat skirt of the same leather hangs from under the girdle to above the knee in the culet's place,
+round the seat and the sides of the thighs and open at the front from hip to hip, where the tassets hang. `armor.emblem` is a holy symbol borne on the breastplate in the
+knotwork's colour (or the trim): `helm`, an open eye on an upright gauntlet. None of the three changes plate that
+does not set it. A corset's coat skirt is not yet listed among what a cloak hangs over, so a corseted harness under a
+cloak is untried.
+
+`halo` is light, not metal: a few thin broken arcs of its colour round the back of the head with a faint glow about
+them and tiny sparkles, open below where the hair falls. `spiritWings` (`{color, rim, opacity}`) are two feathered
+wings of the same kind of light rising from the shoulder blades (primaries, secondaries and two rows of coverts, each
+feather fading out at its tip, the wing fading to nothing where it meets the back): wider in a battle stance, rising
+between the back and a weapon slung on it, and gone on a fallen body. They are made for a `transform` (an aasimar's wings).
+
 ### Body, joints and poses
 
 Every figure is sculpted like a miniature (`kit/anatomy.ts`): the torso, pelvis and limbs are lofted through rings, so
