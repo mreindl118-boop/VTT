@@ -1080,7 +1080,7 @@ function rig(f: HeroFigure, s: number, gown: boolean) {
     up.add(skinOf(loft(tr, torsoC, fr.bust ? { seg: 80, rows: 90, bump: chestBump, warp: bustWarp, jig: bustJig } : { seg: 32, bump: chestBump })));
     const br = ringAt(tr, 0.42); up.add(skinOf(sm(loftGeometry([{ ...br, y: 0.32 }, { ...br, y: 0.52 }], s, { seg: 32, k: 1.05, rows: 2 }), trim)));
     if (!f.skirt && f.hem !== false && f.armor?.kind !== 'plate') { hem = bodyCut(tr, pelvisRings(fr), s, cloth, { top: 0.4, hem: -0.42, rows: HEM_ROWS, ease: [1.03, 1.06], flare: 0.16, flareFrom: 0.4, folds: 6, amp: 0.05, jag: 0.03, seed: 0.2, seat: seatBump }); up.add(hem); } // (from under the belt; hung with the rest of the cloth once posed)
-    up.add(band(tr, 2.13, 0.07, 1.07, trim, 24));                                                      // the neckband
+    if (!f.armor?.knotwork) up.add(band(tr, 2.13, 0.07, 1.07, trim, 24));                              // the neckband (an engraved harness's gorget lies on the body there)
     if (f.hem !== false && f.armor?.kind !== 'plate') { // (under a plate's fauld the belt's tail would hang down into the tassets)
       const tail = box(0.1 * s, 0.5 * s, 0.03 * s, trim); tail.rotation.z = -LX * 0.12; up.add(skinOf(at(tail, LX * 0.2 * s, 0.17 * s, (br.f * 1.05 + 0.03) * s))); // the belt's tail, hanging on the left
       up.add(skinOf(at(box(0.11 * s, 0.05 * s, 0.035 * s, tone(trim, '#ffffff', 0.25)), LX * 0.235 * s, -0.06 * s, (br.f * 1.05 + 0.032) * s)));
@@ -1627,6 +1627,7 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
   if (f.armor?.kind === 'plate') {
     const t = f.armor.trim ?? '#a9adb6', eng = f.armor.knotwork, cor = f.armor.corset, steel = f.armor.color;
     const bare = new Set<THREE.Object3D>(); if (eng || cor) body.traverse((o) => bare.add(o)); // (what the body has on before its harness)
+    const caps: THREE.Object3D[] = []; // (an engraved harness's pauldron caps)
     // an engraved harness's fine lines: the lining of an edge, a strand of knotwork
     const wire = (pts: THREE.Vector3[], c: string, r = 0.009 * s, closed = false) => sm(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts, closed), pts.length * 2, r, 4, closed), c);
     const span = <T>(n: number, at: (u: number) => T): T[] => Array.from({ length: n + 1 }, (_, i) => at(i / n));
@@ -1655,6 +1656,7 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
       // the cap: a shell over the top and outside of the shoulder, wider than deep
       const cr = ar * 1.75, cap0 = new THREE.Group(); cap0.position.set(sx * 0.02 * s, -0.04 * s, 0); cap0.rotation.z = sx * 0.28; l.root.add(cap0);
       if (eng) {
+        caps.push(cap0);
         // (engraved: the first of three lames, a shallow plate lying over the top of the shoulder, finely lined at its edge)
         const lip = 1.22, flat = 0.58, onCap = (a: number, ph: number, off = 0.008) => new THREE.Vector3(Math.cos(a) * Math.sin(ph) * cr, Math.cos(ph) * cr * flat + off * s, Math.sin(a) * Math.sin(ph) * cr * 0.92);
         const dome = sm(new THREE.SphereGeometry(cr, 28, 8, 0, Math.PI * 2, 0, lip), steel, true); dome.scale.set(1, flat, 0.92); cap0.add(dome);
@@ -1716,12 +1718,56 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
       }
       l.hand.add(sm(gridGeometry(back, 17, 5), tone(f.gauntlets ?? steel, '#ffffff', 0.1), true));
     });
-    { const gg = sm(new THREE.CylinderGeometry(0.3 * fr.m.neck * s, 0.44 * fr.m.neck * s, 0.26 * s, 24, 1, true), f.armor.color, true); up.add(at(gg, 0, 2.22 * s, -0.01 * s)); // gorget: a flared collar of plate, edged at the top
-      const gt = sm(new THREE.TorusGeometry(0.3 * fr.m.neck * s, (eng ? 0.01 : 0.018) * s, 5, 24), t); gt.rotation.x = Math.PI / 2; up.add(at(gt, 0, 2.35 * s, -0.01 * s)); }
-    // (engraved: the gorget's foot is carried on down as a yoke of plate over the top of the chest and in under the
-    // breastplate's top edge, so no seam stands open between the two)
-    if (eng) up.add(sm(shellGeometry(tr, 2.13, 1.9, -1.1, 2.2, 1.105, 1.075, s, 16, 6), f.armor.color, true));
+    { const gg = sm(new THREE.CylinderGeometry(0.3 * fr.m.neck * s, 0.44 * fr.m.neck * s, 0.26 * s, 24, 1, true), f.armor.color, true); if (!eng) up.add(at(gg, 0, 2.22 * s, -0.01 * s)); // gorget: a flared collar of plate, edged at the top (engraved: shaped to the body, below)
+      const gt = sm(new THREE.TorusGeometry(0.3 * fr.m.neck * s, 0.018 * s, 5, 24), t); gt.rotation.x = Math.PI / 2; if (!eng) up.add(at(gt, 0, 2.35 * s, -0.01 * s)); }
     const plateK = 1.09, plateBump = (th: number, y: number) => 0.05 * Math.exp(-((y - 1.5) ** 2) / 0.08) * Math.max(0, Math.cos(th)) ** 2 + 0.03 * Math.max(0, Math.cos(th)) ** 12;
+    // (engraved: the gorget is shaped to the body, so no seam stands open under it. From its round rim its wall runs
+    // down to a foot that lies on the body all round: flaring onto the slope of the shoulders at the sides as plain
+    // plate's does, drawn in to the chest in front and to the back behind, where a round foot would stand out over
+    // them. Under its foot a collar of plate lies on the body: over the top of the breastplate in a bib, and a
+    // shallower one over the backplate, each no wider than the gap between the pauldrons, round at its foot and finely
+    // lined there. So nothing shows under the gorget from any side, however the arms are carried, and the collar
+    // passes under no pauldron. An arming collar stands round the root of the neck inside it, turning with the neck,
+    // over the line where the neck leaves the trunk)
+    if (eng) {
+      const zc = -0.01, wall = (y: number) => (0.44 - 0.14 * (y - 2.09) / 0.26) * fr.m.neck, yG = 2.09, X0 = fr.shoulderX - 0.266 * fr.arm, seg = 96, rows = 8, off = 0.012;
+      // a point of the plate under it at an angle round the gorget's axis, `d` proud of it (never out past where plain
+      // plate's gorget would stand, carried on down, nor out to where the pauldrons ride: there it runs into the shoulder)
+      const under = (al: number, y: number, d: number) => {
+        const r = ringAt(tr, y), e = (r.n ?? 2) / 2, sn = Math.sin(al), cs = Math.cos(al), th = Math.atan2(Math.sign(sn) * (Math.abs(sn) * (cs >= 0 ? r.f : r.b)) ** e, Math.sign(cs) * (Math.abs(cs) * r.w) ** e);
+        const [x1, z1] = ringPoint(r, th, 1), [x, z] = ringPoint(r, th, plateK * (1 + plateBump(th, y)) + d / Math.hypot(x1, z1)), q = bustWarp([x, y, z]), k = Math.min(1, (wall(q[1]) - 0.008) / (Math.hypot(q[0], q[2] - zc) || 1), (X0 + 0.03) / Math.max(Math.abs(q[0]), 1e-6));
+        return new THREE.Vector3(q[0] * k, q[1], zc + (q[2] - zc) * k);
+      };
+      // the collar's foot at each angle: as low as the bib's round reaches there, front and back
+      const footY = (al: number) => {
+        const deep = yG - (Math.cos(al) > 0 ? 1.85 : 1.9); let y = yG;
+        while (y > yG - deep) { const q = under(al, y - 0.005, off); if ((Math.abs(q.x) / X0) ** 5 + ((yG - (y - 0.005)) / deep) ** 5 > 1) break; y -= 0.005; }
+        return y;
+      };
+      const bib: number[] = [], gor: number[] = [], lined: boolean[] = [], top = new THREE.Vector3(), q = new THREE.Vector3();
+      for (let j = 0; j <= seg; j++) {
+        const al = j / seg * Math.PI * 2, fy = footY(al), foot = under(al, yG, 0.03); top.set(Math.sin(al) * 0.3 * fr.m.neck, 2.3395, zc + Math.cos(al) * 0.3 * fr.m.neck); // (to just under its rim)
+        for (let i = 0; i <= 4; i++) gor.push(...q.lerpVectors(top, foot, i / 4).multiplyScalar(s).toArray());
+        for (let i = 0; i <= rows; i++) bib.push(...under(al, yG + 0.03 + (fy - yG - 0.03) * i / rows, off).multiplyScalar(s).toArray());
+        lined.push(fy < yG - 0.03);
+      }
+      const turned = (pos: number[], n: number) => { const g: number[] = []; for (let i = 0; i < n; i++) for (let j = 0; j <= seg; j++) g.push(pos[(j * n + i) * 3], pos[(j * n + i) * 3 + 1], pos[(j * n + i) * 3 + 2]); return gridGeometry(g, seg + 1, n - 1); };
+      const gorget = sm(turned(gor, 5), f.armor.color, true), collar = sm(turned(bib, rows + 1), f.armor.color, true); up.add(gorget, collar);
+      up.add(wire(span(seg, (u) => new THREE.Vector3(Math.sin(u * Math.PI * 2) * 0.3 * fr.m.neck * s, 2.35 * s, (zc + Math.cos(u * Math.PI * 2) * 0.3 * fr.m.neck) * s)).slice(1), t, 0.01 * s, true)); // (its rim, finely lined)
+      // (once the figure stands as it will: where a pauldron, carried in over the shoulder with its arm, would still
+      // meet the gorget's foot or the collar, they give way under it into the shoulder; then the fine line along each
+      // bib's foot, its ends run up under the gorget)
+      afterHung.push(() => {
+        const cp = collar.geometry.getAttribute('position'), half = seg / 2, was = Array.from({ length: seg }, (_, j) => new THREE.Vector3().fromBufferAttribute(cp, rows * (seg + 1) + j));
+        for (const m of [gorget, collar]) for (const c of caps) giveWay(m, seg + 1, c, 0.012 * s, 0.12 * s);
+        for (const from of [half / 2, half / 2 + half]) {
+          const pts: THREE.Vector3[] = [];
+          for (let n = 0; n < half; n++) { const j = (from + n) % seg; const w = new THREE.Vector3().fromBufferAttribute(cp, rows * (seg + 1) + j), r = Math.hypot(w.x, w.z); w.x *= 1 + 0.008 * s / r; w.z *= 1 + 0.008 * s / r; if (lined[j] && was[j].distanceTo(new THREE.Vector3().fromBufferAttribute(cp, rows * (seg + 1) + j)) < 0.002 * s) pts.push(w); } // (not where the foot gave way)
+          if (pts.length > 3) up.add(wire(pts, t, 0.007 * s));
+        }
+      });
+      neck.add(sm(shellGeometry(neckRings(fr), 0.12, -0.05, 0, Math.PI * 2, 1.07, 1.07, s, 24, 3), f.armor.color, true));
+    }
     // the breastplate's bands: rims lying on its curve across the front
     const onPlate = (y: number, a: number) => { const r = ringAt(tr, y), [x, z] = ringPoint(r, a, plateK * (1 + plateBump(a, y)) + 0.012), q = bustWarp([x, y, z]); return new THREE.Vector3(q[0] * s, y * s, q[2] * s); };
     if (!eng) for (const [y, a, rr] of [[1.5, 1.05, 0.035], [0.95, 0.75, 0.028]] as const) { const pts: THREE.Vector3[] = []; for (let i = 0; i <= 12; i++) pts.push(onPlate(y, -a + 2 * a * i / 12)); up.add(tube(pts, rr * s, t)); }
