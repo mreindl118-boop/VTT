@@ -286,10 +286,12 @@ export interface HeroFigure {
   /** 'stand': the shirt (see `shirt`) fitted on the chest with its buttons down the front, and a high stand collar open
    *  at the throat, its points standing up, in place of the plain collar and placket. */
   shirtCollar?: 'stand';
+  /** A halo of light in this colour (a darker colour is a fainter, more golden light): one ring of thin broken arcs wide
+   *  of the head, set on the head and turning with it. A fallen body has none. */
   halo?: string;
-  /** Two spectral wings of soft light rising from the shoulder blades, feathered (an aasimar's transformation): their
-   *  colour, the tint of the feathers' tips (default the colour), and how strongly they glow (default 0.5). Wider in a
-   *  battle stance; a fallen body has none. */
+  /** Two great spectral wings of soft light behind the shoulder blades, feathered (an aasimar's transformation): their
+   *  colour, the tint of the feathers' tips (default the colour), and how strongly they glow (default 0.5). Alike on both
+   *  sides; wider and swept further back in a battle stance; a fallen body has none. */
   spiritWings?: { color: string; rim?: string; opacity?: number };
   crown?: { color: string; flower?: string };
   /** A wreath in place of a crown's tall twigs: thorny twigs woven low round the head, small leaves (`leaf`) along them and
@@ -2118,8 +2120,9 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
       up.add(g);
     } });
   }
-  // light, not matter (a halo, spectral wings): strips that add their glow to what lies behind them, each brightest along
-  // its middle and fading to nothing at its edges, so no part of it has a hard edge
+  // light, not matter (a halo, spectral wings): strips that brighten what lies behind them, each brightest along its
+  // middle and fading to nothing at its edges, so no part of it has a hard edge. Light over light grows brighter but
+  // never burns out to white (each strip lights only what is still dark behind it)
   const lightStrips = () => {
     const pos: number[] = [], col: number[] = [], idx: number[] = [];
     // a strip of `n` steps along `mid(t)`, reaching `half(t)` to either side of it, `glow(t)` its colour along the middle
@@ -2128,59 +2131,75 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
       for (let i = 0; i <= n; i++) { const t = i / n, p = mid(t), h = half(t), c = glow(t); pos.push(p.x - h.x, p.y - h.y, p.z - h.z, p.x, p.y, p.z, p.x + h.x, p.y + h.y, p.z + h.z); col.push(0, 0, 0, c.r, c.g, c.b, 0, 0, 0); }
       for (let i = 0; i < n; i++) for (const o of [0, 1]) { const a = b + i * 3 + o; idx.push(a, a + 3, a + 1, a + 1, a + 3, a + 4); }
     };
+    // a thread of light along `mid(t)`, `r` thick: three strips crossed about its line, so it is as wide from every side
+    // and never shows a flat face or vanishes edge-on
+    const thread = (n: number, mid: (t: number) => THREE.Vector3, r: number, glow: (t: number) => THREE.Color) => {
+      for (let k = 0; k < 3; k++) strip(n, mid, (t) => {
+        const along = mid(Math.min(1, t + 0.01)).sub(mid(Math.max(0, t - 0.01))).normalize();
+        const side = new THREE.Vector3(0, 0, 1).cross(along);
+        return (side.lengthSq() > 0.04 ? side : side.crossVectors(Y_AXIS, along)).normalize().applyAxisAngle(along, k * Math.PI / 3).multiplyScalar(r);
+      }, glow);
+    };
     const mesh = () => {
       const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3)); g.setIndex(idx);
-      const m = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ vertexColors: true, blending: THREE.AdditiveBlending, transparent: true, depthWrite: false, side: THREE.DoubleSide, fog: false }));
+      const m = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ vertexColors: true, blending: THREE.CustomBlending, blendSrc: THREE.OneFactor, blendDst: THREE.OneMinusSrcColorFactor, transparent: true, depthWrite: false, side: THREE.DoubleSide, fog: false }));
       m.material.userData.keepLook = true; m.userData.keepLook = true; return m;
     };
-    return { strip, mesh };
+    return { strip, thread, mesh };
   };
   const fadeEnds = (t: number) => Math.sin(Math.PI * t) ** 0.7;
   if (f.halo && !dead) {
-    // a halo of light, not of metal: a few thin, broken arcs of soft gold round the back of the head, a fainter glow about
-    // each and a few more beyond them, tiny sparkles between; open below, where the hair falls. Each arc is two strips
-    // crossed, one in the halo's plane and one across it, so it shows from above and from the side as from the front
-    const L = lightStrips(), c = new THREE.Color(f.halo), hp = new THREE.Vector3(0, hy + 0.3 * s, -0.42 * s), Z = new THREE.Vector3(0, 0, 1);
-    const round = (a: number, r: number) => new THREE.Vector3(Math.sin(a) * r * s, Math.cos(a) * r * s, 0), tint = (k: number) => c.clone().multiplyScalar(k);
-    for (const [a0, a1, r, k] of [[-2.05, -1.2, 0.62, 0.8], [-1.0, -0.12, 0.64, 0.7], [0.1, 0.78, 0.61, 0.8], [0.98, 2.1, 0.63, 0.7], [-1.55, -0.6, 0.77, 0.3], [0.35, 1.4, 0.76, 0.3]]) {
-      const mid = (t: number) => hp.clone().add(round(a0 + (a1 - a0) * t, r)), n = Math.ceil((a1 - a0) * 14);
-      for (const [w, q] of [[0.028, 1], [0.12, 0.3]]) {
-        L.strip(n, mid, (t) => round(a0 + (a1 - a0) * t, w), (t) => tint(k * q * fadeEnds(t)));
-        if (q === 1) L.strip(n, mid, () => Z.clone().multiplyScalar(w * s), (t) => tint(k * 0.7 * fadeEnds(t)));
-      }
+    // a halo of light, not of metal: one ring of thin, broken arcs of faint gold standing wide of the head behind it, each
+    // a thread of light fading out at its ends with a fainter glow about it, no two arcs quite in one plane, and three
+    // small soft sparks where arcs end; open below, where the hair falls. It is tipped back a little and set on the head
+    // (see below), so it turns as the head turns
+    const L = lightStrips(), c = new THREE.Color(f.halo), tint = (k: number) => c.clone().multiplyScalar(k);
+    const round = (a: number, r: number, z = 0) => new THREE.Vector3(Math.sin(a) * r * s, Math.cos(a) * r * s, z * s);
+    for (const [a0, a1, r, z] of [[-2.0, -1.22, 0.79, 0.03], [-1.04, -0.2, 0.77, -0.04], [-0.02, 0.6, 0.8, 0.02], [0.8, 1.5, 0.78, -0.05], [1.68, 2.04, 0.79, 0.04]]) {
+      const ang = (t: number) => a0 + (a1 - a0) * t, mid = (t: number) => round(ang(t), r, z + 0.03 * Math.sin(Math.PI * t)), n = Math.ceil((a1 - a0) * 12);
+      L.thread(n, mid, 0.02 * s, (t) => tint(0.34 * fadeEnds(t)));
+      L.strip(n, mid, (t) => round(ang(t), 0.09), (t) => tint(0.14 * fadeEnds(t)));
     }
-    for (const [a, r, len] of [[-1.1, 0.7, 0.16], [-0.02, 0.72, 0.2], [0.87, 0.55, 0.13], [1.75, 0.74, 0.15], [-1.8, 0.52, 0.1], [0.55, 0.86, 0.11]]) { // sparkles: tiny four-pointed stars
-      const at0 = hp.clone().add(round(a, r));
-      for (const d of [new THREE.Vector3(1, 0, 0), new THREE.Vector3(0, 1, 0)]) L.strip(4, (t) => at0.clone().addScaledVector(d, (t - 0.5) * len * s), () => new THREE.Vector3(d.y, d.x, 0).multiplyScalar(0.018 * s), (t) => tint(0.9 * fadeEnds(t) ** 2));
-    }
-    up.add(L.mesh());
+    for (const [a, r, z] of [[-1.22, 0.79, 0.03], [0.6, 0.8, 0.02], [1.68, 0.79, 0.04]]) L.thread(4, (t) => round(a + (t - 0.5) * 0.1, r, z), 0.04 * s, (t) => tint(0.45 * Math.sin(Math.PI * t) ** 2)); // the sparks: soft motes
+    const halo = L.mesh(); halo.name = 'halo'; halo.position.set(0, hy + 0.14 * s, -0.34 * s); halo.rotation.x = -0.2; up.add(halo);
   }
-  // spectral wings: two feathered wings of light rising from the shoulder blades, up and out (wider in a fight): along
-  // each wing's arm a row of long primaries fanning from the tip round to the wrist, secondaries hanging from the forearm,
-  // and two rows of coverts over their roots; each feather a strip of light, faint at its root and fading out at its tip,
-  // the wing fading to nothing where it meets the back
+  // spectral wings: two great feathered wings of soft light rising behind the shoulder blades, up and out (wider in a
+  // fight): along each wing's arm a row of long primaries fanning from the tip round to the wrist and secondaries hanging
+  // from the forearm, two rows of coverts over their roots, and a broad faint glow under them all, so the wing is a body
+  // of light and not blades. Each feather is a broad strip of light with a round tip, faint at its root, brightest before
+  // its middle and fading from there; the wing fades to nothing toward the back. The two wings are alike: each a cupped
+  // sheet, standing a little off the back and curving further back toward its tip, so that it rises between the back
+  // and a weapon slung across it and is never one flat plane to the eye
   if (f.spiritWings && !dead) {
-    const W = f.spiritWings, c = new THREE.Color(W.color), rim = new THREE.Color(W.rim ?? W.color), op = W.opacity ?? 0.5, e = 0.82;
-    const slung = !battle && f.stow !== false && (f.weapon === 'axe' || f.weapon === 'spear' || f.weapon === 'sword');
-    // the wing's own plane (out from the spine, up), swept back from the shoulder blade: hardly at all on the right where
-    // a weapon is slung across the back, its head over that shoulder, the wing rising between the back and it
-    const zb = -(ringAt(tr, 1.8).b + 0.16);
+    const W = f.spiritWings, c = new THREE.Color(W.color), rim = new THREE.Color(W.rim ?? W.color), op = W.opacity ?? 0.5, e = 1.05;
+    // (the sheet is swept back from its root, except where a weapon slung across the back leaves it only the cupped curve)
+    const zb = -(ringAt(tr, 1.8).b + 0.38), slung = !battle && f.stow !== false && (f.weapon === 'axe' || f.weapon === 'spear' || f.weapon === 'sword'), sweep = slung ? 0 : 0.3;
     const wrist = battle ? [1.65, 1.0] : [1.3, 1.45], tip = battle ? [2.55, 1.2] : [1.95, 1.85], fan = battle ? [0.3, -1.3] : [0.62, -1.38];
+    // a point along the wing's arm (`t` from the shoulder blade past the wrist at 0.6 to the tip), and the flight feather
+    // that grows there: its angle in the wing's sheet and its length
+    const arm = (t: number): [number, number] => t < 0.6 ? [wrist[0] * t / 0.6, wrist[1] * t / 0.6] : [wrist[0] + (tip[0] - wrist[0]) * (t - 0.6) / 0.4, wrist[1] + (tip[1] - wrist[1]) * (t - 0.6) / 0.4];
+    const quill = (t: number): [number, number] => { const q = t < 0.6 ? Math.max(0, 0.56 - t) / 0.44 : (1 - t) / 0.4; return t < 0.6 ? [-1.4 - 0.3 * q, 1.55 - 0.5 * q] : [fan[0] + (fan[1] - fan[0]) * q, 1.95 - 0.35 * q]; };
     for (const sx of [RX, LX]) {
-      const L = lightStrips(), sweep = slung && sx === RX ? 0.06 : 0.34;
-      const P3 = (u: number, v: number, lift = 0) => new THREE.Vector3(sx * (0.26 + u * e * Math.cos(sweep)) * s, (1.8 + v * e) * s, (zb - u * e * Math.sin(sweep) + lift) * s);
-      const arm = (t: number): [number, number] => t < 0.6 ? [wrist[0] * t / 0.6, wrist[1] * t / 0.6] : [wrist[0] + (tip[0] - wrist[0]) * (t - 0.6) / 0.4, wrist[1] + (tip[1] - wrist[1]) * (t - 0.6) / 0.4];
+      const L = lightStrips();
+      // the sheet: `u` out from the wing's root beside the spine and `v` up, `lift` off it toward the body; it falls away
+      // behind as it goes out, the more the further, and leans forward as it rises
+      const P3 = (u: number, v: number, lift = 0) => { const d = u * e; return new THREE.Vector3(sx * (0.26 + d) * s, (1.8 + v * e) * s, (zb - sweep * d - 0.05 * d ** 2 - 0.012 * d ** 3 + 0.08 * v * e + lift) * s); };
       const feather = (t: number, ang: number, len: number, w: number, k: number, lift: number) => {
-        const [u0, v0] = arm(t), du = Math.cos(ang), dv = Math.sin(ang), near = (x: number) => Math.min(1, Math.max(0, (u0 + du * len * x - 0.25) / 0.5));
-        L.strip(5, (x) => P3(u0 + du * len * x, v0 + dv * len * x, lift), (x) => { const h = w * (0.3 + 0.7 * Math.sin(Math.PI * Math.min(1, x * 1.2 + 0.1)) ** 0.8) * e * s; return P3(-dv, du).sub(P3(0, 0)).normalize().multiplyScalar(h); },
-          (x) => c.clone().lerp(rim, x * x).multiplyScalar(op * k * (0.35 + 0.65 * x) * (1 - x ** 5) * near(x)));
+        const [u0, v0] = arm(t), du = Math.cos(ang), dv = Math.sin(ang), x = (i: number) => 1 - (1 - i) ** 1.6, near = (x: number) => Math.min(1, Math.max(0, (u0 + du * len * x - 0.4) / 1.2));
+        // (its half width: narrow at the root, full from a third of its length, rounded off at the tip; never reaching in past the wing's root)
+        const wide = (x: number) => Math.min(0.9 * (u0 + du * len * x), w * (x < 0.78 ? 0.5 + 0.5 * Math.min(1, x / 0.3) : Math.sqrt(Math.max(0, 1 - ((x - 0.78) / 0.22) ** 2))));
+        L.strip(8, (i) => P3(u0 + du * len * x(i), v0 + dv * len * x(i), lift), (i) => P3(u0 + du * len * x(i) - dv * wide(x(i)), v0 + dv * len * x(i) + du * wide(x(i)), lift).sub(P3(u0 + du * len * x(i), v0 + dv * len * x(i), lift)),
+          (i) => c.clone().lerp(rim, 0.7 * x(i) ** 2).multiplyScalar(op * k * Math.min(1, 0.1 + x(i) / 0.4) * (1 - Math.max(0, (x(i) - 0.45) / 0.55) ** 2) * near(x(i))));
       };
-      for (let i = 0; i < 9; i++) { const q = i / 8; feather(1 - 0.4 * q, fan[0] + (fan[1] - fan[0]) * q, 1.95 - 0.35 * q, 0.16, 1, 0); }                 // primaries
-      for (let i = 0; i < 8; i++) { const q = i / 7; feather(0.56 - 0.44 * q, -1.4 - 0.3 * q, 1.55 - 0.5 * q, 0.17, 0.9, 0.01); }                      // secondaries
-      for (let i = 0; i < 11; i++) { const q = i / 10; feather(0.97 - 0.85 * q, fan[0] - 0.5 + (fan[1] - 0.25 - fan[0] + 0.5) * Math.min(1, q * 1.6), 0.85 - 0.2 * q, 0.1, 0.8, 0.02); } // the greater coverts
-      for (let i = 0; i < 9; i++) { const q = i / 8; feather(0.92 - 0.78 * q, fan[0] - 0.7 + (fan[1] - 0.2 - fan[0] + 0.7) * Math.min(1, q * 1.5), 0.45, 0.08, 0.9, 0.03); }             // the lesser coverts
-      L.strip(12, (t) => P3(...arm(0.12 + 0.88 * t), 0.03), (t) => new THREE.Vector3(0, 0.07 * e * s * fadeEnds(Math.min(1, t + 0.2)), 0), (t) => c.clone().multiplyScalar(op * 1.1 * Math.min(1, t * 3) * (1 - t ** 4))); // the wing's arm
-      up.add(L.mesh());
+      for (let i = 0; i < 9; i++) { const t = 1 - 0.4 * i / 8; feather(t, ...quill(t), 0.3, 0.5, 0); }                                                      // primaries
+      for (let i = 0; i < 7; i++) { const t = 0.56 - 0.44 * i / 6; feather(t, ...quill(t), 0.3, 0.45, 0); }                                                 // secondaries
+      for (let i = 0; i < 9; i++) { const q = i / 8; feather(0.97 - 0.85 * q, fan[0] - 0.5 + (fan[1] - 0.25 - fan[0] + 0.5) * Math.min(1, q * 1.6), 0.9 - 0.2 * q, 0.2, 0.22, 0.03); } // the greater coverts
+      for (let i = 0; i < 7; i++) { const q = i / 6; feather(0.92 - 0.78 * q, fan[0] - 0.7 + (fan[1] - 0.2 - fan[0] + 0.7) * Math.min(1, q * 1.5), 0.5, 0.17, 0.22, 0.06); }           // the lesser coverts
+      // the glow under the feathers, from the arm to their tips, brightest halfway
+      const reach = (t: number, x: number) => { const [u0, v0] = arm(t), [ang, len] = quill(t); return P3(u0 + Math.cos(ang) * len * x, v0 + Math.sin(ang) * len * x, -0.04); };
+      L.strip(16, (t) => reach(0.1 + 0.9 * t, 0.5), (t) => reach(0.1 + 0.9 * t, 0.98).sub(reach(0.1 + 0.9 * t, 0.5)), (t) => c.clone().multiplyScalar(op * 0.45 * Math.min(1, t * 2.5)));
+      L.strip(12, (t) => P3(...arm(0.12 + 0.88 * t), 0.06), (t) => new THREE.Vector3(0, 0.08 * e * s * fadeEnds(Math.min(1, t + 0.2)), 0), (t) => c.clone().multiplyScalar(op * 0.35 * Math.min(1, t * 3) * (1 - t ** 4))); // the wing's arm
+      const wing = L.mesh(); wing.name = 'spiritWing'; up.add(wing);
     }
   }
   if (f.crown) {

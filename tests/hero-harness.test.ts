@@ -2,7 +2,8 @@
 // wings (kit/heroes.ts), on generic stand-in figures: each part is built, plate that sets none of the options is cut as
 // it was, the harness stays as clean as plain plate in every frame it is shown in (each stance, each named pose, each
 // at-ease variant, at rest), a fist rested on the hip lies on the girdle and not in it, and the light is see-through,
-// stands clear of the body and of a weapon slung on the back, and is gone on a fallen body.
+// faint, never flat to the eye, clear of the body and of a weapon slung on the back, and gone on a fallen body; the halo
+// is one ring set on the head.
 import { describe, expect, it } from 'vitest';
 import * as THREE from 'three';
 import { AT_EASE, heroFigure, POSES, type HeroFigure } from '../app/src/kit/heroes';
@@ -13,7 +14,37 @@ const PLAIN: HeroFigure = { frame: 'feminine', build: 'broad', armor: { kind: 'p
 const HARNESS: HeroFigure = { ...PLAIN, armor: { ...PLAIN.armor!, knotwork: '#aab0b8', corset: { color: '#2a211d', belts: '#5c3f2a' }, emblem: 'helm' } };
 const meshes = (g: THREE.Object3D) => { const out: THREE.Mesh[] = []; g.updateMatrixWorld(true); g.traverse((o) => { if ((o as THREE.Mesh).isMesh) out.push(o as THREE.Mesh); }); return out; };
 const garments = (g: THREE.Object3D) => meshes(g).map((m) => m.userData.garment as string | undefined).filter(Boolean).sort();
-const lights = (g: THREE.Object3D) => meshes(g).filter((m) => (m.material as THREE.Material).blending === THREE.AdditiveBlending && !!m.geometry.getAttribute('color'));
+/** The meshes of light: they brighten what lies behind them and never darken it, and many of them over one another never burn out to white. */
+const lights = (g: THREE.Object3D) => meshes(g).filter((m) => { const mt = m.material as THREE.Material; return mt.blending === THREE.CustomBlending && mt.blendSrc === THREE.OneFactor && mt.blendDst === THREE.OneMinusSrcColorFactor && !!m.geometry.getAttribute('color'); });
+const wingsOf = (g: THREE.Object3D) => lights(g).filter((m) => m.name === 'spiritWing');
+/** The vertices of a mesh of light that lie on a lit strip (its middle line glows), in a joint's frame. */
+function litPoints(m: THREE.Mesh, frame: THREE.Object3D): THREE.Vector3[] {
+  const col = m.geometry.getAttribute('color'), lit = (i: number) => { const j = 3 * Math.floor(i / 3) + 1; return col.getX(j) + col.getY(j) + col.getZ(j) > 0.02; };
+  return points([m], frame).filter((_, i) => lit(i));
+}
+/** Whether the segment a-b passes through the triangle t. */
+function crosses(a: THREE.Vector3, b: THREE.Vector3, t: THREE.Vector3[]): boolean {
+  const d = b.clone().sub(a), e1 = t[1].clone().sub(t[0]), e2 = t[2].clone().sub(t[0]), pv = d.clone().cross(e2), det = e1.dot(pv);
+  if (Math.abs(det) < 1e-12) return false;
+  const tv = a.clone().sub(t[0]), u = tv.dot(pv) / det, qv = tv.clone().cross(e1), v = d.dot(qv) / det, w = e2.dot(qv) / det;
+  return u >= 0 && v >= 0 && u + v <= 1 && w > 0 && w < 1;
+}
+/** The triangles of a mesh, in the world. */
+function triangles(m: THREE.Mesh): THREE.Vector3[][] {
+  const pos = m.geometry.getAttribute('position'), idx = m.geometry.index, n = (idx ? idx.count : pos.count) / 3, out: THREE.Vector3[][] = [];
+  for (let t = 0; t < n; t++) out.push([0, 1, 2].map((k) => new THREE.Vector3().fromBufferAttribute(pos, idx ? idx.getX(t * 3 + k) : t * 3 + k).applyMatrix4(m.matrixWorld)));
+  return out;
+}
+/** How many triangles of the meshes of light pass through a solid triangle of the figure, or are passed through by one. */
+function lightCrossings(g: THREE.Object3D): number {
+  const solid = meshes(g).filter((m) => !(m.material as THREE.Material).transparent).map((m) => { const tris = triangles(m).map((t) => ({ t, box: new THREE.Box3().setFromPoints(t) })); return { tris, box: tris.reduce((b, x) => b.union(x.box), new THREE.Box3()) }; });
+  let n = 0;
+  for (const l of lights(g)) for (const lt of triangles(l)) {
+    const lb = new THREE.Box3().setFromPoints(lt);
+    for (const sd of solid) if (sd.box.intersectsBox(lb)) for (const { t, box } of sd.tris) if (box.intersectsBox(lb) && [0, 1, 2].some((k) => crosses(lt[k], lt[(k + 1) % 3], t) || crosses(t[k], t[(k + 1) % 3], lt))) n++;
+  }
+  return n;
+}
 const joint = (g: THREE.Object3D, name: string) => g.getObjectByName(name)!;
 const colours = (g: THREE.Object3D) => new Set(meshes(g).map((m) => '#' + (m.material as THREE.MeshLambertMaterial).color?.getHexString()));
 /** Each vertex of some meshes, in a joint's frame. */
@@ -179,7 +210,7 @@ describe('a halo and spectral wings of light', () => {
 
   it('spread wider in a fight, and stand clear behind the back and a weapon slung on it', () => {
     const span = (st: 'rest' | 'battle') => {
-      const g = heroFigure(ANGEL, 'medium', st), chest = joint(g, 'chest'), wings = lights(g).slice(1);
+      const g = heroFigure(ANGEL, 'medium', st), chest = joint(g, 'chest'), wings = wingsOf(g);
       const pts = points(wings, chest), slung = g.getObjectByName('stowed');
       const back = Math.min(...points(meshes(chest).filter((m) => m.userData.skin), chest).map((p) => p.z));
       const rear = slung ? Math.min(...points(meshes(slung), chest).map((p) => p.z)) : back;
@@ -191,12 +222,58 @@ describe('a halo and spectral wings of light', () => {
     expect(rest.rear).toBeLessThan(rest.back - 0.2);
     for (const w of [rest, battle]) { expect(w.front).toBeLessThan(w.back - 0.05); expect(w.inner).toBeGreaterThan(0.2); } // (behind the back, either side of the spine)
     // (every lit point of the wings near the axe, seen from behind, lies in front of it)
-    const g = heroFigure(ANGEL, 'medium', 'rest'), chest = joint(g, 'chest'), axe = points(meshes(g.getObjectByName('stowed')!), chest);
-    for (const m of lights(g).slice(1)) {
-      const col = m.geometry.getAttribute('color'), pts = points([m], chest).filter((_, i) => col.getX(i) + col.getY(i) + col.getZ(i) > 0.05);
+    const g = heroFigure(ANGEL, 'medium', 'rest'), chest = joint(g, 'chest');
+    g.updateMatrixWorld(true); // (every joint placed before any is read)
+    const axe = points(meshes(g.getObjectByName('stowed')!), chest);
+    expect(axe.length).toBeGreaterThan(100);
+    for (const m of wingsOf(g)) {
+      const pts = litPoints(m, chest);
       expect(pts.length).toBeGreaterThan(100);
       for (const p of pts) for (const q of axe) if (Math.hypot(p.x - q.x, p.y - q.y) < 0.3) expect(p.z - q.z).toBeGreaterThan(0.02);
     }
+  });
+
+  it('the halo is one ring of thin, faint, broken arcs wide of the head, set on the head and turning with it', () => {
+    const g = heroFigure(ANGEL, 'medium', 'rest'), halo = g.getObjectByName('halo') as THREE.Mesh, head = joint(g, 'head');
+    expect(halo.parent).toBe(head);
+    // the lit middle of every strip, in the halo's own frame: its place and how brightly it glows
+    const pos = halo.geometry.getAttribute('position'), col = halo.geometry.getAttribute('color');
+    const mids = [...Array(pos.count / 3).keys()].map((i) => ({ p: new THREE.Vector3().fromBufferAttribute(pos, 3 * i + 1), glow: Math.max(col.getX(3 * i + 1), col.getY(3 * i + 1), col.getZ(3 * i + 1)) })).filter((m) => m.glow > 0.02);
+    const radii = mids.map((m) => Math.hypot(m.p.x, m.p.y)), zs = mids.map((m) => m.p.z);
+    expect(Math.max(...radii) - Math.min(...radii)).toBeLessThan(0.08); // (one ring)
+    expect(Math.max(...zs) - Math.min(...zs)).toBeGreaterThan(0.08);    // (its arcs not in one plane: no bar seen edge-on)
+    expect(Math.min(...mids.map((m) => m.p.y))).toBeGreaterThan(-0.6 * Math.min(...radii)); // (open below, where the hair falls)
+    expect(Math.max(...mids.map((m) => m.glow))).toBeLessThan(0.5);     // (faint: nowhere near white)
+    // (wide of the head and the hair: clear of every solid point of them, seen along the halo's axis)
+    const skull = points(meshes(head).filter((m) => m !== halo), halo).filter((p) => Math.abs(p.z) < 0.45);
+    expect(Math.min(...radii)).toBeGreaterThan(Math.max(...skull.map((p) => Math.hypot(p.x, p.y))) + 0.1);
+    // (each arc is a thread, as wide seen across the ring as along its axis)
+    const reach = (axis: (p: THREE.Vector3) => number) => { let w = 0; for (let i = 0; i < pos.count; i += 3) if (col.getX(i + 1) > 0.25) w = Math.max(w, Math.abs(axis(new THREE.Vector3().fromBufferAttribute(pos, i)) - axis(new THREE.Vector3().fromBufferAttribute(pos, i + 1)))); return w; };
+    expect(reach((p) => p.z)).toBeGreaterThan(0.012); expect(reach((p) => Math.hypot(p.x, p.y))).toBeGreaterThan(0.012);
+    // a turn of the head carries it round: the same place on the head, another place in the world
+    const turned = heroFigure({ ...ANGEL, pose: { neck: [0, 0.6, 0] } }, 'medium', 'rest'), halo2 = turned.getObjectByName('halo')!;
+    g.updateMatrixWorld(true); turned.updateMatrixWorld(true);
+    expect(halo2.parent).toBe(joint(turned, 'head'));
+    expect(halo2.position.distanceTo(halo.position)).toBeLessThan(1e-6);
+    expect(halo2.getWorldPosition(new THREE.Vector3()).distanceTo(halo.getWorldPosition(new THREE.Vector3()))).toBeGreaterThan(0.1);
+  });
+
+  it('the wings are alike on both sides, faint, and cupped: neither is one flat plane', () => {
+    for (const st of ['rest', 'battle'] as const) {
+      const g = heroFigure(ANGEL, 'medium', st), chest = joint(g, 'chest'), [a, b] = wingsOf(g), pa = points([a], chest), pb = points([b], chest);
+      expect(pa.length).toBe(pb.length);
+      for (const [i, p] of pa.entries()) expect(p.distanceTo(new THREE.Vector3(-pb[i].x, pb[i].y, pb[i].z)), st).toBeLessThan(1e-6);
+      const col = a.geometry.getAttribute('color');
+      for (let i = 0; i < col.count; i++) expect(Math.max(col.getX(i), col.getY(i), col.getZ(i))).toBeLessThan(0.3);
+      // (off the plane through its lowest, highest and outermost lit points)
+      const lit = litPoints(a, chest), far = (f: (p: THREE.Vector3) => number) => lit.reduce((m, p) => (f(p) > f(m) ? p : m));
+      const plane = new THREE.Plane().setFromCoplanarPoints(far((p) => -p.y), far((p) => p.y), far((p) => Math.abs(p.x)));
+      expect(Math.max(...lit.map((p) => Math.abs(plane.distanceToPoint(p)))), st).toBeGreaterThan(0.15);
+    }
+  });
+
+  it('pass through nothing solid: not the body, the armour, the hair or a weapon slung on the back', () => {
+    for (const st of ['rest', 'battle'] as const) expect(lightCrossings(heroFigure(ANGEL, 'medium', st)), st).toBe(0);
   });
 
   it('keep the figure as clean as it is without them', () => {

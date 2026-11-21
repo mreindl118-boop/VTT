@@ -104,11 +104,15 @@ flat relief. None of the three changes plate that
 does not set it. A corset's coat skirt is not yet listed among what a cloak hangs over, so a corseted harness under a
 cloak is untried.
 
-`halo` is light, not metal: a few thin broken arcs of its colour round the back of the head with a faint glow about
-them and tiny sparkles, open below where the hair falls. `spiritWings` (`{color, rim, opacity}`) are two feathered
-wings of the same kind of light rising from the shoulder blades (primaries, secondaries and two rows of coverts, each
-feather fading out at its tip, the wing fading to nothing where it meets the back): wider in a battle stance, rising
-between the back and a weapon slung on it, and gone on a fallen body. They are made for a `transform` (an aasimar's wings).
+`halo` is light, not metal: one ring of thin, broken arcs of its colour standing wide of the head behind it, each a
+thread of faint light fading out at its ends, with three small soft sparks where arcs end; it is open below where the
+hair falls, tipped back a little, and set on the head, so it turns as the head turns. A darker colour gives a fainter,
+more golden halo. `spiritWings` (`{color, rim, opacity}`) are two great feathered wings of the same kind of light
+behind the shoulder blades (broad round-tipped primaries and secondaries, two rows of coverts and a faint glow under
+them, each feather fading from its middle, the wing fading to nothing toward the back): alike on both sides, each a
+cupped sheet that curves back toward its tip, wider and swept further back in a battle stance, rising between the back
+and a weapon slung on it, and gone on a fallen body. Light laid over light grows brighter but never burns out to white.
+They are made for a `transform` (an aasimar's wings).
 
 Finer outfit pieces, each built only when its field is set: `chainShirt` (`{under}`, with mail armour: the mail is cut
 as a chain shirt, fitted, hanging straight to the hips with an uneven hem, short sleeves and a V at the neck that shows
