@@ -67,6 +67,18 @@ so they lift and swing with the arm), a gorget, tassets, knee guards and greaves
 over the deltoid. A satchel's strap runs over the left shoulder down to the bag on the right hip; an orb is held out on
 the palm; a wisp rises from the top of a book carried shut.
 
+Tailoring: `coatCut` (`frock`: with `coat`, a tailored frock coat in place of the plain tails and lapels: fronts made on
+the chest and fastened by one button at the waist, skirts hung from the waist to mid-thigh with flap pockets and a back
+vent, peaked lapels and a collar in the coat's `lapel` colour, turned-back cuffs with buttons), `coatEmbroidery` (a
+thread colour: a border and a vine on each lapel of a frock coat, a line round each cuff), `lapelPin` (a crescent-moon
+pin on a frock coat's left lapel), `waistcoat` (`{color, buttons, chain, fob}`: buttoned to two points below the waist;
+`chain` a watch chain in two swags, `fob` a crystal hanging from it), `shirtCollar` (`stand`: with `shirt`, a shirt
+front fitted on the chest and a high stand collar open at the throat, in place of the plain collar and placket),
+`trousers` (a colour: wide-leg trousers with a pressed crease, their hems over the boots). These lie on the chest of any
+frame, over a bust or a chest's muscle, and move with the bust. Wings are an insect's: narrow at the root, drawn to a
+point, with a net of veins and a glowing rim (`wingRim`); `wingSheen` (a list of colours) shifts the membrane through
+those colours across each wing.
+
 Faces are smooth (cranium, jaw, cheekbones, a nose with a tip, eyes with whites, irises and pupils under a lid, brows
 and lips; `lips` sets their colour) and hair is a smooth cap with its style on top. More parts: `gauntlets`, `clasps`
 (cloak brooches), `bodice` (`{color, lacing}`), `puffSleeves`, `wingRim`, `gownTrim` (with `skirt` and `underskirt`,
