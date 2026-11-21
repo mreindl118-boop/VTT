@@ -3493,12 +3493,16 @@ export function giveWay(m: THREE.Mesh, cols: number, gear: THREE.Object3D, clear
     for (let t = 0; t < nt; t++) { const [a, b, c] = [0, 1, 2].map((k) => new THREE.Vector3().fromBufferAttribute(p, ix ? ix.getX(t * 3 + k) : t * 3 + k).applyMatrix4(to)); if (tb.setFromPoints([a, b, c]).intersectsBox(near)) tris.push(new THREE.Triangle(a, b, c)); }
   });
   if (!tris.length) return;
+  // (the box round all those triangles only spares work: a vertex further from it than the ray reads and than `clear`
+  // has nothing to give way to, and a triangle of the cloth whose box keeps off it crosses none of them)
+  const all = new THREE.Box3(); for (const t of tris) all.expandByPoint(t.a).expandByPoint(t.b).expandByPoint(t.c);
   const P: THREE.Vector3[] = [], dir: THREE.Vector3[] = [], q = new THREE.Vector3(), w = new THREE.Vector3(), ray = new THREE.Ray();
   for (let i = 0; i < n; i++) { const p = new THREE.Vector3().fromBufferAttribute(pos, i); P.push(p); dir.push(new THREE.Vector3(-p.x, 0, -p.z).normalize()); }
   const gap = (p: THREE.Vector3) => { let d = Infinity; for (const t of tris) d = Math.min(d, t.closestPointToPoint(p, q).distanceToSquared(p)); return Math.sqrt(d); };
   // how far in each vertex must go by itself: past the gear where the gear lies inward of it, then on until it is clear
-  const need = new Float32Array(n), far = 0.6 * reach, step = clear / 4;
+  const need = new Float32Array(n), far = 0.6 * reach, step = clear / 4, aloof = 1.01 * Math.max(far, clear) + 1e-6;
   for (let i = 0; i < n; i++) {
+    if (all.distanceToPoint(P[i]) > aloof) continue;
     const room = Math.max(0, Math.hypot(P[i].x, P[i].z) - 2 * clear);
     let t0 = 0; ray.set(P[i], dir[i]);
     for (const t of tris) if (ray.intersectTriangle(t.a, t.b, t.c, false, q)) { const d = q.distanceTo(P[i]); if (d < far && d > t0) t0 = d; }
@@ -3509,9 +3513,10 @@ export function giveWay(m: THREE.Mesh, cols: number, gear: THREE.Object3D, clear
   const cross = (): number[] => {
     // (the cloth's triangles that cross one of the gear's: an edge of either through the other)
     const ix = geo.getIndex()!, hit: number[] = [], seg = (a: THREE.Vector3, b: THREE.Vector3, t: THREE.Triangle) => { const l = w.subVectors(b, a).length(); if (l < 1e-9) return false; ray.origin.copy(a); ray.direction.copy(w).divideScalar(l); const h = ray.intersectTriangle(t.a, t.b, t.c, false, q); return !!h && h.distanceTo(a) <= l; };
-    const A = new THREE.Vector3(), B = new THREE.Vector3(), C = new THREE.Vector3(), mine = new THREE.Triangle(A, B, C), box = new THREE.Box3();
+    const A = new THREE.Vector3(), B = new THREE.Vector3(), C = new THREE.Vector3(), mine = new THREE.Triangle(A, B, C), box = new THREE.Box3(), wide = all.clone().expandByScalar(1e-6);
     for (let k = 0; k < ix.count; k += 3) {
       A.fromBufferAttribute(pos, ix.getX(k)); B.fromBufferAttribute(pos, ix.getX(k + 1)); C.fromBufferAttribute(pos, ix.getX(k + 2)); box.setFromPoints([A, B, C]);
+      if (!box.intersectsBox(wide)) continue;
       for (const t of tris) { if (!box.intersectsTriangle(t)) continue; if (seg(A, B, t) || seg(B, C, t) || seg(C, A, t) || seg(t.a, t.b, mine) || seg(t.b, t.c, mine) || seg(t.c, t.a, mine)) { hit.push(ix.getX(k), ix.getX(k + 1), ix.getX(k + 2)); break; } }
     }
     return hit;
