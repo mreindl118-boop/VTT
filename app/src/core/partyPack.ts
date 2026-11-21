@@ -56,6 +56,7 @@ export interface PartyContext {
 const SIZES = new Set(['tiny', 'small', 'medium', 'large', 'huge', 'gargantuan']);
 const HEX = /^#[0-9a-f]{6}$/i;
 const PORTRAIT = /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/;
+const isObj = (v: unknown) => typeof v === 'object' && v !== null && !Array.isArray(v);
 const num = (v: unknown, lo: number, hi: number) => typeof v === 'number' && Number.isFinite(v) && v >= lo && v <= hi;
 
 /** Check a pack against this build. Errors drop a character (or the placement); warnings say what will differ. */
@@ -77,6 +78,7 @@ export function validatePartyPack(raw: unknown, ctx: PartyContext): { pack: Part
     }
     if (ch.portrait !== undefined && (typeof ch.portrait !== 'string' || !PORTRAIT.test(ch.portrait))) { warn(`${ch.name}: the portrait is not a PNG, JPEG or WebP data URL; the token shows the colour only.`); delete ch.portrait; }
     if (ch.light && !(num(ch.light.bright, 0, 300) && num(ch.light.dim, 0, 600))) { warn(`${ch.name}: the light needs bright and dim radii in feet; it was left off.`); delete ch.light; }
+    if (ch.figure?.transform !== undefined && !isObj(ch.figure.transform)) { warn(`${ch.name}: the miniature's transform must be an object of figure fields; it was left off.`); const { transform: _, ...figure } = ch.figure; ch.figure = figure; }
     ids.add(id); pack.characters.push(ch);
   }
   if (!pack.characters.length) err('The pack has no characters.');

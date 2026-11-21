@@ -62,16 +62,108 @@ Detail: `eyes` (a bright colour reads as a glow), `shirt` (collar and placket), 
 `buckle`, `earrings`, `markings` (marks on the face), `cloakTrim` (hem band and front edges), `tattered` (a ragged
 cloak hem), `satchel` (bag on a strap), `coat` (`{tails, lapel}`), `vials` (up to four colours at the belt), `sparkles`
 (motes drifting around the figure), `rolled` (shirt sleeves rolled to the elbow: bare forearms below a rolled cuff).
+With `rolled`, `rolledLow: true` brings the sleeve down over the elbow and seats one soft roll on the forearm just
+below the bend, so the roll follows a bent arm.
 Plate armour also gets layered pauldrons (a domed cap and two lames shaped to the upper arm, riding the shoulder joint
 so they lift and swing with the arm), a gorget, tassets, knee guards and greaves; mail is a shirt with short sleeves
 over the deltoid. A satchel's strap runs over the left shoulder down to the bag on the right hip; an orb is held out on
 the palm; a wisp rises from the top of a book carried shut.
+
+Tailoring: `coatCut` (`frock`: with `coat`, a tailored frock coat in place of the plain tails and lapels: fronts made on
+the chest and fastened by one button at the waist, skirts hung from the waist to mid-thigh with flap pockets and a back
+vent, peaked lapels and a collar in the coat's `lapel` colour, turned-back cuffs with buttons), `coatEmbroidery` (a
+thread colour: a border and a vine on each lapel of a frock coat, a line round each cuff), `lapelPin` (a crescent-moon
+pin on a frock coat's left lapel), `waistcoat` (`{color, buttons, chain, fob}`: buttoned to two points below the waist;
+`chain` a watch chain in two swags, `fob` a crystal hanging from it), `shirtCollar` (`stand`: with `shirt`, a shirt
+front fitted on the chest and a high stand collar open at the throat, in place of the plain collar and placket),
+`trousers` (a colour: wide-leg trousers with a pressed crease, their hems over the boots). These lie on the chest of any
+frame, over a bust or a chest's muscle, and move with the bust. Wings are an insect's: narrow at the root, drawn to a
+point, with a net of veins and a glowing rim (`wingRim`); `wingSheen` (a list of colours) shifts the membrane through
+those colours across each wing.
+
+`wispShape` (`skull`) makes the wisp a small spectral skull, see-through and glowing in the wisp's colour: a round
+cranium, two slanted eye sockets, a nose notch and a narrower jaw with tooth nicks, on a curl of smoke rising from the
+open book (or from the top of one carried shut); without it the wisp is a plain round ghost.
+A frock coat's collar is turned down over the shoulders, its skirts flare in soft folds to a waving hem with rounded
+front corners, and its fronts stay proud of a stand-collared shirt worn under them.
+A pose that holds the book open out of a fight (`book: 'open'`) takes the free hand under the book's cover, palm up,
+where the pose would otherwise put that hand into the book; out of reach of the cover, the arm is only moved clear.
+Sparkles hang clear of the posed body: one that would sit in a limb drifts further out.
+On a fallen body, wings that lie flat lie on the floor itself, under an arm flung out over them.
 
 Faces are smooth (cranium, jaw, cheekbones, a nose with a tip, eyes with whites, irises and pupils under a lid, brows
 and lips; `lips` sets their colour) and hair is a smooth cap with its style on top. More parts: `gauntlets`, `clasps`
 (cloak brooches), `bodice` (`{color, lacing}`), `puffSleeves`, `wingRim`, `gownTrim` (with `skirt` and `underskirt`,
 the gown hangs open over the underskirt in folds with a pointed hem and embroidered edges), and `glow` (the spell a
 battle stance holds).
+
+Plate can be an engraved harness: `armor.knotwork` (a colour, a worn silver say) makes the breastplate one sculpted
+plate with a keel and no rims across its front, the pauldrons three lames (a shallow plate over the shoulder and two
+on the upper arm over an arming sleeve, a strap buckled round the arm beneath), adds vambraces from the wrist to the
+elbow with a flared cuff over the gauntlets (a thin plate on the back of each hand), cuts the tassets in three lames
+and the greaves as one plate over the boot's cuff, lays sabatons of two lames over each boot's instep (give the
+recipe dark `boots` to go with them), lines every edge finely in the armour's `trim` and lays a band of knotwork in
+that colour on each major plate. `armor.corset`
+(`{color, belts, lacing}`) cuts the breastplate's lower edge to a point under the bust over a laced leather corset:
+in the fauld's place it wears a leather girdle of three lapped lames, each with a fine rolled rim, with two buckled
+belts round it (`belts` their leather, the buckles in `buckle`), and a coat skirt of the same leather hangs from
+inside the girdle's last lame to above the knee in the culet's place, round the seat and the sides of the thighs,
+open at the front from hip to hip, where the tassets hang, and vented up the back. `armor.emblem` is a holy symbol
+borne on the breastplate in the knotwork's colour (or the trim): `helm`, an open eye on an upright gauntlet, a thin
+flat relief. None of the three changes plate that
+does not set it. A corset's coat skirt is not yet listed among what a cloak hangs over, so a corseted harness under a
+cloak is untried.
+
+`halo` is light, not metal: one ring of thin, broken arcs of its colour standing wide of the head behind it, each a
+thread of faint light fading out at its ends, with three small soft sparks where arcs end; it is open below where the
+hair falls, tipped back a little, and set on the head, so it turns as the head turns. A darker colour gives a fainter,
+more golden halo. `spiritWings` (`{color, rim, opacity}`) are two great feathered wings of the same kind of light
+behind the shoulder blades (broad round-tipped primaries and secondaries, two rows of coverts and a faint glow under
+them, each feather fading from its middle, the wing fading to nothing toward the back): alike on both sides, each a
+cupped sheet that curves back toward its tip, wider and swept further back in a battle stance, rising between the back
+and a weapon slung on it, and gone on a fallen body. Light laid over light grows brighter but never burns out to white.
+They are made for a `transform` (an aasimar's wings).
+
+Finer outfit pieces, each built only when its field is set: `chainShirt` (`{under}`, with mail armour: the mail is cut
+as a chain shirt, fitted, hanging straight to the hips with an uneven hem, short sleeves and a V at the neck that shows
+the shirt in `under`; its links are rows of fine zigzag in the armour's `trim`). `belt` (`{color, buckle}`: a wide belt
+worn round the waist over the cloth, a square buckle in front; it takes the place of the plain `buckle`).
+`satchelKit` (with `satchel`: `{hip, mark, markColor, rolls, vials, herbs, sprig}`): the bag becomes a flapped
+satchel on `hip` (`'R'` or `'L'`), hung from a baldric that runs from the other shoulder across the chest to a ring
+over the bag and on round the hip, with a buckle at the chest; `mark` embroiders the flap (`'leaf'` or `'moon'`, in
+`markColor`), `rolls` (up to three bandage rolls), `vials` (up to three colours) and `herbs` stand out of its top, and
+`sprig` ties a bundle of flowering herbs to the ring. With `strap: 'belt'` in the `satchelKit` there is no baldric:
+the bag hangs from the waist belt (or a corset's lowest strap) by two short straps on small rings. The satchel's and
+the baldric's metal is the belt's `buckle`, else the corset's, else the plain `buckle`, else silver. On a fallen body
+the bag lies face up on the hip or the thigh. Under a cloak's capelet the baldric crosses the shoulder outside the
+capelet's collar, wholly under it. The belt, the baldric and the bag are put on once the body is
+posed, outside whatever cloth is worn under them (mail, a tunic, a skirt, a gown) in every state; a cloak hangs over
+the bag on a standing figure, and an empty-handed arm resting where a strap runs is moved off it. `cloakLaurel` (a
+colour: laurel embroidery down the cloak's front edges, along its hem and round the capelet's edge, in place of
+`cloakTrim`'s bands). `claspMark` (`'tree'`: the `clasps` become round brooches with a tree in relief, one pinned on the front of each
+shoulder and lying on the cloth). `shieldFace`
+(`{band, rivets, wreath}`: a flat wide rim with `rivets` domed rivets, sixteen unless given, a vertical band of
+`band` down the face, and with `wreath` the shield's `mark` drawn as a laurel wreath round two linked rings).
+`pendantShape` (`'rings'`: the pendant is two linked rings on a finer chain).
+
+A gown's finer dress: `wreath` (`{color, flower, leaf}`) is a low wreath of woven thorny twigs with small leaves and big
+five-petal flowers, most of them on the figure's left, worn in place of a `crown`'s tall twigs. `corset`
+(`{color, lacing, buckle, vials}`) is a leather corset over the gown's waist, from the top of the skirt to under the
+bust: boned, laced up the front, with two buckled straps; the skirt then hangs from a buckled belt at the corset's foot
+(following the lean and turn of the waist in every pose), and its `vials` (up to four colours) hang on thongs from that
+belt at the left hip, lying on the cloth. `fullSleeves` (with `puffSleeves` and `sleeves`) makes the blouse's sleeves
+full from below the bare shoulders to just above the elbow, gathered there with a frill. `vines` (a colour) embroiders
+a winding vine with leaves and tendrils along the gown's hem and up the edges of its slit, in place of `gownTrim`'s
+plain lines there, and down the front edges and above the hem of the cloak worn with the gown. `dagged` cuts the gown's
+hem in uneven tatters (tongues of differing width and length, rounded at the tip) and nicks the edges of its slit, with
+the underskirt's lace showing between them and along the slit, lying on the floor where it reaches it.
+`brooch` (a colour) pins each top corner of the gown's cloak with a round brooch, seated on the cloth where it shows
+beside the arm. `shoulderCloak` wears that cloak on both shoulders instead of from behind the arms: it hangs from the
+shoulders under a short mantle that stands wide open at the front, its corners brought forward over the shoulder caps
+to the collarbones, where the brooches then sit facing forward with a fine cord between them; it lies where long loose
+hair falls, so it suits hair worn short, up or in a braid. `bootLaces` (a colour) makes the boots
+tall, to just below the knee, and laced up the front, in place of the turned cuff and strap; `bracerLaces` (a colour)
+laces the `bracers` up the inside of the forearm.
 
 ### Body, joints and poses
 
@@ -165,6 +257,13 @@ it is down (default `dead`). Each is a name or joint angles:
 figure loses its halo, wisp, sparkles, hover and spell, and is laid down as a body falls: it settles onto the floor
 by its own lowest surface, and each limb drops until it rests on the floor or on the body. In the app a character is down when its token is marked Down
 (Initiative, Party…, the Down button on its card) or its hit points are 0.
+
+`transform` is the look while the character's transformation is on (an aasimar's spectral wings, say): an object of
+figure fields, laid over the recipe (`{"halo": "#f0c860", "transform": {"wings": {"color": "#ffffff", "count": 2}}}`
+gains the wings; a field in both takes the transformed value, whole). In the app the switch is on the character's
+card (Initiative, Party…): Transform, beside Down, for a standing character whose miniature has a `transform`;
+Change back turns it off. It is the token's (`transformed`), is saved with the campaign, and the players' display
+shows it. `heroLook(recipe, transformed)` (kit/heroes.ts) gives the look a token's miniature is built from.
 
 R and L are always the figure's own right and left: it faces +z, so its right side is at -x (`SIDE_X` in
 kit/heroes.ts). A weapon goes in the right hand, a shield or book in the left.

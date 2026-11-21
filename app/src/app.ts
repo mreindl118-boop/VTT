@@ -12,7 +12,7 @@ import { classOpacity, fogCurve, hiddenCurve, labelCurve } from './core/slider';
 import { baseRingFt, CELL_FT } from './core/units';
 import { baseRing } from './kit/pieces';
 import { adventurer } from './kit/creatures';
-import { heroFigure, heroOptions, portraitDisc } from './kit/heroes';
+import { heroFigure, heroLook, heroOptions, portraitDisc } from './kit/heroes';
 import { PALETTE } from './kit/palette';
 import { buildLevel, buildLevelSteps, hitObjectId, mergeByMaterial, type BuiltLevel, type LabelSpec } from './render/build';
 import { gridUniforms } from './render/gridOverlay';
@@ -1445,10 +1445,11 @@ export class App {
       const ghostly = t.role === 'creature' && !!t.hidden; // the DM sees an unrevealed creature faintly
       if (!flat) {
         const figState = t.down || (t.hp && t.hp.cur <= 0) ? 'dead' as const : !!this.state.encounter?.order.some((c) => c.tokenId === t.id);
-        const key = figureKey(t, { figure: sheet?.figure, entry: entry?.id, state: figState, jiggle: heroOptions.jiggle, ghostly });
+        const look = sheet?.figure && heroLook(sheet.figure, t.transformed); // the character's miniature as it is now: transformed or not
+        const key = figureKey(t, { figure: look, entry: entry?.id, state: figState, jiggle: heroOptions.jiggle, ghostly });
         let k = kept.get(t.id);
         if (k?.key === key) kept.delete(t.id);
-        else { const fig = mergeByMaterial(sheet?.figure ? heroFigure(sheet.figure, t.size, figState) : entry ? figureFor(entry, figState, t.id, t.playerName) : adventurer(t.role === 'member' ? { cloth: t.color } : undefined)); fig.position.y = 0.3; k = { fig, key }; }
+        else { const fig = mergeByMaterial(look ? heroFigure(look, t.size, figState) : entry ? figureFor(entry, figState, t.id, t.playerName) : adventurer(t.role === 'member' ? { cloth: t.color } : undefined)); fig.position.y = 0.3; k = { fig, key }; }
         g.add(k.fig); g.userData.fig = k;
         if (this.jiggleOn) { this.jiggle.track(t.id, k.fig); sprung.add(t.id); }
       }
@@ -1810,6 +1811,8 @@ export class App {
   setPlayerName(id: string, name: string): void { const t = this.state.tokens.find((x) => x.id === id); if (!t) return; t.playerName = name.trim() || t.playerName; this.syncTokens(); this.commit(); }
   /** Mark a token down (dead or dying) or back up: a character's miniature lies in its dead pose. */
   setDown(id: string, down: boolean): void { const t = this.state.tokens.find((x) => x.id === id); if (!t) return; if (down) t.down = true; else delete t.down; this.commit(); this.refreshTokens(); this.onChange?.(); }
+  /** Turn a token's transformation on or off: a character's miniature wears its figure's transformed look. */
+  setTransformed(id: string, on: boolean): void { const t = this.state.tokens.find((x) => x.id === id); if (!t) return; if (on) t.transformed = true; else delete t.transformed; this.commit(); this.refreshTokens(); this.onChange?.(); }
   adjustHp(id: string, delta: number): void { const t = this.state.tokens.find((x) => x.id === id); if (!t?.hp) return; t.hp.cur = Math.max(0, Math.min(t.hp.max, t.hp.cur + delta)); this.commit(); this.onChange?.(); }
   /** The sheet an initiative needs for a placed creature: one per creature kind, shared by every copy. */
   creatureSheet(t: Token): Sheet | undefined {

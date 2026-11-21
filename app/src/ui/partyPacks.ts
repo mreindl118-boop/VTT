@@ -8,6 +8,7 @@ import { pointInPolygon } from '../core/geometry';
 import { builtPaths } from '../data';
 import { applyPartyPack, validatePartyPack, type PartyContext, type PartyPack, type Problem } from '../core/partyPack';
 import { ATLAS } from '../render/worldstage';
+import type { Token } from '../state/campaign';
 import { ICON } from './icons';
 import { esc } from './text';
 
@@ -48,6 +49,9 @@ export function openPartyPacks(app: App, onDone: () => void): void {
   };
 
   const stat = (k: string, v: number | undefined, unit = ' ft') => v === undefined ? '' : `<span><b>${k}</b> ${v}${unit}</span>`;
+  // the switch for a standing character whose miniature (the roster's, as the map builds it) has a transformed look
+  const change = (t: Token) => app.state.roster.find((s) => s.id === t.sheetId)?.figure?.transform
+    ? ` <button data-a="transform" data-tok="${esc(t.id)}" aria-pressed="${!!t.transformed}" data-tip="The miniature wears its transformed look">${t.transformed ? 'Change back' : 'Transform'}</button>` : '';
   const card = (c: PartyPack['characters'][number]) => {
     const inRoster = app.state.roster.some((s) => s.id === c.id), standing = app.state.tokens.find((t) => t.role === 'pc' && t.sheetId === c.id);
     return `<article class="pp-card" style="--tok:${esc(c.color)}">
@@ -56,7 +60,7 @@ export function openPartyPacks(app: App, onDone: () => void): void {
         <p class="pp-sub">${c.player ? `${esc(c.player)} · ` : ''}${c.level ? `level ${c.level} · ` : ''}${esc(c.size ?? 'medium')}${c.figure ? ' · own miniature' : ''}</p>
         <p class="pp-stats">${stat('Speed', c.speedFt ?? 30)}${stat('Darkvision', c.darkvisionFt ?? 0)}${stat('Reach', c.reachFt ?? 5)}${c.rangeFt ? stat('Range', c.rangeFt) : ''}${stat('Init', c.initMod ?? 0, '')}${c.light ? `<span><b>Light</b> ${c.light.bright}/${c.light.dim} ft</span>` : ''}</p>
         ${c.notes ? `<p class="pp-note">${esc(c.notes)}</p>` : ''}
-        <p class="pp-state">${inRoster ? 'In the roster' : 'Not in the roster yet'}${standing ? ` · ${standing.down ? 'down' : 'standing'} on ${esc(standing.location)} <button data-a="down" data-tok="${esc(standing.id)}" aria-pressed="${!!standing.down}">${standing.down ? 'Stand up' : 'Down'}</button>` : ''}</p></div>
+        <p class="pp-state">${inRoster ? 'In the roster' : 'Not in the roster yet'}${standing ? ` · ${standing.down ? 'down' : 'standing'} on ${esc(standing.location)} <button data-a="down" data-tok="${esc(standing.id)}" aria-pressed="${!!standing.down}">${standing.down ? 'Stand up' : 'Down'}</button>${change(standing)}` : ''}</p></div>
     </article>`;
   };
 
@@ -87,6 +91,7 @@ export function openPartyPacks(app: App, onDone: () => void): void {
     if (t === back || t.closest('.close')) return back.remove();
     const btn = t.closest<HTMLElement>('[data-a]'), a = btn?.dataset.a; if (!a) return;
     if (a === 'down') { const tok = app.state.tokens.find((x) => x.id === btn!.dataset.tok); if (tok) { app.setDown(tok.id, !tok.down); render(); } return; }
+    if (a === 'transform') { const tok = app.state.tokens.find((x) => x.id === btn!.dataset.tok); if (tok) { app.setTransformed(tok.id, !tok.transformed); render(); } return; }
     if (a === 'clear') { put(PACK, null); void load(null); return; }
     if (a === 'jiggle') { app.setJiggle(!app.jiggleOn); btn!.setAttribute('aria-pressed', String(app.jiggleOn)); return; }
     if (a === 'style') { app.setPieceStyle(btn!.dataset.v === 'token' ? 'token' : 'mini'); back.querySelectorAll<HTMLElement>('[data-a="style"]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.v === app.pieceStyle))); return; }

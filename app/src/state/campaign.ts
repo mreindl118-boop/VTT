@@ -31,6 +31,8 @@ export interface Token {
   hp?: { cur: number; max: number };
   /** Down: dead or dying. A character's miniature lies in its dead pose. */
   down?: boolean;
+  /** Transformed: a character's miniature wears its figure's transformed look (kit/heroes.ts, `transform`). */
+  transformed?: boolean;
 }
 
 /** A character sheet's tactical essentials: what the range overlay needs. */

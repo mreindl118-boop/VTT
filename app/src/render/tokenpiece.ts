@@ -6,7 +6,8 @@ import type { HeroFigure } from '../kit/heroes';
 import type { Token } from '../state/campaign';
 
 /** What a token's miniature is built from, as one string: the same key, the same miniature. A party pack character's
- *  figure, its size, its state (standing, in a fight, down) and the jiggle switch; a creature's entry, its state, its
+ *  figure (the look it has now: kit/heroes.ts, `heroLook`), its size, its state (standing, in a fight, down) and the
+ *  jiggle switch; a creature's entry, its state, its
  *  token (which of its kind's looks it wears), the name the players know it by and the jiggle switch (a creature whose
  *  figure is built as a hero's reads it too); anyone else's role and colour (a member's cloth). The look the piece
  *  wears rides with it too: faint, for a creature the DM sees that the players have not yet been shown. */
