@@ -1329,11 +1329,13 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
     const ease = f.chainShirt && f.armor?.kind === 'mail' && !gown ? 1.1 : 1, way = new THREE.Vector3(), yR = 1.69;
     const on = (x: number, y: number, off: number) => onChest(Math.asin(clampTo(x / (ringAt(tr, y).w * ease), -1, 1)), y, ease, off * s, way);
     // (round the neck it lies on the slope of the shoulders, far enough out from the neck's foot that the neck clears it
-    // when the head is turned or tipped: the highest point there at each angle round from the front)
-    let round = 0.2 * s; const nv = new THREE.Vector3();
-    for (const m of neck.children as M[]) if (m.isMesh) { const pos = m.geometry.getAttribute('position'); for (let i = 0; i < pos.count; i++) if (nv.fromBufferAttribute(pos, i).y < 0.12 * s) round = Math.max(round, Math.hypot(nv.x, nv.z)); }
-    round += 0.06 * s;
-    const nape = (th: number) => { let p = onChest(th, 2.3, ease, 0.02 * s); for (let y = 2.29; y > 2.1 && Math.hypot(p.x, p.z) < round; y -= 0.01) p = onChest(th, y, ease, 0.02 * s); return p; };
+    // when the head is turned or tipped: the highest point there at each angle round from the front. The foot is read
+    // toward each angle, as far round either way as the head turns: a neck whose back runs out into the shoulders is
+    // much wider behind than in front, and read all round as one circle it held the chain low off the throat)
+    const reach = new Array<number>(24).fill(0.2 * s), nv = new THREE.Vector3(), TURN = 0.6;
+    for (const m of neck.children as M[]) if (m.isMesh) { const pos = m.geometry.getAttribute('position'); for (let i = 0; i < pos.count; i++) if (nv.fromBufferAttribute(pos, i).y < 0.12 * s) { const k = (Math.round(Math.atan2(nv.x, nv.z) / (Math.PI / 12)) + 24) % 24; reach[k] = Math.max(reach[k], Math.hypot(nv.x, nv.z)); } }
+    const round = (th: number) => { let r = 0; for (let k = 0; k < 24; k++) if (Math.abs(Math.atan2(Math.sin(th - k * Math.PI / 12), Math.cos(th - k * Math.PI / 12))) <= TURN + 1e-9) r = Math.max(r, reach[k]); return r + 0.06 * s; };
+    const nape = (th: number) => { const want = round(th); let p = onChest(th, 2.3, ease, 0.02 * s); for (let y = 2.29; y > 2.1 && Math.hypot(p.x, p.z) < want; y -= 0.01) p = onChest(th, y, ease, 0.02 * s); return p; };
     // (on a body fallen it has fallen with it: the chain lies slack on the chest from the shoulders down, none of it
     // standing round the front of the neck where the head has dropped, and the rings lie on the chest)
     const lie = dead ? 0.45 : 1, off = 0.05 * (dead ? 0.6 : 1);
