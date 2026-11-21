@@ -921,8 +921,10 @@ function settleTop(G: Garment): void {
  *  on the cloth) with the strap's end hanging from it, and the corset's vials on thongs at the left hip: each hangs
  *  from its own place on the belt the way things fall (`fall`, in the parent's frame), free where that takes it clear
  *  of the cloth and lying on the cloth where the hip stands out under it; on a body `laid` out thong and vial lie on
- *  the cloth along the fall. `clear` lifts a point to stand a given height off the floor. */
-function corsetBelt(on: ClothFace, parent: THREE.Object3D, s: number, o: NonNullable<HeroFigure['corset']>, uFront: number, fall: THREE.Vector3, laid: boolean, clear: (p: THREE.Vector3, r: number) => THREE.Vector3): void {
+ *  the cloth along the fall, on top of every fold of what is worn there and beside one another (placed once all the
+ *  cloth has settled: `settled` runs a step then, with the points of all of it in the parent's frame). `clear` lifts a
+ *  point to stand a given height off the floor; `worn` is the cloth's own outer face, whichever way it is turned. */
+function corsetBelt(on: ClothFace, worn: ClothFace, parent: THREE.Object3D, s: number, o: NonNullable<HeroFigure['corset']>, uFront: number, fall: THREE.Vector3, laid: boolean, clear: (p: THREE.Vector3, r: number) => THREE.Vector3, settled: (fn: (cloth: THREE.Vector3[]) => void) => void): void {
   const dark = tone(o.color, '#000000', 0.32), bc = o.buckle ?? '#9a9ea6', N = 64, pos: number[] = [], Z = new THREE.Vector3(0, 0, 1);
   // (it is one loop: it runs on from the cloth's last column to its first, across where the skirt's two edges part below it)
   for (const [t, off] of [[0, 0.004], [0.004, 0.03], [0.03, 0.034], [0.034, 0.008]]) for (let i = 0; i <= N + 1; i++) { const p = on((i % (N + 1)) / N, t, off * s); pos.push(p.x, p.y, p.z); }
@@ -931,13 +933,13 @@ function corsetBelt(on: ClothFace, parent: THREE.Object3D, s: number, o: NonNull
   const set = (u: number, t: number, off: number) => { const g = new THREE.Group(); g.position.copy(on(u, t, off * s)); g.quaternion.setFromUnitVectors(Z, on(u, t, 1).sub(on(u, t))); parent.add(g); return g; };
   set(uFront, 0.017, 0.045).add(box(0.15 * s, 0.14 * s, 0.022 * s, bc), box(0.095 * s, 0.09 * s, 0.026 * s, dark), at(box(0.1 * s, 0.018 * s, 0.03 * s, bc), -0.015 * s, 0, 0.004 * s));
   set(uFront + 0.022, 0.06, 0.02).add(box(0.07 * s, 0.24 * s, 0.014 * s, dark)); // the strap's end, tucked down behind the belt
-  const E = 0.008, ds = 0.03 * s, gt = new THREE.Vector3(), dir = new THREE.Vector3(), Y = new THREE.Vector3(0, 1, 0);
+  const E = 0.008, ds = 0.03 * s, gt = new THREE.Vector3(), dir = new THREE.Vector3(), Y = new THREE.Vector3(0, 1, 0), fallen: { line: THREE.Vector3[]; top: THREE.Vector3; mid: THREE.Vector3; out: THREE.Vector3; ways: THREE.Vector3[]; put: () => void }[] = [];
   (o.vials ?? []).slice(0, 4).forEach((c, i) => {
     // (down the cloth from the belt, a step at a time: the way of the fall along the cloth there, kept where the cloth lies level)
-    let u = 0.02 + i * 0.042, tt = 0.035; const nCord = Math.round((0.24 + (i % 2) * 0.09) * s / ds), line: THREE.Vector3[] = [on(u, 0.03, 0.03 * s)], foot: THREE.Vector3[] = [], nrm: THREE.Vector3[] = [];
-    dir.copy(on(u, tt + E)).sub(on(u, tt)).normalize();
+    let u = 0.02 + i * 0.042, tt = 0.035; const nCord = Math.round((0.24 + (i % 2) * 0.09) * s / ds), line: THREE.Vector3[] = [worn(u, 0.03, 0.03 * s)], foot: THREE.Vector3[] = [], nrm: THREE.Vector3[] = [];
+    dir.copy(worn(u, tt + E)).sub(worn(u, tt)).normalize();
     for (let k = 0; k <= nCord + 4; k++) {
-      const p = on(u, tt), n = on(u, tt, 1).sub(p), su = on(Math.min(1, u + E), tt).sub(on(Math.max(0, u - E), tt)).multiplyScalar(0.5 / E), st = on(u, Math.min(1, tt + E)).sub(on(u, tt - E)).multiplyScalar(0.5 / E);
+      const p = worn(u, tt), n = worn(u, tt, 1).sub(p), su = worn(Math.min(1, u + E), tt).sub(worn(Math.max(0, u - E), tt)).multiplyScalar(0.5 / E), st = worn(u, Math.min(1, tt + E)).sub(worn(u, tt - E)).multiplyScalar(0.5 / E);
       foot.push(p); nrm.push(n);
       gt.copy(fall).addScaledVector(n, -fall.dot(n)); if (gt.length() > 0.25) dir.copy(gt).normalize(); else dir.addScaledVector(n, -dir.dot(n)).normalize();
       const a = su.dot(su), b = su.dot(st), d = st.dot(st), e = su.dot(dir) * ds, g = st.dot(dir) * ds, det = a * d - b * b; if (det < 1e-12) break;
@@ -951,10 +953,44 @@ function corsetBelt(on: ClothFace, parent: THREE.Object3D, s: number, o: NonNull
       return clear(q, off);
     };
     for (let k = 1; k < nCord; k++) line.push(hang(k, 0.02 * s, line[line.length - 1], ds));
-    const top = hang(nCord, 0.05 * s, line[line.length - 1], ds), mid = hang(nCord + 4, 0.085 * s, top, 0.11 * s), v = new THREE.Group(), glass = sph(0.07 * s, c, 10, 8);
-    line.push(top); v.position.copy(top); v.quaternion.setFromUnitVectors(Y, top.clone().sub(mid).normalize()); v.userData.part = 'vial'; parent.add(v);
-    glass.scale.y = 1.3; v.add(at(glass, 0, -0.11 * s, 0), at(cyl(0.028 * s, 0.028 * s, 0.1 * s, c, 6), 0, -0.02 * s, 0), at(cyl(0.034 * s, 0.034 * s, 0.05 * s, '#8a6a4a', 6), 0, 0.045 * s, 0));
-    const thong = cord(line, 0.01 * s, dark); thong.userData.part = 'thong'; parent.add(thong);
+    const top = hang(nCord, 0.05 * s, line[line.length - 1], ds), mid = hang(nCord + 4, 0.085 * s, top, 0.11 * s);
+    const put = () => {
+      const v = new THREE.Group(), glass = sph(0.07 * s, c, 10, 8), thong = cord([...line, top], 0.01 * s, dark);
+      v.position.copy(top); v.quaternion.setFromUnitVectors(Y, top.clone().sub(mid).normalize()); v.userData.part = 'vial'; thong.userData.part = 'thong';
+      glass.scale.y = 1.3; v.add(at(glass, 0, -0.11 * s, 0), at(cyl(0.028 * s, 0.028 * s, 0.1 * s, c, 6), 0, -0.02 * s, 0), at(cyl(0.034 * s, 0.034 * s, 0.05 * s, '#8a6a4a', 6), 0, 0.045 * s, 0));
+      parent.add(v, thong);
+    };
+    if (laid) fallen.push({ line, top, mid, out: nrm[Math.min(nCord + 2, nrm.length - 1)].clone(), ways: line.map((_, k) => nrm[Math.min(k, nrm.length - 1)]), put }); else put();
+  });
+  // on a body laid out, once all its cloth has settled: the vials lie side by side the one way, their corks toward the
+  // belt, each glass and cork stood off the cloth there (the way the cloth faces, `out`) clear of every fold of it
+  // under them, and each thong on the cloth
+  if (fallen.length) settled((cloth) => {
+    const out = new THREE.Vector3(), d = new THREE.Vector3(), axis = new THREE.Vector3(), side = new THREE.Vector3();
+    for (const v of fallen) out.add(v.out); out.normalize();
+    const onTop = (p: THREE.Vector3, r: number, off: number, way = out) => {
+      let h = -Infinity;
+      for (const q of cloth) { const hq = d.subVectors(q, p).dot(way); if (hq > -0.25 * s && hq < 0.3 * s && d.lengthSq() - hq * hq < r * r) h = Math.max(h, hq); }
+      return h + off > 0 ? p.addScaledVector(way, h + off) : p;
+    };
+    for (const v of fallen) axis.add(v.line[0]).sub(v.mid);
+    axis.addScaledVector(out, -axis.dot(out)); if (axis.lengthSq() < 1e-9) axis.set(0, 1, 0).addScaledVector(out, -out.y);
+    axis.normalize(); side.crossVectors(out, axis).normalize();
+    // (side by side: a vial's width and more from each to the next, across the way they lie)
+    const row = fallen.slice().sort((v, w) => v.mid.dot(side) - w.mid.dot(side));
+    for (let i = 1; i < row.length; i++) { const gap = row[i].mid.dot(side) - row[i - 1].mid.dot(side); if (gap < 0.19 * s) row[i].mid.addScaledVector(side, 0.19 * s - gap); }
+    for (const v of fallen) {
+      clear(onTop(v.mid, 0.13 * s, 0.1 * s), 0.1 * s);
+      v.top.copy(v.mid).addScaledVector(axis, 0.11 * s); clear(onTop(v.top, 0.07 * s, 0.05 * s), 0.05 * s);
+      v.top.sub(v.mid).setLength(0.11 * s).add(v.mid);
+      // (the thong: its length from the belt, short of the vial itself, then to the cork)
+      while (v.line.length > 1 && (v.line[v.line.length - 1].distanceTo(v.mid) < 0.14 * s || d.subVectors(v.line[v.line.length - 1], v.top).dot(axis) < 0.03 * s)) v.line.pop();
+      for (let k = 1; k < v.line.length; k++) clear(onTop(v.line[k], 0.06 * s, 0.025 * s, v.ways[k]), 0.025 * s);
+      // (and on to the cork over the cloth between: points of that stretch, stood off the cloth as the vial is)
+      const last = v.line[v.line.length - 1].clone(), n = Math.floor(last.distanceTo(v.top) / (0.04 * s));
+      for (let k = 1; k < n; k++) v.line.push(clear(onTop(last.clone().lerp(v.top, k / n), 0.06 * s, 0.025 * s), 0.025 * s));
+      v.put();
+    }
   });
 }
 
@@ -1116,6 +1152,7 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
   // cloth: each garment is cut here, in its parent's frame, and hung on the body once it is posed (kit/cloth.ts)
   const garments: Garment[] = [], cops: THREE.Group[] = [], lames: THREE.Group[] = [];
   const harness: M[] = []; // an engraved harness's own pieces: on a body laid out none of them goes down through the floor
+  const afterHung: (() => void)[] = []; // steps that wait for all the cloth to have hung (a trinket laid on top of it)
   const wear = (name: string, m: M, parent: THREE.Object3D, cols: number, rows: number, o: Omit<Garment, 'name' | 'mesh' | 'cols' | 'rows' | 'axis'> & { axis?: [number, number] }): Garment => {
     if (m.parent !== parent) parent.add(m);
     m.updateMatrix(); m.geometry.applyMatrix4(m.matrix); m.position.set(0, 0, 0); m.rotation.set(0, 0, 0); m.scale.set(1, 1, 1);
@@ -1511,7 +1548,7 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
       const on = clothFace(G, laid?.n.clone().transformDirection(pel.matrixWorld.clone().invert()));
       const F = floorUnder(pel), offFloor = (q: THREE.Vector3) => { const h = F.height(q) - 0.012 * s; return h < 0 ? q.addScaledVector(F.rise, -h) : q; };
       pel.add(f.dagged ? lace(on, f.underskirt!, s, tAt(2.75 * GK), g.cut, offFloor, (q) => F.height(q) - 0.012 * s) : frill(G, f.underskirt!, s));
-      if (f.corset) corsetBelt(on, pel, s, f.corset, (2 * Math.PI - LX * 0.42) / (2 * Math.PI), F.rise.clone().negate(), !!laid, (q, r) => { const h = F.height(q) - r; return h < 0 ? q.addScaledVector(F.rise, -h) : q; });
+      if (f.corset) corsetBelt(on, clothFace(G), pel, s, f.corset, (2 * Math.PI - LX * 0.42) / (2 * Math.PI), F.rise.clone().negate(), !!laid, (q, r) => { const h = F.height(q) - r; return h < 0 ? q.addScaledVector(F.rise, -h) : q; }, (fn) => afterHung.push(() => { const inv = pel.matrixWorld.clone().invert(); fn(garments.flatMap((w) => { const p = w.mesh.geometry.getAttribute('position'), m = inv.clone().multiply(w.mesh.matrixWorld), out: THREE.Vector3[] = []; for (let i = 0; i < p.count; i++) out.push(new THREE.Vector3().fromBufferAttribute(p, i).applyMatrix4(m)); return out; })); }));
       if (f.vines) {
         const E = embroider(on, 0.008 * s), hemT = f.dagged ? 0.9 : 0.955;
         vine(E, [0.035, hemT], [0.965, hemT], s);
@@ -2045,12 +2082,16 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
             const F = floorUnder(up), on = clothFace(G, F.rise), P = G.mesh.geometry.getAttribute('position') as THREE.BufferAttribute, c0 = clothPoint(G, u, 0.6), d = new THREE.Vector3(), c = new THREE.Vector3(), m = new THREE.Vector3();
             // (of the cloth's points near its place, the one where it lies lowest on the cloth round it: the top of a
             // fold or a flat of it, not the side of a crease)
+            // (and clear of the head and hair fallen over that shoulder: their points near the place)
+            const lain: THREE.Vector3[] = [], toUp = up.matrixWorld.clone().invert(), lim = new THREE.Box3().setFromCenterAndSize(c0, new THREE.Vector3(1, 1, 1).multiplyScalar(0.8 * s));
+            head.traverse((o) => { const hm = o as M; if (hm.isMesh) eachSurfacePoint(hm, 0.06 * s, (x, y, z) => { d.set(x, y, z).applyMatrix4(toUp); if (lim.containsPoint(d)) lain.push(d.clone()); }); });
             let best = Infinity, proud = 0;
             for (let i = 0; i < P.count; i++) {
-              if (c.fromBufferAttribute(P, i).distanceTo(c0) > 0.15 * s) continue;
+              if (c.fromBufferAttribute(P, i).distanceTo(c0) > (lain.length ? 0.3 : 0.15) * s) continue;
               const uc = (i % G.cols) / (G.cols - 1), tc = Math.floor(i / G.cols) / (G.rows - 1); m.copy(on(uc, tc, 1)).sub(c);
               let pr = 0; for (let k = 0; k < P.count; k++) { const h = d.fromBufferAttribute(P, k).sub(c).dot(m); if (h > pr && h < 0.2 * s && d.lengthSq() - h * h < (0.13 * s) ** 2) pr = h; }
-              const cost = pr + 0.15 * c.distanceTo(c0) - 0.05 * m.dot(F.rise) * s;
+              let hairs = 0; for (const q of lain) { const h = d.subVectors(q, c).dot(m) - pr; if (h > -0.02 * s && h < 0.1 * s && d.lengthSq() - (h + pr) ** 2 < (0.12 * s) ** 2) hairs++; }
+              const cost = pr + 0.15 * c.distanceTo(c0) - 0.05 * m.dot(F.rise) * s + (hairs ? (1 + 0.01 * hairs) * s : 0);
               if (cost < best) { best = cost; proud = pr; p.copy(c); n.copy(m); }
             }
             if (best < Infinity) {
@@ -2921,11 +2962,13 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
         const C = new THREE.Vector3(0, -H / 2, 0).applyMatrix4(M), near: number[] = [], clr = 0.012 * s, e1 = new THREE.Vector3(), e2 = new THREE.Vector3(), d = new THREE.Vector3(), from = new THREE.Vector3();
         for (let i = 0; i < hipT.length; i += 9) if ((hipT[i] - C.x) ** 2 + (hipT[i + 1] - C.y) ** 2 + (hipT[i + 2] - C.z) ** 2 < (1.3 * s) ** 2) for (let k = 0; k < 9; k++) near.push(hipT[i + k]);
         if (zM.dot(e3) > 0.3) for (let pass = 0; pass < 5; pass++) {
-          const hits: THREE.Vector3[] = [];
-          for (let i = 0; i <= 5; i++) for (let j = 0; j <= 5; j++) {
-            from.copy(C).addScaledVector(xM, (i / 5 - 0.5) * W).addScaledVector(yM, (j / 5 - 0.5) * H).addScaledVector(e3, 1.5 * s);
+          // (what stands out of its top lies on the body too: two more rows above the rim, with the room those have
+          // over the plane of its back)
+          const hits: THREE.Vector3[] = [], room = new Map<THREE.Vector3, number>(), rows = kit && ((kit.rolls ?? 0) > 0 || kit.vials?.length) ? 7 : 5;
+          for (let i = 0; i <= 5; i++) for (let j = 0; j <= rows; j++) {
+            from.copy(C).addScaledVector(xM, (i / 5 - 0.5) * W).addScaledVector(yM, j > 5 ? H / 2 + (j - 5) * 0.06 * s : (j / 5 - 0.5) * H).addScaledVector(e3, 1.5 * s);
             const tt = Math.min(meet(near, from, downUp), w.floor === undefined ? Infinity : w.floor - 0.006 * s - v3.copy(from).applyMatrix4(up.matrixWorld).dot(w.down));
-            if (tt < Infinity) hits.push(from.clone().addScaledVector(downUp, tt));
+            if (tt < Infinity) { const q = from.clone().addScaledVector(downUp, tt); hits.push(q); if (j > 5) room.set(q, 0.022 * s); }
           }
           for (const [c, r] of balls) { d.subVectors(c, C); if (Math.abs(d.dot(xM)) < W / 2 + r && Math.abs(d.dot(yM)) < H / 2 + r && Math.abs(d.dot(zM)) < 0.6 * s) hits.push(c.clone().addScaledVector(e3, r)); }
           if (hits.length < 3) break;
@@ -2933,12 +2976,12 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
           e1.copy(xM).addScaledVector(e3, -xM.dot(e3)).normalize(); e2.crossVectors(e3, e1);
           let sw = 0, sx = 0, sy = 0, sz = 0, sxx = 0, sxy = 0, syy = 0, sxz = 0, syz = 0;
           for (const q of hits) {
-            d.subVectors(q, C); const wt = pass ? Math.exp(-Math.max(0, -d.dot(zM) - clr) / (0.04 * s)) : 1, x = d.dot(e1), y = d.dot(e2), z = d.dot(e3);
+            d.subVectors(q, C); const wt = pass ? Math.exp(-Math.max(0, -d.dot(zM) - clr + (room.get(q) ?? 0)) / (0.04 * s)) : 1, x = d.dot(e1), y = d.dot(e2), z = d.dot(e3);
             sw += wt; sx += wt * x; sy += wt * y; sz += wt * z; sxx += wt * x * x; sxy += wt * x * y; syy += wt * y * y; sxz += wt * x * z; syz += wt * y * z;
           }
           const mx = sx / sw, my = sy / sw, mz = sz / sw, cxx = sxx / sw - mx * mx, cxy = sxy / sw - mx * my, cyy = syy / sw - my * my, cxz = sxz / sw - mx * mz, cyz = syz / sw - my * mz, det = cxx * cyy - cxy * cxy;
           if (det > 1e-9 * s ** 4) { zM.copy(e3).addScaledVector(e1, -clampTo((cxz * cyy - cyz * cxy) / det, -1.5, 1.5)).addScaledVector(e2, -clampTo((cyz * cxx - cxz * cxy) / det, -1.5, 1.5)).normalize(); yM.addScaledVector(zM, -yM.dot(zM)).normalize(); xM.crossVectors(yM, zM); }
-          let lift = -Infinity; for (const q of hits) lift = Math.max(lift, (d.subVectors(q, C).dot(zM) + clr) / zM.dot(e3));
+          let lift = -Infinity; for (const q of hits) lift = Math.max(lift, (d.subVectors(q, C).dot(zM) + clr - (room.get(q) ?? 0)) / zM.dot(e3));
           C.addScaledVector(e3, lift);
         }
         M.makeBasis(xM, yM, zM).setPosition(C.addScaledVector(yM, H / 2));
@@ -3173,6 +3216,7 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
   else { let floor = Infinity; for (const m of soles) floor = Math.min(floor, new THREE.Box3().setFromObject(m).min.y); if (Number.isFinite(floor)) body.position.y -= floor; }
   if (standing && soles.length) { const bb = new THREE.Box3(); for (const m of soles) bb.expandByObject(m); body.position.x -= (bb.min.x + bb.max.x) / 2; body.position.z -= (bb.min.z + bb.max.z) / 2; }
   body.position.y += P.lift ?? 0;
+  if (afterHung.length) { body.updateMatrixWorld(true); for (const fn of afterHung) fn(); } // (what waited for all the cloth to have hung)
   const glowAt = (g: THREE.Object3D, p: THREE.Vector3, r: number) => { const c = f.glow ?? f.wisp ?? '#c9b3ff'; g.add(at(glassy(sph(r * s, c, 16, 12), c, 0.7), p.x, p.y, p.z)); g.add(at(glassy(sph(r * 1.8 * s, c, 16, 12), c, 0.18), p.x, p.y, p.z)); };
   if (P.spell === 'right' && !dead) glowAt(gR, new THREE.Vector3(0, 0, 0.35 * s), 0.16);
   if (P.spell === 'between' && !dead) {
