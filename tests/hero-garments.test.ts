@@ -149,4 +149,47 @@ describe('hero garments', () => {
   it('let a capelet\'s collar fall onto the back of the neck of a body crumpled on its side, never into it', () => {
     expect(report(['cloak and capelet', 'cloak over mail'].map((o) => laid(o, 'crumpled', CRUMPLED)), (p) => p.part === 'neck' && CAPES.has(p.garment))).toEqual([]);
   }, 60000);
+
+  it('hang a gown\'s cloak against the back at its top edge, not standing off it, with its corners still out where they were cut', () => {
+    // (its top edge was cut round and stood almost half a foot off the back at the middle, a flat back being flatter than
+    // that round; read along a level ray from the top edge in toward the trunk's axis, in the trunk's own frame)
+    const C = 57, rc = new THREE.Raycaster();
+    const gowns: Record<string, Record<string, unknown>> = { plain: OUTFITS['gown and cloak'], 'curvy, full sleeves': { ...OUTFITS['gown and cloak'], build: 'curvy', puffSleeves: true, fullSleeves: true, sleeves: '#efe3c8' } };
+    for (const [name, rec] of Object.entries(gowns)) for (const st of ['rest', 'battle'] as const) {
+      // (in a fight, a caster's stance: with no stance of its own a figure fights at ease, as it rests)
+      const fig = heroFigure((st === 'battle' ? { ...rec, stance: 'conjure' } : rec) as never, 'medium', st); fig.updateMatrixWorld(true);
+      const all: THREE.Mesh[] = []; fig.traverse((o) => { if ((o as THREE.Mesh).isMesh) all.push(o as THREE.Mesh); });
+      const cloak = all.find((m) => m.userData.garment === 'cloak' && !m.userData.veil)!, tag = `${name} ${st}`;
+      expect(cloak, tag).toBeTruthy();
+      const trunk = cloak.parent!, solid = all.filter((m) => !m.userData.garment && !(m.material as THREE.Material).transparent);
+      const pos = cloak.geometry.getAttribute('position') as THREE.BufferAttribute;
+      const gap = (k: number) => {
+        const v = new THREE.Vector3().fromBufferAttribute(pos, k).applyMatrix4(cloak.matrixWorld), q = trunk.worldToLocal(v.clone());
+        const to = trunk.localToWorld(new THREE.Vector3(0, q.y, 0)).sub(v), far = to.length(); rc.set(v, to.normalize()); rc.far = far;
+        return rc.intersectObjects(solid, false)[0]?.distance ?? Infinity;
+      };
+      // the middle of the top edge lies close on the back, and so does the edge either side of it
+      for (const k of [21, 28, 35]) expect(gap(k), `${tag} column ${k}`).toBeLessThan(0.16);
+      // the corners stay out where they were cut (they are never brought in): the edge is not drawn in round the sides
+      for (const k of [0, C - 1]) expect(gap(k), `${tag} corner ${k}`).toBeGreaterThan(0.1);
+    }
+  }, 120000);
+
+  it('bring a gown\'s cloak in only as far as a long weapon slung on the back under it lets it', () => {
+    // (a haft or a blade is a box with points only at its ends: the cloak's top edge, brought in toward the back, must not
+    // come into one where it passes under the cloak)
+    for (const weapon of ['axe', 'spear', 'sword']) {
+      const fig = heroFigure({ ...OUTFITS['gown and cloak'], weapon } as never, 'medium', 'rest'); fig.updateMatrixWorld(true);
+      const all: THREE.Mesh[] = []; fig.traverse((o) => { if ((o as THREE.Mesh).isMesh) all.push(o as THREE.Mesh); });
+      const cloak = all.find((m) => m.userData.garment === 'cloak' && !m.userData.veil)!, boxes: THREE.Mesh[] = [];
+      fig.getObjectByName('stowed')?.traverse((o) => { const m = o as THREE.Mesh; if (m.isMesh && m.geometry.type === 'BoxGeometry') boxes.push(m); });
+      expect(cloak, weapon).toBeTruthy(); expect(boxes.length, `${weapon} slung on the back`).toBeGreaterThan(0);
+      const pos = cloak.geometry.getAttribute('position') as THREE.BufferAttribute, inside: number[] = [];
+      for (const b of boxes) {
+        b.geometry.computeBoundingBox(); const bb = b.geometry.boundingBox!, inv = b.matrixWorld.clone().invert();
+        for (let i = 0; i < pos.count; i++) if (bb.containsPoint(new THREE.Vector3().fromBufferAttribute(pos, i).applyMatrix4(cloak.matrixWorld).applyMatrix4(inv))) inside.push(i);
+      }
+      expect(inside, `${weapon}: cloak vertices inside the slung weapon`).toEqual([]);
+    }
+  }, 120000);
 });

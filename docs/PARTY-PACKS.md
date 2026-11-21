@@ -144,7 +144,8 @@ colour: laurel embroidery down the cloak's front edges, along its hem and round 
 shoulder and lying on the cloth). `shieldFace`
 (`{band, rivets, wreath}`: a flat wide rim with `rivets` domed rivets, sixteen unless given, a vertical band of
 `band` down the face, and with `wreath` the shield's `mark` drawn as a laurel wreath round two linked rings).
-`pendantShape` (`'rings'`: the pendant is two linked rings on a finer chain).
+`pendantShape` (`'rings'`: the pendant is two linked rings on a finer chain), `pendantChain` (a colour: the gem
+pendant hangs on a fine chain of that colour lying on the chest).
 
 A gown's finer dress: `wreath` (`{color, flower, leaf}`) is a low wreath of woven thorny twigs with small leaves and big
 five-petal flowers, most of them on the figure's left, worn in place of a `crown`'s tall twigs. `corset`
