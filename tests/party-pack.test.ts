@@ -56,6 +56,23 @@ describe('validatePartyPack', () => {
     expect(text).toMatch(/warning Placement: pc-z is not one/);
     expect(text).toMatch(/warning Placement: no world pin Q/);
   });
+  it('keeps a miniature\'s transformed look, into the roster too, and leaves off one that is not an object of figure fields', () => {
+    const chars = pack().characters;
+    const good = validatePartyPack(pack({ characters: [{ ...chars[0], figure: { ...chars[0].figure, transform: { halo: '#ffffff' } } }, chars[1]] }), ctx);
+    expect(good.problems).toEqual([]);
+    expect(good.pack.characters[0].figure).toMatchObject({ hoverFt: 1, transform: { halo: '#ffffff' } });
+    expect(sheetOf(good.pack.characters[0]).figure?.transform).toEqual({ halo: '#ffffff' });
+    const s = newCampaign('t');
+    applyPartyPack(s, good.pack);
+    expect(s.roster.find((x) => x.id === 'pc-a')?.figure?.transform).toEqual({ halo: '#ffffff' });
+    for (const bad of ['wings', 3, null, [{ halo: '#ffffff' }]]) {
+      const figure = { ...chars[0].figure, transform: bad }, raw = pack({ characters: [{ ...chars[0], figure }, chars[1]] });
+      const r = validatePartyPack(raw, ctx);
+      expect(r.problems, String(bad)).toEqual([expect.objectContaining({ level: 'warning', text: expect.stringContaining('transform') })]);
+      expect(r.pack.characters[0].figure, String(bad)).toEqual(chars[0].figure);
+      expect(figure.transform).toBe(bad); // the file as read is left as it was
+    }
+  });
   it('drops a placement on a map that is not built', () => {
     const { pack: p, problems } = validatePartyPack(pack({ placement: { scene: 'ch99/X', at: {} } }), ctx);
     expect(p.placement).toBeUndefined();

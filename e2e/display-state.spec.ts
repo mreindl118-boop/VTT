@@ -120,3 +120,37 @@ test('the Player Display keeps each token\'s miniature from one state message to
   expect(r.down.freed).toBeGreaterThan(0);
   expect(r.down.follows).toBe(true);
 });
+
+test('the Player Display builds a token\'s miniature in its transformed look while its switch is on, and its own look again when it is off', async ({ page }) => {
+  const r = await page.evaluate(async () => {
+    const a = (window as any).__mistlab.app;
+    const loc = a.cur.scene.location, level = a.levelId, at: number[] = a.party?.pos ?? [20, 20], base = structuredClone(a.state);
+    // two stand-in characters with miniatures of their own: one whose figure has a transformed look (wings), one without
+    const sheet = { name: 'Stand-in', color: '#6b3fa0', speedFt: 30, reachFt: 5, rangeFt: 0, initMod: 0, size: 'medium', darkvisionFt: 0, kind: 'pc' };
+    const roster = [...base.roster, { ...sheet, id: 'e2e-pc', figure: { frame: 'feminine', transform: { wings: { color: '#ffffff', count: 2 } } } }, { ...sheet, id: 'e2e-plain', figure: { frame: 'feminine' } }];
+    const tok = { location: loc, level, size: 'medium', darkvisionFt: 0, color: '#6b3fa0', name: 'Stand-in', role: 'pc' };
+    const send = (flags: object) => a.onMsg({ kind: 'state', location: a.cur.path, nested: a.nested, state: { ...structuredClone(base), roster,
+      tokens: [...base.tokens, { ...tok, id: 'e2e-hero', sheetId: 'e2e-pc', pos: [at[0] + 5, at[1]], ...flags }, { ...tok, id: 'e2e-other', sheetId: 'e2e-plain', pos: [at[0] + 10, at[1]], ...flags }] } });
+    const figOf = (id: string) => a.cur.tokens.get(id)?.userData.fig?.fig;
+    const meshes = (id: string) => { let n = 0; figOf(id).traverse((o: any) => { if (o.isMesh) n++; }); return n; };
+    const seen = () => ({ hero: figOf('e2e-hero'), other: figOf('e2e-other'), heroMeshes: meshes('e2e-hero'), otherMeshes: meshes('e2e-other') });
+    await send({});
+    const off = seen();
+    await send({ transformed: true });
+    const on = seen();
+    await send({ transformed: true });
+    const still = seen();
+    await send({});
+    const back = seen();
+    return { offMeshes: off.heroMeshes, onMeshes: on.heroMeshes, backMeshes: back.heroMeshes, rebuiltOn: on.hero !== off.hero, keptWhileOn: still.hero === on.hero, rebuiltOff: back.hero !== on.hero,
+      otherKept: on.other === off.other && back.other === off.other, otherMeshes: [off.otherMeshes, on.otherMeshes, back.otherMeshes] };
+  });
+  expect(r.rebuiltOn).toBe(true);
+  expect(r.onMeshes).toBeGreaterThan(r.offMeshes);
+  expect(r.keptWhileOn).toBe(true);
+  expect(r.rebuiltOff).toBe(true);
+  expect(r.backMeshes).toBe(r.offMeshes);
+  // a character whose figure has no transformed look keeps its miniature whatever its switch says
+  expect(r.otherKept).toBe(true);
+  expect(new Set(r.otherMeshes).size).toBe(1);
+});

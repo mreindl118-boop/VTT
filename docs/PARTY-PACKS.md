@@ -164,6 +164,13 @@ figure loses its halo, wisp, sparkles, hover and spell, and is laid down as a bo
 by its own lowest surface, and each limb drops until it rests on the floor or on the body. In the app a character is down when its token is marked Down
 (Initiative, Party…, the Down button on its card) or its hit points are 0.
 
+`transform` is the look while the character's transformation is on (an aasimar's spectral wings, say): an object of
+figure fields, laid over the recipe (`{"halo": "#f0c860", "transform": {"wings": {"color": "#ffffff", "count": 2}}}`
+gains the wings; a field in both takes the transformed value, whole). In the app the switch is on the character's
+card (Initiative, Party…): Transform, beside Down, for a standing character whose miniature has a `transform`;
+Change back turns it off. It is the token's (`transformed`), is saved with the campaign, and the players' display
+shows it. `heroLook(recipe, transformed)` (kit/heroes.ts) gives the look a token's miniature is built from.
+
 R and L are always the figure's own right and left: it faces +z, so its right side is at -x (`SIDE_X` in
 kit/heroes.ts). A weapon goes in the right hand, a shield or book in the left.
 

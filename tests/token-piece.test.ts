@@ -3,7 +3,7 @@
 // once, and its spring carries on through the pass.
 import { afterEach, describe, expect, it } from 'vitest';
 import * as THREE from 'three';
-import { heroFigure, heroOptions, type HeroFigure } from '../app/src/kit/heroes';
+import { heroFigure, heroLook, heroOptions, type HeroFigure } from '../app/src/kit/heroes';
 import { mergeByMaterial } from '../app/src/render/build';
 import { Jiggle } from '../app/src/render/jiggle';
 import { figureKey, tokenLook } from '../app/src/render/tokenpiece';
@@ -23,6 +23,14 @@ describe('figureKey', () => {
     for (const o of other) expect(o).not.toBe(k);
     expect(new Set(other).size).toBe(other.length);
   });
+  it('changes a character\'s key when its transformation is switched, and only when its figure has one', () => {
+    const plain: HeroFigure = { frame: 'feminine', weapon: 'mace' }, f: HeroFigure = { ...plain, transform: { halo: '#ffffff' } };
+    const key = (fig: HeroFigure, transformed?: boolean) => hero(heroLook(fig, transformed));
+    expect(key(f, true)).not.toBe(key(f, false));
+    expect(key(f, false)).toBe(key(f));
+    expect(key(f, true)).toBe(hero({ ...plain, halo: '#ffffff' }));
+    expect(key(plain, true)).toBe(key(plain, false));
+  });
   it('changes a creature\'s key with its kind, state, token, the name the players know it by, the jiggle switch and the faint look', () => {
     const c = { ...tok, role: 'creature' as const }, key = (over: Partial<Parameters<typeof figureKey>[1]> = {}, t = c) => figureKey(t, { entry: 'zombie', state: false, jiggle: false, ghostly: false, ...over });
     const k = key();
@@ -35,6 +43,28 @@ describe('figureKey', () => {
     const key = (role: 'member' | 'party', color: string) => figureKey({ ...tok, role, color }, { state: false, jiggle: false, ghostly: false });
     expect(key('member', '#112233')).not.toBe(key('member', '#445566'));
     expect(key('party', '#112233')).toBe(key('party', '#445566'));
+  });
+});
+
+describe('heroLook', () => {
+  const f: HeroFigure = { frame: 'feminine', weapon: 'mace', halo: '#f0c860', transform: { halo: '#ffffff', wings: { color: '#ffffff', count: 2 } } };
+  it('is the recipe itself while the transformation is off, or when the figure has none', () => {
+    expect(heroLook(f)).toBe(f);
+    expect(heroLook(f, false)).toBe(f);
+    const plain: HeroFigure = { frame: 'feminine' };
+    expect(heroLook(plain, true)).toBe(plain);
+  });
+  it('lays the transformation over the recipe while it is on, without the transformation itself, and leaves the recipe as it was', () => {
+    const before = JSON.stringify(f);
+    expect(heroLook(f, true)).toEqual({ frame: 'feminine', weapon: 'mace', halo: '#ffffff', wings: { color: '#ffffff', count: 2 } });
+    expect('transform' in heroLook(f, true)).toBe(false);
+    expect(JSON.stringify(f)).toBe(before);
+  });
+  it('builds the transformed miniature with what the transformation adds', () => {
+    const count = (g: THREE.Object3D) => meshes(g).length;
+    const g: HeroFigure = { frame: 'feminine', transform: { wings: { color: '#ffffff', count: 2 } } };
+    expect(count(heroFigure(heroLook(g, true)))).toBeGreaterThan(count(heroFigure(heroLook(g, false))));
+    expect(count(heroFigure(g))).toBe(count(heroFigure({ frame: 'feminine' })));
   });
 });
 

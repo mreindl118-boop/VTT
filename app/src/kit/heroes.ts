@@ -257,6 +257,18 @@ export interface HeroFigure {
   beard?: string; fangs?: boolean; collar?: string;
   /** The character's own face (kit/faces.ts) in place of the standard one, and how finely it is modelled (1 to 4). */
   face?: FaceSpec; detail?: FaceDetail;
+  /** The look while the character's transformation is on (an aasimar's spectral wings, say): its fields are laid over
+   *  the recipe while the token's transformed switch is on. */
+  transform?: Partial<HeroFigure>;
+}
+
+/** The look a token's miniature is built from: the recipe with its transformation laid over it (and without the
+ *  transformation itself) while the token's transformed switch is on; the recipe itself otherwise, or when it has no
+ *  transformation. */
+export function heroLook(f: HeroFigure, transformed?: boolean): HeroFigure {
+  if (!transformed || !f.transform) return f;
+  const { transform, ...rest } = f;
+  return { ...rest, ...transform };
 }
 
 const SIZE_SCALE: Record<CreatureSize, number> = { tiny: 0.45, small: 0.68, medium: 1, large: 1.6, huge: 2.4, gargantuan: 3.2 };
