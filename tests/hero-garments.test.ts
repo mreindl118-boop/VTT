@@ -173,4 +173,22 @@ describe('hero garments', () => {
       for (const k of [0, C - 1]) expect(gap(k), `${tag} corner ${k}`).toBeGreaterThan(0.1);
     }
   }, 120000);
+
+  it('bring a gown\'s cloak in only as far as a long weapon slung on the back under it lets it', () => {
+    // (a haft or a blade is a box with points only at its ends: the cloak's top edge, brought in toward the back, must not
+    // come into one where it passes under the cloak)
+    for (const weapon of ['axe', 'spear', 'sword']) {
+      const fig = heroFigure({ ...OUTFITS['gown and cloak'], weapon } as never, 'medium', 'rest'); fig.updateMatrixWorld(true);
+      const all: THREE.Mesh[] = []; fig.traverse((o) => { if ((o as THREE.Mesh).isMesh) all.push(o as THREE.Mesh); });
+      const cloak = all.find((m) => m.userData.garment === 'cloak' && !m.userData.veil)!, boxes: THREE.Mesh[] = [];
+      fig.getObjectByName('stowed')?.traverse((o) => { const m = o as THREE.Mesh; if (m.isMesh && m.geometry.type === 'BoxGeometry') boxes.push(m); });
+      expect(cloak, weapon).toBeTruthy(); expect(boxes.length, `${weapon} slung on the back`).toBeGreaterThan(0);
+      const pos = cloak.geometry.getAttribute('position') as THREE.BufferAttribute, inside: number[] = [];
+      for (const b of boxes) {
+        b.geometry.computeBoundingBox(); const bb = b.geometry.boundingBox!, inv = b.matrixWorld.clone().invert();
+        for (let i = 0; i < pos.count; i++) if (bb.containsPoint(new THREE.Vector3().fromBufferAttribute(pos, i).applyMatrix4(cloak.matrixWorld).applyMatrix4(inv))) inside.push(i);
+      }
+      expect(inside, `${weapon}: cloak vertices inside the slung weapon`).toEqual([]);
+    }
+  }, 120000);
 });

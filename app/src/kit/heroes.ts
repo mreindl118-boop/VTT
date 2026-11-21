@@ -510,15 +510,25 @@ function snugBack(G: Garment, tr: Ring[], s: number, skip: THREE.Object3D, rows 
   root.updateMatrixWorld(true);
   const toUp = up.matrixWorld.clone().invert(), v = new THREE.Vector3(), near: number[] = [], under = (o: THREE.Object3D | null): boolean => !!o && (o === skip || under(o.parent));
   const region = new THREE.Box3(new THREE.Vector3(lo[0] - room, lo[1] - 0.2 * s, lo[2]), new THREE.Vector3(hi[0] + room, hi[1] + room, Infinity)), box = new THREE.Box3();
+  // (a column reads what lies within `reach` of it, half a row either way and across)
+  const reach = Math.max(room, 0.6 * Math.abs(Y(mid) - Y(C + mid))), keep = (x: number, y: number, z: number) => { if (x > lo[0] - room && x < hi[0] + room && y > lo[1] - 0.2 * s && y < hi[1] + room && z > lo[2]) near.push(x, y, z); };
   root.traverse((o) => {
     const q = o as M; if (!q.isMesh || q === m || under(q) || (q.material as THREE.Material).transparent) return;
     const p = q.geometry.getAttribute('position') as THREE.BufferAttribute, w = q.matrixWorld.clone().premultiply(toUp);
     if (!box.setFromBufferAttribute(p).applyMatrix4(w).intersectsBox(region)) return; // (not left on the geometry: it may yet move)
-    for (let i = 0; i < p.count; i++) { v.fromBufferAttribute(p, i).applyMatrix4(w); if (v.x > lo[0] - room && v.x < hi[0] + room && v.y > lo[1] - 0.2 * s && v.y < hi[1] + room && v.z > lo[2]) near.push(v.x, v.y, v.z); }
+    const P = new Float64Array(3 * p.count);
+    for (let i = 0; i < p.count; i++) { v.fromBufferAttribute(p, i).applyMatrix4(w); P[3 * i] = v.x; P[3 * i + 1] = v.y; P[3 * i + 2] = v.z; keep(v.x, v.y, v.z); }
+    // (and along every edge longer than that, so nothing passes between two points no column reads: a haft slung on the
+    // back is a box with points only at its ends)
+    const ix = q.geometry.getIndex(), at = (k: number) => (ix ? ix.getX(k) : k), nt = Math.floor((ix ? ix.count : p.count) / 3);
+    for (let t = 0; t < nt; t++) for (let e = 0; e < 3; e++) {
+      const a = 3 * at(3 * t + e), b = 3 * at(3 * t + (e + 1) % 3), dx = P[b] - P[a], dy = P[b + 1] - P[a + 1], dz = P[b + 2] - P[a + 2], L = Math.hypot(dx, dy, dz);
+      if (L <= reach) continue;
+      const k = Math.ceil(2 * L / reach); for (let u = 1; u < k; u++) keep(P[a] + dx * u / k, P[a + 1] + dy * u / k, P[a + 2] + dz * u / k);
+    }
   });
-  // each column comes no further than keeps every row that moves `room` clear of what lies in front of it (anything
-  // within half a row of it, either way, and across)
-  const most = Float64Array.from(want), reach = Math.max(room, 0.6 * Math.abs(Y(mid) - Y(C + mid))), bins = new Map<number, number[]>(), cell = (x: number, y: number) => Math.floor(x / reach) * 4096 + Math.floor(y / reach);
+  // each column comes no further than keeps every row that moves `room` clear of what lies in front of it
+  const most = Float64Array.from(want), bins = new Map<number, number[]>(), cell = (x: number, y: number) => Math.floor(x / reach) * 4096 + Math.floor(y / reach);
   for (let j = 0; j < near.length; j += 3) { const b = cell(near[j], near[j + 1]); let l = bins.get(b); if (!l) bins.set(b, (l = [])); l.push(j); }
   for (let k = 0; k < C; k++) for (let r = 0; r < rows && most[k] > 0; r++) {
     const i = r * C + k, x = X(i), y = Y(i), z = Z(i), w = 1 - r / rows, b = cell(x, y);
