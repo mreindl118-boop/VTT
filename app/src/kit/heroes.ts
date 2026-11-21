@@ -171,6 +171,15 @@ const RX = SIDE_X.R, LX = SIDE_X.L;
  *  breastplate's edge, all the way; the last, which the tassets and the culet hang from, a little): the bend is shared
  *  out between them. */
 const FAULD_GIVE = [1, 0.75, 0.5, 0.25];
+/** A corset's leather girdle, in the fauld's place: three lames between `edges` (heights on the hips, its top to its
+ *  foot: the first deep enough for a belt and a fist rested on the hip, two shorter below), each running `lap` up under
+ *  the rim above, a constant `step` further out than the one above and flaring evenly to its rim; `line` is how far the
+ *  hips are scaled out under it at a height, `out` how far a lame stands off that at a height. */
+const GIRDLE = {
+  edges: [0.68, 0.34, 0.155, -0.03], lap: 0.05, step: 0.02, rim: 0.011,
+  line: (y: number) => 1.1 + 0.14 * Math.min(1, Math.max(0, (0.68 - y) / 0.71)) ** 1.5,
+  out: (i: number, y: number) => i * GIRDLE.step + 0.2 * (GIRDLE.edges[i] + GIRDLE.lap - y),
+};
 export const FEET_OUT = { ease: [0.2, 0.49], front: [-0.1, 0.26], back: [0.61, 0.96] } as const;
 /** A pose's spine, pelvis or neck turn in the rig's frame: y > 0 turns toward the figure's right, z > 0 raises its right side. */
 const trunk = (e: Euler3): Euler3 => [e[0], RX * e[1], RX * e[2]];
@@ -209,13 +218,14 @@ export interface HeroFigure {
   /** Plate adds layered pauldrons (riding the shoulder joint) and a gorget; mail a shirt with short sleeves. */
   armor?: { kind: 'plate' | 'mail'; color: string; trim?: string; knotwork?: string; corset?: { color: string; belts?: string; lacing?: string }; emblem?: 'helm' };
   // On plate, `knotwork` (its colour: a worn silver, say) makes it an engraved harness: the breastplate one sculpted
-  // plate with a keel and no rims across its front, pauldrons of three lames, vambraces with a flared cuff over plated
-  // gauntlets, tassets of three lames and plain greaves, every edge finely lined in the trim, a band of knotwork on each
-  // major plate. `corset` cuts the breastplate's lower edge to a point under the bust over a laced leather corset: the
-  // fauld's lames in that leather with buckled belts round them (`belts`, their leather; the buckles in `buckle`) and a
-  // coat skirt of it in the culet's place, round the seat and the sides of the thighs and open at the front from hip to
-  // hip, where the tassets hang. `emblem` is a holy symbol borne on the breastplate in the knotwork's colour: 'helm', an
-  // open eye on an upright gauntlet.
+  // plate with a keel and no rims across its front, pauldrons of three lames over an arming sleeve, vambraces from the
+  // wrist to the elbow with a flared cuff over plated gauntlets, tassets of three lames, plain greaves and sabatons of two
+  // lames on the boots, every edge finely lined in the trim, a band of knotwork on each major plate. `corset` cuts the
+  // breastplate's lower edge to a point under the bust over a laced leather corset: in the fauld's place a girdle of
+  // three lapped lames in that leather with buckled belts round it (`belts`, their leather; the buckles in `buckle`) and
+  // a coat skirt of it in the culet's place, round the seat and the sides of the thighs, open at the front from hip to
+  // hip, where the tassets hang, and vented up the back. `emblem` is a holy symbol borne on the breastplate in the
+  // knotwork's colour: 'helm', an open eye on an upright gauntlet, in thin flat relief.
   /** Shirt sleeves rolled up to the elbow: bare forearms below a rolled cuff. */
   rolled?: boolean;
   cloak?: string; hood?: boolean;
@@ -988,6 +998,7 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
   const joints0: Record<string, THREE.Object3D> = {}; body.traverse((o) => { if (o.name) joints0[o.name] = o; });
   // cloth: each garment is cut here, in its parent's frame, and hung on the body once it is posed (kit/cloth.ts)
   const garments: Garment[] = [], cops: THREE.Group[] = [], lames: THREE.Group[] = [];
+  const harness: M[] = []; // an engraved harness's own pieces: on a body laid out none of them goes down through the floor
   const wear = (name: string, m: M, parent: THREE.Object3D, cols: number, rows: number, o: Omit<Garment, 'name' | 'mesh' | 'cols' | 'rows' | 'axis'> & { axis?: [number, number] }): Garment => {
     if (m.parent !== parent) parent.add(m);
     m.updateMatrix(); m.geometry.applyMatrix4(m.matrix); m.position.set(0, 0, 0); m.rotation.set(0, 0, 0); m.scale.set(1, 1, 1);
@@ -1342,6 +1353,7 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
   // armour
   if (f.armor?.kind === 'plate') {
     const t = f.armor.trim ?? '#a9adb6', eng = f.armor.knotwork, cor = f.armor.corset, steel = f.armor.color;
+    const bare = new Set<THREE.Object3D>(); if (eng || cor) body.traverse((o) => bare.add(o)); // (what the body has on before its harness)
     // an engraved harness's fine lines: the lining of an edge, a strand of knotwork
     const wire = (pts: THREE.Vector3[], c: string, r = 0.009 * s, closed = false) => sm(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts, closed), pts.length * 2, r, 4, closed), c);
     const span = <T>(n: number, at: (u: number) => T): T[] => Array.from({ length: n + 1 }, (_, i) => at(i / n));
@@ -1353,6 +1365,12 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
     };
     // a point on a plate shaped to a stack of rings (as shellGeometry cuts it), a little proud of it
     const onShell = (rings: Ring[], y0: number, y1: number, k0: number, k1: number) => (th: number, y: number, off = 0.012) => { const [x, z] = ringPoint(ringAt(rings, y), th, k0 + (k1 - k0) * (y0 - y) / (y0 - y1) + off); return new THREE.Vector3(x * s, y * s, z * s); };
+    // a plate cut freely on a stack of rings: `cut(u, v)` gives each point's angle round them, height and scale
+    const patch = (rings: Ring[], cut: (u: number, v: number) => [number, number, number], seg: number, rows: number) => {
+      const pos: number[] = [];
+      for (let i = 0; i <= rows; i++) for (let j = 0; j <= seg; j++) { const [th, y, k] = cut(j / seg, i / rows), [x, z] = ringPoint(ringAt(rings, y), th, k); pos.push(x * s, y * s, z * s); }
+      return gridGeometry(pos, seg + 1, rows);
+    };
     // pauldrons: a broad domed cap over the shoulder and two lames below it hugging the upper arm, each a curved plate
     // edged in trim with rivets, overlapping down the arm and tipped out at the lower edge; they ride the shoulder joint,
     // so they lift and swing with the arm
@@ -1375,15 +1393,25 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
       // the lames: curved plates round the outer two thirds of the arm, shaped to it (the deltoid swelling under the upper
       // one), each tucked under the one above and tipped out at its lower edge
       const rings = upperArmRings(fr, sx), wrap = 3.9, th0 = sx * Math.PI / 2 - wrap / 2;
+      // (engraved: the lames hang from inside the cap, on the arm's full round carried straight up into it where the
+      // shoulder itself rounds in, so the first runs up under the cap with no gap for skin to show in; each is cut
+      // narrower toward its top, clear of the body beside it, and finely lined along its lower edge and down its two ends)
+      const hung = rings.map((r) => (r.y > -0.22 ? { ...ringAt(rings, -0.22), y: r.y } : r)), wrapAt = (y: number) => wrap - 0.9 * Math.min(1, Math.max(0, (y + 0.25) / 0.35));
+      if (eng) { // (and an arming sleeve under them, over the round of the shoulder and down to above the strap)
+        const dark = tone(steel, '#000000', 0.3), round = sph(0.2 * fr.arm * s, dark, 14, 8); round.scale.set(1.04, 0.8, 1.04);
+        l.root.add(sm(shellGeometry(rings, 0, -0.44, 0, Math.PI * 2, 1.035, 1.035, s, 20, 8), dark, true), at(round, 0, -0.08 * s, 0));
+      }
       for (let i = 0; i < 2; i++) {
         const y0 = -0.06 - i * 0.19, y1 = y0 - 0.27, k0 = 1.17 - 0.02 * i, k1 = k0 + 0.09, c = i % 2 || eng ? f.armor!.color : tone(f.armor!.color, '#ffffff', 0.06);
-        l.root.add(sm(shellGeometry(rings, y0, y1, th0, wrap, k0, k1, s), c, true));
-        if (eng) { // (engraved: its lower edge and its two ends finely lined, knotwork along the lower lame)
-          const on = onShell(rings, y0, y1, k0, k1);
-          l.root.add(wire([...span(3, (u) => on(th0, y0 - 0.08 + (y1 - y0 + 0.08) * u, 0.004)), ...span(20, (u) => on(th0 + wrap * u, y1, 0.006)).slice(1), ...span(3, (u) => on(th0 + wrap, y1 + (y0 - 0.08 - y1) * u, 0.004)).slice(1)], t));
-          if (i === 1) knotBand((u, v) => on(sx * Math.PI / 2 + (u - 0.5) * 2.2, y0 - 0.17 + 0.045 * v), 5, l.root);
+        if (eng) {
+          const top = i ? y0 : 0.1, kAt = (y: number) => k0 + (k1 - k0) * (y0 - y) / (y0 - y1), on = (u: number, y: number, off = 0): [number, number, number] => [sx * Math.PI / 2 + (u - 0.5) * wrapAt(y), y, kAt(y) + off];
+          const pt = (u: number, y: number, off: number) => { const [th, yy, k] = on(u, y, off), [x, z] = ringPoint(ringAt(hung, yy), th, k); return new THREE.Vector3(x * s, yy * s, z * s); };
+          l.root.add(sm(patch(hung, (u, v) => on(u, top + (y1 - top) * v), 24, 6), c, true));
+          l.root.add(wire([...span(4, (u) => pt(0, y0 - 0.02 + (y1 - y0 + 0.02) * u, 0.004)), ...span(20, (u) => pt(u, y1, 0.006)).slice(1), ...span(4, (u) => pt(1, y1 + (y0 - 0.02 - y1) * u, 0.004)).slice(1)], t));
+          if (i === 1) knotBand((u, v) => pt(0.5 + (u - 0.5) * 2.2 / wrapAt(y0 - 0.17), y0 - 0.17 + 0.045 * v, 0.012), 5, l.root);
           continue;
         }
+        l.root.add(sm(shellGeometry(rings, y0, y1, th0, wrap, k0, k1, s), c, true));
         const edge: THREE.Vector3[] = []; for (let j = 0; j <= 24; j++) { const [x, z] = ringPoint(ringAt(rings, y1), th0 + wrap * j / 24, k1 + 0.01); edge.push(new THREE.Vector3(x * s, y1 * s, z * s)); }
         l.root.add(tube(edge, 0.016 * s, t));
         for (const q of [-0.8, 0, 0.8]) { const [x, z] = ringPoint(ringAt(rings, y0 - 0.05), sx * Math.PI / 2 + q, k0 + 0.03); l.root.add(at(sph(0.018 * s, t, 6, 4), x * s, (y0 - 0.05) * s, z * s)); }
@@ -1393,16 +1421,25 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
       const leather = cor?.belts ?? '#4a3424', sy = -0.66, [bx, bz] = ringPoint(ringAt(rings, sy), sx * Math.PI / 2 + 0.5, 1.05);
       l.root.add(sm(shellGeometry(rings, sy + 0.035, sy - 0.035, 0, Math.PI * 2, 1.035, 1.035, s, 20, 1), leather, true));
       l.root.add(at(box(0.05 * s, 0.085 * s, 0.05 * s, f.buckle ?? t), bx * s, sy * s, bz * s));
-      // the vambrace: one plate round the forearm from below the elbow to the wrist, a cuff flaring out over the gauntlet,
-      // its edges finely lined, knotwork round it
-      const fa = forearmRings(fr), v0 = -0.42, v1 = -0.88, c1 = -1.0, vk = 1.15, ck = 1.34, onV = onShell(fa, v0, v1, vk, vk), onC = onShell(fa, v1, c1, vk, ck);
-      l.mid.add(sm(shellGeometry(fa, v0, v1, 0, Math.PI * 2, vk, vk, s, 16, 6), steel, true), sm(shellGeometry(fa, v1, c1, 0, Math.PI * 2, vk, ck, s, 16, 2), steel, true));
-      for (const [on, y] of [[onV, v0], [onV, v1 + 0.01], [onC, c1]] as const) l.mid.add(wire(span(16, (u) => on(u * Math.PI * 2, y, 0.004)).slice(1), t, 0.009 * s, true));
+      // the vambrace: one plate round the forearm from the wrist to the elbow, cut low in the crook of the arm and rising
+      // to cover the point of the elbow behind, a cuff flaring out over the gauntlet and on past the wrist, its edges
+      // finely lined, knotwork round it
+      const fa = forearmRings(fr), v1 = -0.88, c1 = -1.07, vk = 1.15, ck = 1.38, vTop = (th: number) => 0.005 - 0.05 * Math.cos(th), onV = onShell(fa, 0, v1, vk, vk), onC = onShell(fa, v1, c1, vk, ck);
+      l.mid.add(sm(patch(fa, (u, v) => [u * Math.PI * 2, vTop(u * Math.PI * 2) + (v1 - vTop(u * Math.PI * 2)) * v, vk], 16, 8), steel, true), sm(shellGeometry(fa, v1, c1, 0, Math.PI * 2, vk, ck, s, 16, 2), steel, true));
+      l.mid.add(wire(span(16, (u) => onV(u * Math.PI * 2, vTop(u * Math.PI * 2), 0.004)).slice(1), t, 0.009 * s, true));
+      for (const [on, y] of [[onV, v1 + 0.01], [onC, c1]] as const) l.mid.add(wire(span(16, (u) => on(u * Math.PI * 2, y, 0.004)).slice(1), t, 0.009 * s, true));
       knotBand((u, v) => onV(u * Math.PI * 2, -0.62 + 0.05 * v), 8, l.mid);
-      l.mid.add(sm(shellGeometry(fa, v1 + 0.04, -1.04, 0, Math.PI * 2, 1.07, 1.07, s, 14, 2), f.gauntlets ?? steel, true)); // the gauntlet's wrist, inside the cuff
-      // the gauntlet: a plate over the back of the hand (in the palm's own flattened measure)
-      const hu = 0.105 * (l.hs ?? 1) * s, back = sph(hu, tone(f.gauntlets ?? steel, '#ffffff', 0.1), 12, 8);
-      back.scale.set(0.94, 0.82, 1); l.hand.add(at(back, 0, 0.1 * hu, -0.3 * hu));
+      // the gauntlet's wrist: a sleeve from inside the cuff down over the top of the hand, which bends within it, closed
+      // across the wrist so no skin shows up inside it
+      l.mid.add(sm(shellGeometry(fa, v1 + 0.04, -1.055, 0, Math.PI * 2, 1.07, 1.1, s, 14, 3), f.gauntlets ?? steel, true), sm(patch(fa, (u, v) => [u * Math.PI * 2, -1.046, 1.08 - 1.07 * v], 14, 1), f.gauntlets ?? steel, true));
+      // the gauntlet's plate: a thin shell over the back of the hand only, from short of the wrist to the knuckles,
+      // standing just off the glove and turned in to it at its edge (in the palm's own flattened measure)
+      const hu = 0.105 * (l.hs ?? 1) * s, back: number[] = [];
+      for (const [v, c] of [[0, 0.014], [0.3, 0.014], [0.6, 0.014], [0.85, 0.014], [0.95, 0.013], [1, 0.007]]) for (let j = 0; j <= 16; j++) {
+        const a = j / 16 * Math.PI * 2, ph = v * (0.8 - 0.27 * Math.sin(a));
+        back.push(Math.sin(ph) * Math.cos(a) * (hu + c * s / 0.9), Math.sin(ph) * Math.sin(a) * (hu + c * s / 1.15), -Math.cos(ph) * (hu + c * s / 0.42));
+      }
+      l.hand.add(sm(gridGeometry(back, 17, 5), tone(f.gauntlets ?? steel, '#ffffff', 0.1), true));
     });
     { const gg = sm(new THREE.CylinderGeometry(0.3 * fr.m.neck * s, 0.44 * fr.m.neck * s, 0.26 * s, 24, 1, true), f.armor.color, true); up.add(at(gg, 0, 2.22 * s, -0.01 * s)); // gorget: a flared collar of plate, edged at the top
       const gt = sm(new THREE.TorusGeometry(0.3 * fr.m.neck * s, (eng ? 0.01 : 0.018) * s, 5, 24), t); gt.rotation.x = Math.PI / 2; up.add(at(gt, 0, 2.35 * s, -0.01 * s)); }
@@ -1415,6 +1452,7 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
     const edgeAt = (x: number, z: number) => 1.02 - 0.24 * Math.max(0, 1 - Math.abs(Math.atan2(x, z)) / 0.6) ** 1.3;
     const cutWarp = (p: [number, number, number]): [number, number, number] => { const e = edgeAt(p[0], p[2]); return p[1] >= e ? bustWarp(p) : [p[0] * 0.95, e - 0.02, p[2] * 0.95]; };
     { const bp = sm(loftGeometry(clipRings(tr, 0.62, 1.95), s, { seg: fr.bust ? 72 : 32, rows: fr.bust ? 60 : undefined, k: plateK, warp: cor ? cutWarp : bustWarp, jig: bustJig, bump: plateBump }), f.armor.color); bp.userData.skin = true; up.add(bp); } // the breastplate, ridged down its centre
+    if (eng) up.add(wire(span(8, (u) => onPlate(1.88 - 0.8 * u, Math.PI)), t, 0.008 * s)); // (engraved: a fine line down the backplate's spine)
     if (cor) {
       // the corset: dark leather close on the waist from under the breastplate down into the girdle of the hips, laced
       // down its front; the plate's cut edge finely lined, knotwork along it above the point
@@ -1428,37 +1466,62 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
     // on each (the last one bright); it rests on the hips, as the tassets and the culet hung from it, but its lames give
     // with the body as it bends and turns, each turned a share of the way with the chest (FAULD_GIVE), the breastplate's
     // lower edge under the first
-    // (a corset's leather girdle gives over the seat, where plate stands off it: each lame is lifted as far as its own
-    // top edge needs to clear the seat, so the lames and what lies on them keep their order; a point of a lame at a
-    // height, round the hips, and a band of it down a profile of [height, k])
-    const lameTop = (i: number) => 1.12 + i * 0.05 - (i ? 0.12 : 0);
-    const onGirdle = (i: number, th: number, y: number, k: number) => { const [x, z] = ringPoint(ringAt(hips, y), th, k + Math.max(0, 1.03 * (1 + seatBump(th, y)) - lameTop(i))); return new THREE.Vector3(x * s, y * s, z * s); };
-    const girdle = (i: number, prof: [number, number][]) => gridGeometry(prof.flatMap(([y, k]) => span(40, (u) => onGirdle(i, u * Math.PI * 2, y, k)).flatMap((p) => p.toArray())), 41, prof.length - 1);
     const hips = hipStack(tr, pelvisRings(fr)), lighter = tone(f.armor.color, '#ffffff', 0.06), rolled = tone(f.armor.color, '#ffffff', 0.18);
     for (let i = 0; i < 4; i++) {
       const y0 = 0.68 - i * 0.17, y1 = y0 - 0.2, k0 = 1.12 + i * 0.05, k1 = k0 + 0.065, lg = new THREE.Group(); lg.name = 'fauld' + i; pel.add(lg); lames.push(lg);
-      if (cor) { // (over a corset the lames are its leather girdle, a welt on each; each runs up under the one above)
-        lg.add(sm(girdle(i, [...(i ? [[y0 + 0.05, lameTop(i)], [y0, k0 - 0.03]] : [[y0, k0]]), ...span(2, (u) => [y0 + (y1 - y0) * (1 + 2 * u) / 3, k0 + (k1 - k0) * (1 + 2 * u) / 3])] as [number, number][]), cor.color, true));
-        lg.add(tube(span(40, (u) => onGirdle(i, u * Math.PI * 2, y1, k1 + 0.012)), (i === 3 ? 0.02 : 0.016) * s, tone(cor.color, '#000000', 0.3), true));
-        continue;
-      }
+      if (cor) continue; // (over a corset the girdle is of leather, cut below)
       lg.add(sm(shellGeometry(hips, y0, y1, 0, Math.PI * 2, k0, k1, s, 40, 3), i % 2 ? lighter : f.armor.color, true));
       const rim: THREE.Vector3[] = []; for (let j = 0; j <= 40; j++) { const [x, z] = ringPoint(ringAt(hips, y1), (j / 40) * Math.PI * 2, k1 + 0.012); rim.push(new THREE.Vector3(x * s, y1 * s, z * s)); }
       lg.add(tube(rim, (i === 3 ? 0.02 : 0.016) * s, i === 3 ? t : rolled, true));
     }
+    // (over a corset the fauld is its leather girdle: three lames round the hips, each a closed ring a constant step
+    // outside the one above and flaring to a fine rolled rim, its top run up under the rim above with room between, so no
+    // two share a surface. Leather gives with the body where plate turns lame by lame: every height of it turns its own
+    // share with the chest, all the way at the waist and as the last lame does at its foot, so the lames keep their
+    // places on one another however she bends. It follows the seat, a little off it)
+    const GE = GIRDLE.edges, GT = GE[0], GB = GE[3], lameAt = GIRDLE.out;
+    const lean = new THREE.Quaternion(); if (cor) lean.setFromEuler(new THREE.Euler(...trunk(poseOf(f, battle, dead, gown).spine ?? [0, 0, 0])));
+    const foot = new THREE.Quaternion().slerp(lean, FAULD_GIVE[3]).invert(), give = new THREE.Quaternion();
+    // (round the tops of the tassets, which hang inside its foot: how far out they stand each way from the hips' axis)
+    const TASSET = [0.02, 1.3] as const, past = new Float32Array(96);
     if (cor) {
-      // the belts: two straps round the girdle, one at the waist and one low on the hips, each lying on its lame and
-      // turning with it, buckled at the front to either side of the lacing, its tongue run on through a keeper
-      const strap = cor.belts ?? '#5a3d28', lace = cor.lacing ?? tone(cor.color, '#000000', 0.45), kAt = (i: number, y: number) => 1.12 + i * 0.05 + 0.065 * (0.68 - i * 0.17 - y) / 0.2;
-      for (const [i, y, h, az] of [[0, 0.635, 0.075, 0.42], [2, 0.245, 0.07, -0.5]] as const) {
-        lames[i].add(sm(girdle(i, [[y + h / 2, kAt(i, y + h / 2) + 0.012], [y - h / 2, kAt(i, y - h / 2) + 0.012]]), strap, true));
-        const p0 = onGirdle(i, az, y, kAt(i, y) + 0.012), out = onGirdle(i, az, y, kAt(i, y) + 0.1).sub(p0).normalize(), bk = new THREE.Group(); bk.position.copy(p0); bk.lookAt(p0.clone().add(out)); lames[i].add(bk);
+      for (const sx of [RX, LX]) for (let j = 0; j <= 24; j++) { const [x, z] = ringPoint(ringAt(thighRings(fr), TASSET[0]), sx * 0.42 - 1.05 + 2.1 * j / 24, TASSET[1]), a = Math.round((Math.atan2(x + sx * fr.hipX, z) / (Math.PI * 2) + 1) * 96); for (let k = -3; k <= 3; k++) past[(a + k + 96) % 96] = Math.max(past[(a + k + 96) % 96], Math.hypot(x + sx * fr.hipX, z)); }
+      for (let n = 0; n < 3; n++) { const was = past.slice(); for (let a = 0; a < 96; a++) past[a] = Math.max(was[a], (was[(a + 95) % 96] + was[a] + was[(a + 1) % 96]) / 3); }
+    }
+    const hipAt = (th: number, y: number): [number, number] => {
+      const [x, z] = ringPoint(ringAt(hips, y), th, Math.max(GIRDLE.line(y), 1.03 * (1 + seatBump(th, y)) + 0.02));
+      const r = Math.hypot(x, z), a = (Math.atan2(x, z) / (Math.PI * 2) + 1) * 96, a0 = Math.floor(a), need = past[a0 % 96] + (past[(a0 + 1) % 96] - past[a0 % 96]) * (a - a0) - 0.02;
+      const k = 1 + Math.min(1, Math.max(0, (0.32 - y) / 0.24)) * Math.max(0, need / r - 1);
+      return [x * k, z * k];
+    };
+    /** A point of the girdle in the last lame's frame: round the hips at a height, `d` out from its foundation. */
+    const onGirdle = (th: number, y: number, d: number) => {
+      const [x, z] = hipAt(th, y), a = hipAt(th - 0.03, y), b = hipAt(th + 0.03, y), tx = b[0] - a[0], tz = b[1] - a[1], l = Math.hypot(tx, tz) || 1;
+      give.identity().slerp(lean, FAULD_GIVE[3] + (1 - FAULD_GIVE[3]) * Math.min(1, Math.max(0, (y - GB) / (GT - GB)))).premultiply(foot);
+      return new THREE.Vector3((x - tz / l * d) * s, y * s, (z + tx / l * d) * s).applyQuaternion(give);
+    };
+    const hoop = (prof: [number, number][], c: string) => sm(gridGeometry(prof.flatMap(([y, d]) => span(48, (u) => onGirdle(u * Math.PI * 2, y, d)).flatMap((p) => p.toArray())), 49, prof.length - 1), c, true);
+    if (cor) {
+      const welt = tone(cor.color, '#000000', 0.3), strap = cor.belts ?? '#5a3d28', lace = cor.lacing ?? tone(cor.color, '#000000', 0.45);
+      for (let i = 0; i < 3; i++) {
+        const y1 = GE[i + 1], y0 = GE[i] + (i ? GIRDLE.lap : 0);
+        // (the first is turned in at its top onto the corset)
+        lames[3].add(hoop([...(i ? [] : [[GT + 0.03, -0.012]]), ...span(4, (u) => [y0 + (y1 - y0) * u, lameAt(i, y0 + (y1 - y0) * u)])] as [number, number][], cor.color));
+        lames[3].add(wire(span(48, (u) => onGirdle(u * Math.PI * 2, y1, lameAt(i, y1))).slice(1), welt, GIRDLE.rim * s, true));
+      }
+      // the belts: two straps round the girdle, one at the waist and one low on the hips, each a band of its own lying on
+      // the face of one lame, clear of it, buckled at the front to either side of the lacing, its tongue run on through
+      // a keeper
+      for (const [i, y, h, az] of [[0, 0.625, 0.07, 0.42], [2, 0.075, 0.07, -0.5]] as const) {
+        const d = (yy: number) => lameAt(i, yy) + 0.012;
+        lames[3].add(hoop([[y + h / 2, d(y + h / 2) - 0.01], [y + h / 2 - 0.008, d(y + h / 2)], [y - h / 2 + 0.008, d(y - h / 2)], [y - h / 2, d(y - h / 2) - 0.01]], strap));
+        const p0 = onGirdle(az, y, d(y)), bk = new THREE.Group(); bk.position.copy(p0); bk.lookAt(onGirdle(az, y, d(y) + 0.1)); lames[3].add(bk);
         bk.add(at(box(0.13 * s, (h + 0.045) * s, 0.03 * s, f.buckle ?? t), 0, 0, 0.012 * s), at(box(0.07 * s, (h - 0.01) * s, 0.034 * s, strap), 0, 0, 0.012 * s), at(box(0.035 * s, (h + 0.02) * s, 0.026 * s, tone(strap, '#000000', 0.3)), Math.sign(az) * 0.13 * s, 0, 0.008 * s));
       }
-      // the lacing, on down the front of the girdle between the belts
-      for (const [i, y] of [[0, 0.53], [1, 0.44], [1, 0.36], [3, 0.1], [3, 0.02]] as const) for (const sx of [-1, 1]) {
-        const r = ringAt(hips, y), x = box(0.15 * s, 0.022 * s, 0.022 * s, lace); x.rotation.z = sx * 0.5; x.rotation.x = -Math.atan(0.065 * r.f / 0.2);
-        lames[i].add(at(x, 0, y * s, ((r.z ?? 0) + r.f * kAt(i, y) + 0.008) * s));
+      // the lacing, on down the front of the girdle between the belts, each cross lying on its lame
+      for (const [i, y] of [[0, 0.53], [0, 0.44], [1, 0.27], [1, 0.2]] as const) for (const sx of [-1, 1]) {
+        const x = box(0.15 * s, 0.022 * s, 0.022 * s, lace), g = new THREE.Group(); g.position.copy(onGirdle(0, y, lameAt(i, y) + 0.008)); g.lookAt(onGirdle(0, y, lameAt(i, y) + 0.108));
+        x.rotation.z = sx * 0.5; g.add(x); lames[3].add(g);
       }
     }
     // the belt's buckle, on the front of the fauld's first lame, lying on its slope (it turns as the lame does)
@@ -1467,16 +1530,28 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
       for (const [w, h, d, c] of [[0.24, 0.2, 0.06, f.buckle], [0.12, 0.1, 0.07, f.trim ?? '#2b2420']] as const) { const b = box(w * s, h * s, d * s, c); b.rotation.x = -tilt; lames[0].add(at(b, 0, y * s, z + (d / 2 - 0.01) * s)); }
     }
     if (f.armor.emblem === 'helm') {
-      // Helm's holy symbol, borne on the breastplate below the bust: an upright gauntlet, palm out, an open eye on the
-      // palm; it lies on the plate's keel, tipped to its slope
-      const e = 0.34 * s, c = eng ?? t, p0 = onPlate(1.2, 0), g = new THREE.Group(); g.position.copy(p0); g.rotation.x = -Math.atan2(onPlate(1.32, 0).z - onPlate(1.08, 0).z, 0.24 * s); up.add(g);
-      const bit = (w: number, h: number, x: number, y: number, col = c, d = 0.07, rz = 0) => { const b = box(w * e, h * e, d * e, col); b.rotation.z = rz; g.add(at(b, x * e, y * e, 0)); };
-      bit(0.52, 0.2, 0, -0.42); bit(0.42, 0.1, 0, -0.29, tone(c, '#000000', 0.25));                    // the cuff, and its wrist
-      bit(0.5, 0.42, 0, -0.03);                                                                          // the palm
-      for (let i = 0; i < 4; i++) bit(0.095, [0.3, 0.36, 0.33, 0.25][i], (i - 1.5) * 0.135, 0.18 + [0.15, 0.18, 0.165, 0.125][i]); // the fingers
-      bit(0.11, 0.34, RX * 0.36, 0.02, c, 0.07, RX * -0.6);                                              // the thumb
-      const eye = sph(0.2 * e, steel, 10, 6); eye.scale.set(1, 0.5, 0.3); g.add(at(eye, 0, -0.03 * e, 0.035 * e));
-      g.add(at(sph(0.055 * e, c, 8, 6), 0, -0.03 * e, 0.07 * e));
+      // Helm's holy symbol, borne on the breastplate below the bust: an upright gauntlet, palm out (a flared cuff, the
+      // palm, four fingers of their own lengths with room between them, the thumb standing off at an angle), an open eye
+      // on the palm; a thin flat relief cut from sheet and laid to the plate's own curve
+      const e = 0.27 * s, c = eng ?? t, deep = 0.006 * s, lay = (shapes: THREE.Shape[], col: string, lift: number, d: number) => {
+        const g = new THREE.ExtrudeGeometry(shapes, { depth: 1, bevelEnabled: false, curveSegments: 5 }), pos = g.getAttribute('position'), du = new THREE.Vector3(), dv = new THREE.Vector3();
+        for (let i = 0; i < pos.count; i++) {
+          const x = pos.getX(i) * e, y = 1.23 + pos.getY(i) * e / s; let a = 0;
+          for (let n = 0; n < 4; n++) { const p = onPlate(y, a); a += (x - p.x) / Math.max(0.05 * s, (onPlate(y, a + 0.02).x - p.x) / 0.02); }
+          const p = onPlate(y, a); du.subVectors(onPlate(y, a + 0.02), p); dv.subVectors(onPlate(y + 0.02, a), p);
+          p.addScaledVector(du.cross(dv).normalize(), lift + pos.getZ(i) * d); pos.setXYZ(i, p.x, p.y, p.z);
+        }
+        g.computeVertexNormals(); up.add(sm(g, col));
+      };
+      const hand = new THREE.Shape(), w = 0.085, r = w / 2, root = 0.1; hand.moveTo(-0.2, -0.24); hand.quadraticCurveTo(-0.2, -0.28, -0.16, -0.28); hand.lineTo(0.16, -0.28); hand.quadraticCurveTo(0.2, -0.28, 0.2, -0.24);
+      [0.22, 0.31, 0.36, 0.3].forEach((len, i) => { const x = 0.1575 - i * 0.105; hand.lineTo(x + r, root); hand.lineTo(x + r, root + len - r); hand.absarc(x, root + len - r, r, 0, Math.PI, false); hand.lineTo(x - r, root); }); // little finger to index
+      hand.closePath();
+      const cuff = new THREE.Shape([[-0.27, -0.54], [0.27, -0.54], [0.19, -0.31], [-0.19, -0.31]].map(([x, y]) => new THREE.Vector2(x, y)));
+      const thumb = new THREE.Shape(); thumb.absarc(0, 0.26, 0.05, 0, Math.PI, false); thumb.lineTo(-0.05, 0); thumb.lineTo(0.05, 0); thumb.closePath();
+      const turned = new THREE.Shape(thumb.getPoints(5).map((q) => q.rotateAround(new THREE.Vector2(), 0.75).add(new THREE.Vector2(-0.215, -0.2))));
+      const eye = new THREE.Shape(); eye.moveTo(-0.15, -0.1); eye.quadraticCurveTo(0, 0.02, 0.15, -0.1); eye.quadraticCurveTo(0, -0.22, -0.15, -0.1);
+      const pupil = new THREE.Shape(); pupil.absarc(0, -0.1, 0.036, 0, Math.PI * 2, false);
+      lay([hand, cuff, turned], c, 0.002 * s, deep); lay([eye], steel, 0.002 * s + deep, 0.001 * s); lay([pupil], c, 0.002 * s + deep, 0.002 * s);
     } else if (!eng) { const knot = sm(new THREE.TorusKnotGeometry(0.1 * s, 0.022 * s, 48, 6, 2, 3), t); up.add(at(knot, 0, 1.25 * s, 0.44 * s)); } // a knotwork boss
     // tassets: a plate of two lames down the front of each thigh, and a culet of two over the seat, each hanging from the
     // fauld's last rim and swinging out as one piece over a thigh that lifts under it (kit/cloth.ts)
@@ -1491,23 +1566,32 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
       rims.forEach((r, i) => { const pts: THREE.Vector3[] = []; for (let j = 0; j <= 12; j++) pts.push(clothPoint(G, j / 12, r / (G.rows - 1), 0.012 * s)); parent.add(tube(pts, 0.018 * s, i === rims.length - 1 ? t : rolled)); });
       for (const u of [0.12, 0.88]) parent.add(at(sph(0.022 * s, t, 6, 4), ...clothPoint(G, u, 0.06, 0.012 * s).toArray()));
     };
-    // (over a corset a coat skirt of its leather hangs from under the girdle's last welt to above the knee, open at the
+    // (over a corset a coat skirt of its leather hangs from under the girdle's last lame to above the knee, open at the
     // front from hip to hip: it covers the seat in the culet's place and the backs and sides of the thighs, its two front
     // edges under the tassets' outer sides, so the tassets hang as they would over the thighs alone; a weapon slung on
-    // the back lies on it. It is cut close, inside the girdle, and rides out over the thighs as they stand)
+    // the back lies on it. Its top is out of sight inside the last lame; from there it falls as soft leather does,
+    // flaring a little into shallow folds, its front corners rounded off, a vent up the middle of the back)
     if (cor) {
-      const rim = ringAt(hips, -0.03), rows = 14, gap = 2.6, pos: number[] = [], thAt = (u: number) => gap / 2 + (Math.PI * 2 - gap) * u;
+      const rows = 14, gap = 2.6, pos: number[] = [], top = GB - 0.012, len = 1.08, mid = (DRAPE_COLS - 1) / 2, thAt = (u: number) => gap / 2 + (Math.PI * 2 - gap) * u;
       for (let i = 0; i <= rows; i++) for (let j = 0; j < DRAPE_COLS; j++) {
-        const v = i / rows, th = thAt(j / (DRAPE_COLS - 1)), [x, z] = ringPoint(rim, th, Math.max(1.03, 1.03 * (1 + seatBump(th, Math.max(-0.1, -0.07 - 1.05 * v))) + 0.05) * (1 + 0.07 * v + 0.025 * v * Math.sin(7 * th + 0.7)));
-        pos.push(x * s, (-0.07 - 1.05 * v) * s, z * s);
+        const v = i / rows, th = thAt(j / (DRAPE_COLS - 1)), edge = Math.max(0, 1 - Math.min(j, DRAPE_COLS - 1 - j) / 5), vent = Math.max(0, 1 - Math.abs(j - mid) / 1.5) * Math.max(0, v - 0.5) / 0.5;
+        const y = top - len * v + (0.2 * edge * edge + 0.5 * vent) * v * v, p = onGirdle(th, GB, lameAt(2, GB) - 0.02), k = 1 + (0.05 + 0.025 * Math.sin(7 * th + 0.7) - 0.1 * edge * edge) * (top - y);
+        pos.push(p.x * k, y * s, p.z * k);
       }
       wear('coat', sm(gridGeometry(pos, DRAPE_COLS, rows), cor.color, true), lames[3], DRAPE_COLS, rows + 1, { closed: false, covers: ['pelvis', ...LEGS, ...FEET], outside: [...LOWER_ARMS, 'stowed'], layer: 0, clear: 0.02 * s, spread: 5, hang: 0.8, after: (G) => {
-        // (where its top rides out over a thigh stood out under it, its yoke runs on from the girdle's last welt to it)
-        const yoke: number[] = []; for (const top of [true, false]) for (let j = 0; j < DRAPE_COLS; j++) { const u = j / (DRAPE_COLS - 1); yoke.push(...(top ? onGirdle(3, thAt(u), -0.02, 1.325) : clothPoint(G, u, 0)).toArray()); }
-        lames[3].add(sm(gridGeometry(yoke, DRAPE_COLS, 1), cor.color, true));
-        const welt = tone(cor.color, '#000000', 0.35); // its hem and the two edges of the split, welted
-        lames[3].add(wire(span(40, (u) => clothPoint(G, u, 1, 0.006 * s)), welt, 0.014 * s));
-        for (const u of [0, 1]) lames[3].add(wire(span(10, (w) => clothPoint(G, u, w, 0.006 * s)), welt, 0.014 * s));
+        // (a weapon slung on the back lies on the coat: where a corner of it would still graze the leather, the coat
+        // gives way under it, drawn in toward the leg)
+        const slung = body.getObjectByName('stowed'), cp = G.mesh.geometry.getAttribute('position'), v = new THREE.Vector3(), q = new THREE.Vector3();
+        if (slung) {
+          slung.updateWorldMatrix(true, true); G.mesh.updateWorldMatrix(true, false);
+          const boxes: [THREE.Matrix4, THREE.Box3][] = []; slung.traverse((o) => { const m = o as M; if (!m.isMesh) return; m.geometry.computeBoundingBox(); boxes.push([m.matrixWorld.clone().invert().multiply(G.mesh.matrixWorld), m.geometry.boundingBox!.clone().expandByScalar(0.02 * s)]); });
+          for (let i = 0; i < cp.count; i++) { v.fromBufferAttribute(cp, i); for (let n = 0; n < 40 && boxes.some(([m, b]) => b.containsPoint(q.copy(v).applyMatrix4(m))); n++) { v.x *= 0.994; v.z *= 0.994; } cp.setXYZ(i, v.x, v.y, v.z); }
+          G.mesh.geometry.computeVertexNormals();
+        }
+        const welt = tone(cor.color, '#000000', 0.35), u0 = 0.5 - 1.5 / (DRAPE_COLS - 1); // its hem and the edges of the split and the vent, finely welted
+        lames[3].add(wire(span(56, (u) => clothPoint(G, u, 1, 0.004 * s)), welt, 0.008 * s));
+        for (const u of [0, 1]) lames[3].add(wire(span(10, (w) => clothPoint(G, u, w, 0.004 * s)), welt, 0.008 * s));
+        lames[3].add(wire([...span(6, (w) => clothPoint(G, u0, 1 - 0.5 * w, 0.004 * s)), ...span(6, (w) => clothPoint(G, 1 - u0, 0.5 + 0.5 * w, 0.004 * s))], welt, 0.006 * s));
       } });
     }
     for (const sd of ['R', 'L'] as const) {
@@ -1526,18 +1610,31 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
       // the knee cop: a shaped plate over the front of the knee with a fan at its outside, on the knee's middle line, so
       // it sits on the bend whatever the knee does (see bendLimb)
       const sx = l === leg[0] ? RX : LX, cop = new THREE.Group(); l.mid.add(cop); cops.push(cop);
-      const shell: Ring[] = []; for (let i = 0; i <= 8; i++) { const y = -0.3 + 0.6 * i / 8, k = Math.sqrt(Math.max(0.02, 1 - (y / 0.32) ** 2)); shell.push({ y, w: 0.25 * fr.leg * k, f: 0.29 * fr.leg * k, b: 0.15 * fr.leg * k }); }
+      const shell: Ring[] = []; for (let i = 0; i <= 8; i++) { const y = -0.3 + 0.6 * i / 8, k = Math.sqrt(Math.max(eng && y > 0 ? 0.66 : 0.02, 1 - (y / 0.32) ** 2)); shell.push({ y, w: 0.25 * fr.leg * k, f: 0.29 * fr.leg * k, b: 0.15 * fr.leg * k }); }
       cop.add(sm(shellGeometry(shell, 0.26, -0.27, -1.75, 3.5, 1, 1, s, 20, 8), f.armor.color, true));
       const fan: Ring[] = shell.map((r) => ({ ...r, w: r.w * 1.06 }));
-      cop.add(sm(shellGeometry(fan, 0.17, -0.17, sx * Math.PI / 2 - 0.65, 1.3, 1, 1, s, 10, 6), lighter, true));
-      for (const y of [0.26, -0.27]) { const pts: THREE.Vector3[] = []; for (let j = 0; j <= 16; j++) { const [x, z] = ringPoint(ringAt(shell, y), -1.75 + 3.5 * j / 16, 1.02); pts.push(new THREE.Vector3(x * s, y * s, z * s)); } cop.add(eng ? wire(pts, t) : tube(pts, 0.016 * s, t)); }
+      cop.add(sm(shellGeometry(fan, 0.17, -0.17, sx * Math.PI / 2 - 0.65, 1.3, 1, 1, s, 10, 6), eng ? steel : lighter, true));
+      // (engraved: the cop is fuller at its top, so its edge stands clear of the thigh, and finely lined all round)
+      if (eng) { const on = (th: number, y: number) => { const [x, z] = ringPoint(ringAt(shell, y), th, 1.02); return new THREE.Vector3(x * s, y * s, z * s); }; cop.add(wire([...span(16, (u) => on(-1.75 + 3.5 * u, 0.26)), ...span(4, (u) => on(1.75, 0.26 - 0.53 * u)).slice(1), ...span(16, (u) => on(1.75 - 3.5 * u, -0.27)).slice(1), ...span(4, (u) => on(-1.75, -0.27 + 0.53 * u)).slice(1, -1)], t, 0.009 * s, true)); }
+      else for (const y of [0.26, -0.27]) { const pts: THREE.Vector3[] = []; for (let j = 0; j <= 16; j++) { const [x, z] = ringPoint(ringAt(shell, y), -1.75 + 3.5 * j / 16, 1.02); pts.push(new THREE.Vector3(x * s, y * s, z * s)); } cop.add(eng ? wire(pts, t) : tube(pts, 0.016 * s, t)); }
       // (engraved: the greave stands out over the boot's cuff, one plate from the knee to the ankle, finely lined at its two ends)
       const sh = shinRings(fr), cuff = ringAt(sh, -0.55), wide = (r: Ring): Ring => (r.y > -0.7 && r.y < -0.42 ? { ...r, w: Math.max(r.w, cuff.w), f: Math.max(r.f, cuff.f), b: Math.max(r.b, cuff.b) } : r);
       const greave = eng ? Array.from({ length: 20 }, (_, i) => wide(ringAt(sh, -1.05 + 0.93 * i / 19))) : clipRings(sh, -1.05, -0.12);
       l.mid.add(sm(loftGeometry(greave, s, { seg: 14, k: eng ? 1.31 : 1.22, rows: eng ? 38 : 18 }), f.armor.color));
-      if (eng) { const on = onShell(greave, -0.12, -1.05, 1.31, 1.31); for (const y of [-0.16, -1.02]) l.mid.add(wire(span(14, (u) => on(u * Math.PI * 2, y, 0.004)).slice(1), t, 0.009 * s, true)); continue; }
+      if (eng) {
+        const on = onShell(greave, -0.12, -1.05, 1.31, 1.31); for (const y of [-0.16, -1.02]) l.mid.add(wire(span(14, (u) => on(u * Math.PI * 2, y, 0.004)).slice(1), t, 0.009 * s, true));
+        // the sabaton: two lames over the instep and the toes of the boot, the upper lapping the lower, each finely lined
+        // at its lower edge
+        const fl = fr.fem ? 1.02 : 1.18, ft: Ring[] = [{ y: -0.42, w: 0.15 * fl, f: 0.52 * fl, b: 0.2 * fl, z: 0.02 }, { y: -0.3, w: 0.165 * fl, f: 0.5 * fl, b: 0.21 * fl, z: 0.02 }, { y: -0.16, w: 0.14 * fl, f: 0.3 * fl, b: 0.17 * fl }, { y: -0.02, w: 0.125 * fl, f: 0.15 * fl, b: 0.14 * fl }];
+        for (const [y0, y1, k0, k1] of [[-0.2, -0.36, 1.04, 1.07], [-0.05, -0.24, 1.1, 1.12]]) {
+          const onF = onShell(ft, y0, y1, k0, k1);
+          l.end.add(sm(shellGeometry(ft, y0, y1, -1.9, 3.8, k0, k1, s, 14, 3), steel, true), wire(span(14, (u) => onF(-1.9 + 3.8 * u, y1, 0.004)), t, 0.008 * s));
+        }
+        continue;
+      }
       for (const y of [-0.18, -1.0]) { const r = ringAt(shinRings(fr), y); l.mid.add(sm(loftGeometry([{ ...r, y: y - 0.03 }, { ...r, y: y + 0.03 }], s, { seg: 14, k: 1.3, rows: 1 }), t)); }
     }
+    if (eng || cor) body.traverse((o) => { if ((o as M).isMesh && !bare.has(o) && !o.userData.garment) harness.push(o as M); });
   }
   if (f.armor?.kind === 'mail') {
     // the shirt: close on the body to the hips, hanging from there over the tops of the thighs (kit/cloth.ts lifts it over
@@ -2635,7 +2732,11 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
 
   const out = new THREE.Group(); out.add(body); out.userData.joints = joints;
   if (f.sparkles && !dead) for (let i = 0; i < 16; i++) { const a = i * 2.39996, r = (1.1 + (i % 3) * 0.35) * s, y = (0.8 + ((i * 7) % 11) * 0.42) * s + (f.hoverFt ?? 0); out.add(at(glassy(sph((0.05 + (i % 3) * 0.02) * s, f.sparkles, 6, 4), f.sparkles, 0.85), Math.cos(a) * r, y, Math.sin(a) * r)); }
-  if (laid) placeLay(out, body, laid, s, own, { up, head, gR, gL, drop: dead });
+  if (laid) {
+    placeLay(out, body, laid, s, own, { up, head, gR, gL, drop: dead });
+    // (a harness's pieces, and the trims of its tassets and coat skirt, laid on them once they hung)
+    if (harness.length) { body.traverse((o) => { if ((o as M).isMesh && /^(coat|tasset)/.test(o.userData.cloth ?? '')) harness.push(o as M); }); pressOnFloor(harness, 0.004 * s); }
+  }
   else if (f.hoverFt && !dead) body.position.y += f.hoverFt;
   return out;
 }
@@ -2966,8 +3067,12 @@ function bodyGuard(o: { body: THREE.Object3D; up: THREE.Object3D; pel: THREE.Obj
   };
   // the fauld: its four lames round the belly and hips, as built on the hips (so they turn with them), each the section of
   // the hips scaled out from its top to its rolled rim
-  const hips = plate ? hipStack(tr, pr) : [], fauld = plate ? [0, 1, 2, 3].map((i) => ({ y0: 0.68 - i * 0.17, y1: 0.48 - i * 0.17, k0: 1.12 + i * 0.05, k1: 1.185 + i * 0.05 })) : [];
-  const toLame = fauld.map((_, i) => { const g = o.pel.getObjectByName('fauld' + i); return g ? inv(g) : toPel; }); // (each lame turned its share with the chest)
+  const hips = plate ? hipStack(tr, pr) : [], girdle = plate && !!f.armor!.corset;
+  // (a corset's girdle: its three lames, each read in the frame of the plate lame that turns most nearly as it does)
+  const fauld: { y0: number; y1: number; k0: number; k1: number; d0: number; d1: number; rim: number; frame: number }[] = !plate ? [] : girdle
+    ? [0, 1, 2].map((i) => { const y0 = GIRDLE.edges[i], y1 = GIRDLE.edges[i + 1]; return { y0, y1, k0: GIRDLE.line(y0), k1: GIRDLE.line(y1), d0: GIRDLE.out(i, y0), d1: GIRDLE.out(i, y1), rim: GIRDLE.rim, frame: [0, 1, 3][i] }; })
+    : [0, 1, 2, 3].map((i) => ({ y0: 0.68 - i * 0.17, y1: 0.48 - i * 0.17, k0: 1.12 + i * 0.05, k1: 1.185 + i * 0.05, d0: 0, d1: 0, rim: i === 3 ? 0.02 : 0.016, frame: i }));
+  const toLame = fauld.map((b) => { const g = o.pel.getObjectByName('fauld' + b.frame); return g ? inv(g) : toPel; }); // (each lame turned its share with the chest)
   const hem = !f.skirt && !o.gown && !o.bare, gownUp = GOWN.slice().reverse();
   return (p: THREE.Vector3, rad: number) => {
     const r = rad / s; let d = -Infinity;
@@ -2979,9 +3084,9 @@ function bodyGuard(o: { body: THREE.Object3D; up: THREE.Object3D; pel: THREE.Obj
     for (const [i, b] of fauld.entries()) if (q.copy(p).applyMatrix4(toLame[i]).divideScalar(s).y > b.y1 - 0.03 - r && q.y < b.y0 + 0.03 + r) {
       // the lame (its top edge, under the rim of the one above, held off a little on the first), and its rim: a tube on
       // the lame's lower edge
-      const y = clampTo(q.y, b.y1, b.y0), R = ringAt(hips, y), k = b.k0 + (b.k1 - b.k0) * (b.y0 - y) / (b.y0 - b.y1), Rb = ringAt(hips, b.y1), kr = b.k1 + 0.012, tr2 = i === 3 ? 0.02 : 0.016;
-      d = Math.max(d, Math.min(sect(q.x - (R.x ?? 0), q.z - (R.z ?? 0), R.w * k + 0.006, R.f * k + 0.006, R.b * k + 0.006, R.n ?? 2), q.y - b.y1, b.y0 + (i ? 0 : 0.04) - q.y));
-      d = Math.max(d, tr2 - Math.hypot(q.y - b.y1, sect(q.x - (Rb.x ?? 0), q.z - (Rb.z ?? 0), Rb.w * kr, Rb.f * kr, Rb.b * kr, Rb.n ?? 2)));
+      const y = clampTo(q.y, b.y1, b.y0), R = ringAt(hips, y), t = (b.y0 - y) / (b.y0 - b.y1), k = b.k0 + (b.k1 - b.k0) * t, e = b.d0 + (b.d1 - b.d0) * t + 0.006, Rb = ringAt(hips, b.y1), kr = b.k1 + (girdle ? 0 : 0.012);
+      d = Math.max(d, Math.min(sect(q.x - (R.x ?? 0), q.z - (R.z ?? 0), R.w * k + e, R.f * k + e, R.b * k + e, R.n ?? 2), q.y - b.y1, b.y0 + (i ? 0 : 0.04) - q.y));
+      d = Math.max(d, b.rim - Math.hypot(q.y - b.y1, sect(q.x - (Rb.x ?? 0), q.z - (Rb.z ?? 0), Rb.w * kr + b.d1, Rb.f * kr + b.d1, Rb.b * kr + b.d1, Rb.n ?? 2)));
     }
     for (const m of toHips) { q.copy(p).applyMatrix4(m).divideScalar(s); if (q.y < 0.1 && q.y > -0.9) d = Math.max(d, stack(th, q, plate ? 1.08 : 1)); }
     q.copy(p).applyMatrix4(toNeck).divideScalar(s); d = Math.max(d, stack(nr, q));
@@ -3349,6 +3454,16 @@ function settleLay(lie: 'back' | 'front' | 'side', s: number, j: { body: THREE.G
   return { n, low, q: q0.clone().multiply(new THREE.Quaternion().setFromUnitVectors(n, n0)), lift: 0 };
 }
 
+/** What is worn under a body laid out is pressed flat on the floor: every point of these meshes that would lie below
+ *  `y` (world) is brought up to it. */
+function pressOnFloor(ms: M[], y: number): void {
+  const v = new THREE.Vector3();
+  for (const m of ms) {
+    const pos = m.geometry.getAttribute('position'); let moved = false; m.updateWorldMatrix(true, false);
+    for (let i = 0; i < pos.count; i++) if (v.fromBufferAttribute(pos, i).applyMatrix4(m.matrixWorld).y < y) { v.y = y; m.worldToLocal(v); pos.setXYZ(i, v.x, v.y, v.z); moved = true; }
+    if (moved) { pos.needsUpdate = true; m.geometry.computeVertexNormals(); }
+  }
+}
 /** A wing of a body laid out: flat on the floor from its root when the root is down there (the body on its back lies on
  *  its wings), otherwise sloping from its root on the back down to the floor; spread out along the floor the way it was
  *  spread (`sx` the side it spreads to, in its own frame), each pair (`i`) a hair above the one before. */

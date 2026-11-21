@@ -88,6 +88,77 @@ describe('an engraved harness over a corset', () => {
   });
 });
 
+describe('the harness\'s finer cut', () => {
+  const under = (g: THREE.Object3D, name: string, colour: string) => meshes(joint(g, name)).filter((m) => (m.material as THREE.MeshLambertMaterial).color.getHexString() === colour.slice(1));
+
+  it('laps the girdle\'s three lames with room between, in every state', { timeout: 120000 }, () => {
+    for (const st of ['rest', 'battle', 'dead'] as const) {
+      const g = heroFigure({ ...HARNESS, weapon: 'axe', pose: { spine: [-0.05, -0.3, 0.18] } }, 'medium', st), foot = joint(g, 'fauld3'), rc = new THREE.Raycaster();
+      // (the lames are the girdle's big sheets of leather; read in the frame they are cut in, top one first)
+      const lames = under(g, 'fauld3', '#2a211d').filter((m) => !m.userData.garment && m.geometry.getAttribute('position').count > 200 && m.geometry.getAttribute('position').count < 400);
+      const top = (m: THREE.Mesh) => Math.max(...points([m], foot).map((p) => p.y));
+      lames.sort((a, b) => top(b) - top(a));
+      expect(lames.length, st).toBe(3);
+      for (const m of lames) (m.material as THREE.Material).side = THREE.DoubleSide;
+      const axis = new THREE.Vector3(0, 1, 0).transformDirection(foot.matrixWorld), o = foot.getWorldPosition(new THREE.Vector3());
+      for (let k = 1; k < 3; k++) {
+        let tucked = 0;
+        for (const p of points([lames[k]], g)) {
+          const w = g.localToWorld(p.clone()), rel = w.clone().sub(o), out = rel.addScaledVector(axis, -rel.dot(axis)).normalize();
+          rc.far = 0.5; rc.set(w, out); const over = rc.intersectObject(lames[k - 1], false)[0];
+          if (over) { tucked++; expect(over.distance, `${st} lame ${k}`).toBeGreaterThan(0.008); }
+          rc.set(w, out.clone().negate()); expect(rc.intersectObject(lames[k - 1], false).length, `${st} lame ${k} outside the one above`).toBe(0);
+        }
+        expect(tucked, `${st} lame ${k}`).toBeGreaterThan(40); // (its top runs up under the rim above, all the way round)
+      }
+    }
+  });
+
+  it('stands a thin plate off the back of each hand, and runs the vambrace up to the elbow', { timeout: 120000 }, () => {
+    for (const st of ['rest', 'battle', 'dead'] as const) for (const side of ['L', 'R']) {
+      const g = heroFigure({ ...HARNESS, weapon: 'axe' }, 'medium', st), wrist = joint(g, 'wrist' + side), elbow = joint(g, 'elbow' + side);
+      const plates = meshes(wrist).filter((m) => (m.parent as THREE.Mesh).isMesh);
+      expect(plates.length).toBe(1);
+      // (in the palm's own measure the palm is a ball: every point of the plate lies outside it, and near it)
+      const palm = plates[0].parent as THREE.Mesh, r = (palm.geometry as THREE.SphereGeometry).parameters.radius, pos = plates[0].geometry.getAttribute('position');
+      for (let i = 0; i < pos.count; i++) { const d = new THREE.Vector3().fromBufferAttribute(pos, i).length() / r; expect(d).toBeGreaterThan(1.02); expect(d).toBeLessThan(1.5); expect(pos.getZ(i)).toBeLessThan(0); }
+      const plate = points(under(g, 'elbow' + side, '#3a3f46').filter((m) => !wrist.getObjectById(m.id)), elbow), ys = plate.map((p) => p.y);
+      expect(Math.max(...ys)).toBeGreaterThan(0.1 * wrist.position.y); // (to within a tenth of the forearm of the elbow)
+      expect(Math.min(...ys)).toBeLessThan(wrist.position.y);            // (and its cuff on past the wrist)
+    }
+  });
+
+  it('bears its emblem as a thin relief lying on the breastplate', () => {
+    const g = heroFigure(HARNESS, 'medium', 'rest'), chest = joint(g, 'chest'), rc = new THREE.Raycaster();
+    const relief = meshes(g).filter((m) => m.geometry.type === 'ExtrudeGeometry'), plate = meshes(chest).filter((m) => m.userData.skin);
+    expect(relief.length).toBe(3); // the gauntlet, the eye and its pupil
+    for (const m of plate) (m.material as THREE.Material).side = THREE.DoubleSide;
+    const back = new THREE.Vector3(0, 0, -1).transformDirection(chest.matrixWorld); rc.far = 0.3;
+    for (const p of points(relief, g)) { rc.set(g.localToWorld(p.clone()), back); const hit = rc.intersectObjects(plate, false)[0]; expect(hit && hit.distance).toBeLessThan(0.02); }
+  });
+
+  it('plates the boots with sabatons, on an engraved harness only', () => {
+    for (const side of ['L', 'R']) {
+      expect(under(heroFigure(HARNESS, 'medium', 'rest'), 'ankle' + side, '#3a3f46').length).toBe(2);
+      expect(under(heroFigure(PLAIN, 'medium', 'rest'), 'ankle' + side, '#3a3f46').length).toBe(0);
+    }
+  });
+
+  it('keeps the coat skirt off a weapon slung on the back, and the fallen harness on the floor', { timeout: 120000 }, () => {
+    const g = heroFigure({ ...HARNESS, weapon: 'axe' }, 'medium', 'rest'), coat = meshes(g).filter((m) => m.userData.garment === 'coat');
+    for (const m of meshes(g.getObjectByName('stowed')!)) {
+      m.geometry.computeBoundingBox(); const box = m.geometry.boundingBox!.clone().expandByScalar(0.01);
+      for (const p of points(coat, m)) expect(box.containsPoint(p)).toBe(false);
+    }
+    for (const pose of Object.keys(POSES).filter((p) => p.startsWith('dead'))) {
+      const d = heroFigure({ ...HARNESS, weapon: 'axe', deadPose: pose } as HeroFigure, 'medium', 'dead');
+      const worn = meshes(d).filter((m) => !m.userData.garment && ['3a3f46', '2a211d', '9a9ea6', 'aab0b8', '5c3f2a'].includes((m.material as THREE.MeshLambertMaterial).color.getHexString()));
+      expect(worn.length).toBeGreaterThan(40);
+      for (const m of worn) expect(Math.min(...points([m], d).map((p) => p.y)), `${pose} ${m.parent?.name} ${(m.material as THREE.MeshLambertMaterial).color.getHexString()} ${m.geometry.getAttribute('position').count}`).toBeGreaterThan(-0.001);
+    }
+  });
+});
+
 describe('a halo and spectral wings of light', () => {
   const ANGEL: HeroFigure = { ...HARNESS, weapon: 'axe', halo: '#f3d98a', spiritWings: { color: '#ffe7a6' } };
 

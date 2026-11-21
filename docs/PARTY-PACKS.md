@@ -87,14 +87,18 @@ battle stance holds).
 
 Plate can be an engraved harness: `armor.knotwork` (a colour, a worn silver say) makes the breastplate one sculpted
 plate with a keel and no rims across its front, the pauldrons three lames (a shallow plate over the shoulder and two
-on the upper arm, a strap buckled round the arm beneath), adds vambraces with a flared cuff over plated gauntlets,
-cuts the tassets in three lames and the greaves as one plate over the boot's cuff, lines every edge finely in the
-armour's `trim` and lays a band of knotwork in that colour on each major plate. `armor.corset`
+on the upper arm over an arming sleeve, a strap buckled round the arm beneath), adds vambraces from the wrist to the
+elbow with a flared cuff over the gauntlets (a thin plate on the back of each hand), cuts the tassets in three lames
+and the greaves as one plate over the boot's cuff, lays sabatons of two lames over each boot's instep (give the
+recipe dark `boots` to go with them), lines every edge finely in the armour's `trim` and lays a band of knotwork in
+that colour on each major plate. `armor.corset`
 (`{color, belts, lacing}`) cuts the breastplate's lower edge to a point under the bust over a laced leather corset:
-the fauld's lames become its leather girdle with two buckled belts round it (`belts` their leather, the buckles in
-`buckle`), and a coat skirt of the same leather hangs from under the girdle to above the knee in the culet's place,
-round the seat and the sides of the thighs and open at the front from hip to hip, where the tassets hang. `armor.emblem` is a holy symbol borne on the breastplate in the
-knotwork's colour (or the trim): `helm`, an open eye on an upright gauntlet. None of the three changes plate that
+in the fauld's place it wears a leather girdle of three lapped lames, each with a fine rolled rim, with two buckled
+belts round it (`belts` their leather, the buckles in `buckle`), and a coat skirt of the same leather hangs from
+inside the girdle's last lame to above the knee in the culet's place, round the seat and the sides of the thighs,
+open at the front from hip to hip, where the tassets hang, and vented up the back. `armor.emblem` is a holy symbol
+borne on the breastplate in the knotwork's colour (or the trim): `helm`, an open eye on an upright gauntlet, a thin
+flat relief. None of the three changes plate that
 does not set it. A corset's coat skirt is not yet listed among what a cloak hangs over, so a corseted harness under a
 cloak is untried.
 
