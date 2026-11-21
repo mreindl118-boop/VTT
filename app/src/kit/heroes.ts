@@ -929,7 +929,7 @@ function vine(E: ReturnType<typeof embroider>, a: [number, number], b: [number, 
 /** A skirt hung from a corset's foot leaves it downward all the way round: where a hip thrown out to the side has
  *  turned its first rows up past the foot (a flange standing beside the corset), they are brought down to fall away
  *  from it, each row at least a little below the one above along the skirt's own way down. */
-/** The head of a hung gown's slit, closed: where the slit starts its two edges are one seam, yet hung over a leg that
+/** The head of a standing figure's hung gown's slit, closed: where the slit starts its two edges are one seam, yet hung over a leg that
  *  steps through it one edge can stand before the other there, and the gap between them shows the dark inside of the
  *  cloth. The two edges are drawn onto the line midway between them from the top down to the slit's head, and part
  *  again over the three rows below it. */
@@ -1587,7 +1587,7 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
     // (cut to the corset's foot, the top stays on it: it does not ride out over the waist as a loose waistband does)
     wear('gown', g.mesh, pel, 65, 45, { closed: false, covers: ['torso', 'pelvis', ...LEGS, ...FEET], outside: LOWER_ARMS, layer: 0, clear: 0.03 * s, spread: 5, hang: 0.55, anchored: f.corset ? 0.01 * s : undefined, cutTop: !!f.corset, after: (G) => {
       if (f.corset) settleTop(G);
-      if (f.dagged) closeSlitHead(G, Math.ceil(tAt(2.85 * GK) * (G.rows - 1)));
+      if (f.dagged && !laid) closeSlitHead(G, Math.ceil(tAt(2.85 * GK) * (G.rows - 1)));
       const on = clothFace(G, laid?.n.clone().transformDirection(pel.matrixWorld.clone().invert()));
       const F = floorUnder(pel), offFloor = (q: THREE.Vector3) => { const h = F.height(q) - 0.012 * s; return h < 0 ? q.addScaledVector(F.rise, -h) : q; };
       pel.add(f.dagged ? lace(clothFace(G), f.underskirt!, s, tAt(2.75 * GK), g.cut, offFloor, (q) => F.height(q) - 0.012 * s, laid?.n.clone().transformDirection(pel.matrixWorld.clone().invert())) : frill(G, f.underskirt!, s));
