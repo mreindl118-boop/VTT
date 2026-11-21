@@ -1959,15 +1959,27 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
       const thAt = (y: number) => ringAt(thighRings(fr), y - THIGH), off = (y: number) => 1.05 + 0.1 * y, inGreave = (y: number, d: number, of: number) => d + Math.min(0, of * 1.31 - 0.02 - d) * Math.min(1, -y / 0.12);
       const shell: Ring[] = []; for (let i = 0; i <= 8; i++) {
         const y = -0.3 + 0.6 * i / 8, k = Math.sqrt(Math.max(eng && y > 0 ? 0.66 : 0.02, 1 - (y / 0.32) ** 2)), r = { y, w: 0.25 * fr.leg * k, f: 0.29 * fr.leg * k, b: 0.15 * fr.leg * k }, sr = ringAt(shinRings(fr), y);
-        shell.push(!eng ? r : y > 0 ? { y, w: Math.max(r.w, thAt(y).w * off(y)), f: Math.max(r.f, thAt(y).f * off(y)), b: r.b } : { y, w: inGreave(y, r.w, sr.w), f: inGreave(y, r.f, sr.f), b: r.b });
+        shell.push(!eng ? r : y > 0 ? { y, w: Math.max(r.w, thAt(y).w * off(y)), f: Math.max(r.f, thAt(y).f * off(y)), b: Math.max(r.b, thAt(y).b * off(y)) } : { y, w: inGreave(y, r.w, sr.w), f: inGreave(y, r.f, sr.f), b: r.b });
       }
       cop.add(sm(shellGeometry(shell, 0.26, -0.27, -1.75, 3.5, 1, 1, s, 20, 8), f.armor.color, true));
       const fan: Ring[] = shell.map((r) => ({ ...r, w: r.w * 1.06 }));
       cop.add(sm(shellGeometry(fan, 0.17, -0.17, sx * Math.PI / 2 - 0.65, 1.3, 1, 1, s, 10, 6), eng ? steel : lighter, true));
       // (engraved: the cop is fuller at its top, so its edge stands clear of the thigh, and finely lined all round)
-      if (eng) { const on = (th: number, y: number) => { const [x, z] = ringPoint(ringAt(shell, y), th, 1.02); return new THREE.Vector3(x * s, y * s, z * s); }; cop.add(wire([...span(16, (u) => on(-1.75 + 3.5 * u, 0.26)), ...span(4, (u) => on(1.75, 0.26 - 0.53 * u)).slice(1), ...span(16, (u) => on(1.75 - 3.5 * u, -0.27)).slice(1), ...span(4, (u) => on(-1.75, -0.27 + 0.53 * u)).slice(1, -1)], t, 0.009 * s, true)); }
+      if (eng) { const on = (th: number, y: number) => { const [x, z] = ringPoint(ringAt(shell, y), th, 1.02); return new THREE.Vector3(x * s, y * s, z * s); }; const o = sx * 1.75; cop.add(wire([...span(2, (u) => on(o, 0.18 + 0.08 * u)), ...span(16, (u) => on(o - 2 * o * u, 0.26)).slice(1), ...span(4, (u) => on(-o, 0.26 - 0.53 * u)).slice(1), ...span(16, (u) => on(-o + 2 * o * u, -0.27)).slice(1)], t, 0.009 * s));
+        // (its top row turns in to the thigh as the leg stands, bent or straight, and stops just short of it)
+        afterHung.push(() => {
+          const ray = new THREE.Raycaster(), pos: number[] = [], P = new THREE.Vector3(), A = new THREE.Vector3(), n = 20; l.upper.geometry.computeBoundingSphere(); l.upper.geometry.computeBoundingBox();
+          for (let j = 0; j <= n; j++) {
+            const e = new THREE.Vector3(), [x0, z0] = ringPoint(ringAt(shell, 0.26), -1.75 + 3.5 * j / n, 1); e.set(x0 * s, 0.26 * s, z0 * s);
+            cop.localToWorld(P.copy(e)); cop.localToWorld(A.set(0, 0.2 * s, 0)); ray.set(P, A.sub(P).normalize()); ray.far = P.distanceTo(cop.localToWorld(new THREE.Vector3(0, 0.2 * s, 0)));
+            const hit = ray.intersectObject(l.upper, false)[0], d = hit ? hit.distance - 0.022 * s : 0, q = cop.worldToLocal(P.clone().addScaledVector(ray.ray.direction, Math.max(0, d)));
+            pos.push(e.x, e.y, e.z, q.x, q.y, q.z);
+          }
+          const g = new THREE.BufferGeometry(), idx: number[] = []; for (let j = 0; j < n; j++) idx.push(2 * j, 2 * j + 1, 2 * j + 2, 2 * j + 1, 2 * j + 3, 2 * j + 2);
+          g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setIndex(idx); g.computeVertexNormals(); cop.add(sm(g, f.armor!.color, true));
+        }); }
       else for (const y of [0.26, -0.27]) { const pts: THREE.Vector3[] = []; for (let j = 0; j <= 16; j++) { const [x, z] = ringPoint(ringAt(shell, y), -1.75 + 3.5 * j / 16, 1.02); pts.push(new THREE.Vector3(x * s, y * s, z * s)); } cop.add(eng ? wire(pts, t) : tube(pts, 0.016 * s, t)); }
-      // (engraved: one fine line down the front of the thigh, from under the tasset to under the cop's top: the cuisse's ridge)
+      // (engraved: one fine line down the front of the thigh, from under the tasset to the cop's turned-in top: the cuisse's ridge)
       if (eng) l.root.add(wire(span(8, (u) => { const y = -0.66 - (THIGH - 0.2 - 0.66) * u, [x, z] = ringPoint(ringAt(thighRings(fr), y), 0, 1.012); return new THREE.Vector3(x * s, y * s, z * s + 0.003 * s); }), t, 0.007 * s));
       // (engraved: the greave stands out over the boot's cuff, one plate from the knee to the ankle, finely lined at its two ends)
       const sh = shinRings(fr), cuff = ringAt(sh, -0.55), wide = (r: Ring): Ring => (r.y > -0.7 && r.y < -0.42 ? { ...r, w: Math.max(r.w, cuff.w), f: Math.max(r.f, cuff.f), b: Math.max(r.b, cuff.b) } : r);
