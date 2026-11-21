@@ -109,6 +109,20 @@ colour: laurel embroidery down the cloak's front edges, along its hem and round 
 `band` down the face, and with `wreath` the shield's `mark` drawn as a laurel wreath round two linked rings).
 `pendantShape` (`'rings'`: the pendant is two linked rings on a finer chain).
 
+A gown's finer dress: `wreath` (`{color, flower, leaf}`) is a low wreath of woven thorny twigs with small leaves and big
+five-petal flowers, most of them on the figure's left, worn in place of a `crown`'s tall twigs. `corset`
+(`{color, lacing, buckle, vials}`) is a leather corset over the gown's waist, from the top of the skirt to under the
+bust: boned, laced up the front, with two buckled straps; the skirt then hangs from a buckled belt at the corset's foot
+(following the lean and turn of the waist in every pose), and its `vials` (up to four colours) hang on thongs from that
+belt at the left hip, lying on the cloth. `fullSleeves` (with `puffSleeves` and `sleeves`) makes the blouse's sleeves
+full from below the bare shoulders to just above the elbow, gathered there with a frill. `vines` (a colour) embroiders
+a winding vine with leaves and tendrils along the gown's hem and up the edges of its slit, in place of `gownTrim`'s
+plain lines there, and down the front edges and above the hem of the cloak worn with the gown. `dagged` cuts the gown's
+hem and the edges of its slit in ragged dags, with the underskirt's lace showing between them and along the slit.
+`brooch` (a colour) pins each top corner of the gown's cloak with a round brooch. `bootLaces` (a colour) makes the boots
+tall, to just below the knee, and laced up the front, in place of the turned cuff and strap; `bracerLaces` (a colour)
+laces the `bracers` up the inside of the forearm.
+
 ### Body, joints and poses
 
 Every figure is sculpted like a miniature (`kit/anatomy.ts`): the torso, pelvis and limbs are lofted through rings, so

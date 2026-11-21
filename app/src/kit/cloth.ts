@@ -283,7 +283,9 @@ function hangOne(g: Garment, w: DrapeWorld, hung: Map<string, THREE.Vector3[]>, 
         // skirt has passed over), and what lies outside it is out of the way of the cloth below
         if (dy > clear * 0.25) {
           if (keep[j + 2] < 0) continue;
-          let inside = false;
+          // (and the trunk just above where the strip hangs from, no further out than its top, is under no cloth of
+          // this strip's at all: it never turns the cloth far below it out)
+          let inside = keep[j + 2] === 2 && keep[j + 1] > PY[0] && keep[j] < PX[0] + clear * 0.5;
           for (let m = i; m >= 1; m--) { const y0 = PY[m - 1], y1 = PY[m]; if ((keep[j + 1] - y0) * (keep[j + 1] - y1) <= 0) { const t = Math.abs(y1 - y0) > 1e-9 ? (keep[j + 1] - y0) / (y1 - y0) : 0; inside = keep[j] < PX[m - 1] + (PX[m] - PX[m - 1]) * t + clear * 0.5; break; } }
           if (inside) continue;
         }
