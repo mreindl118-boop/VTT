@@ -4,7 +4,7 @@
 import * as THREE from 'three';
 import { mat } from '../render/materials';
 import { lockGeometry } from './anatomy';
-import { hairSkull, browLift, weld, type FaceSpec } from './faces';
+import { hairSkull, browLift, weld, type FaceSpec, type Scalp } from './faces';
 
 export interface Hairdo {
   /** swept: combed straight back from the brow to the collar. bun: drawn back to a knot at the crown. tonsure: a ring
@@ -43,10 +43,36 @@ export function flatLock(pts: THREE.Vector3[], nrm: THREE.Vector3, w: number, t:
   const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setIndex(idx); g.computeVertexNormals(); return g;
 }
 
+/** A unit sphere (`seg` round, `rows` down) kept where `over`, at a point on it, is at least 0: a triangle the line
+ *  `over` = 0 crosses is cut where it crosses (found by halving the edge), so a cap's edge follows its line instead of
+ *  stepping round the sphere's grid. Returns the points, all on the sphere, and the kept triangles. */
+export function cutSphere(seg: number, rows: number, over: (u: THREE.Vector3) => number): { U: THREE.Vector3[]; idx: number[] } {
+  const sg = new THREE.SphereGeometry(1, seg, rows), sp = sg.attributes.position as THREE.BufferAttribute, si = sg.index!, U: THREE.Vector3[] = [], idx: number[] = [];
+  for (let i = 0; i < sp.count; i++) U.push(new THREE.Vector3().fromBufferAttribute(sp, i));
+  const F = U.map(over), cuts = new Map<string, number>();
+  const cut = (a: number, b: number) => { // where the line crosses the edge from a (kept) to b
+    const key = a + ',' + b; let i = cuts.get(key);
+    if (i === undefined) {
+      let t0 = 0, t1 = 1; for (let k = 0; k < 10; k++) { const t = (t0 + t1) / 2; if (over(U[a].clone().lerp(U[b], t).normalize()) >= 0) t0 = t; else t1 = t; }
+      i = U.length; U.push(U[a].clone().lerp(U[b], (t0 + t1) / 2).normalize()); cuts.set(key, i);
+    }
+    return i;
+  };
+  for (let i = 0; i < si.count; i += 3) {
+    const t = [si.getX(i), si.getX(i + 1), si.getX(i + 2)], kept = t.map((j) => F[j] >= 0), n = kept.filter(Boolean).length;
+    if (n === 3) { idx.push(t[0], t[1], t[2]); continue; } if (n === 0) continue;
+    // turned so that p is the odd corner out (the one kept, or the one cut off), keeping the winding
+    const o = kept.indexOf(n === 1), p = t[o], q = t[(o + 1) % 3], r = t[(o + 2) % 3];
+    if (n === 1) idx.push(p, cut(p, q), cut(p, r)); else { const rp = cut(r, p), qp = cut(q, p); idx.push(q, r, rp, q, rp, qp); }
+  }
+  sg.dispose(); return { U, idx };
+}
+
 /** The hairdo as a group to add to the head joint: `s` is the figure's scale, `hy` the head centre's height in the joint,
- *  `detail` (1 to 4) how many locks it is combed into. */
-export function hairdo(h: Hairdo, color: string, s: number, hy: number, detail = 2, face: FaceSpec = {}): THREE.Group {
-  const g = new THREE.Group(), V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z), cr = hairSkull(face), lift0 = browLift(face);
+ *  `detail` (1 to 4) how many locks it is combed into, `skull` the head it lies on (a face's own `userData.scalp`; the
+ *  skull's plain round by `face`'s proportions when left out). */
+export function hairdo(h: Hairdo, color: string, s: number, hy: number, detail = 2, face: FaceSpec = {}, skull?: Scalp): THREE.Group {
+  const g = new THREE.Group(), V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z), cr = skull ?? hairSkull(face), lift0 = browLift(face);
   let seed = 7; const rnd = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
   const dir = (az: number, el: number) => { const c = Math.cos(el); return V(Math.sin(az) * c, Math.sin(el), Math.cos(az) * c); };
   const onScalp = (d: THREE.Vector3, lift = 1.06) => { const [x, y, z] = cr(d.x * 0.84 * lift, d.y * 1.14 * lift, d.z * (d.z < 0 ? 0.99 : 0.94) * lift); return V(x * R * s, hy + y * R * s, z * R * s); };
@@ -58,16 +84,15 @@ export function hairdo(h: Hairdo, color: string, s: number, hy: number, detail =
     const base = a < 0.8 ? 0.8 + 0.07 * Math.sin(Math.max(0, a - 0.25) * Math.PI / 0.55) : a < 1.3 ? 0.8 - 0.72 * (a - 0.8) / 0.5 : a < 1.8 ? 0.08 + 0.1 * Math.sin((a - 1.3) * Math.PI / 0.5) : 0.08 - 0.58 * Math.min(1, (a - 1.8) / 0.6);
     return base + lift0 * smooth(1.25, 0.4, a) - (h.peak ? 0.16 * Math.exp(-((a / 0.13) ** 2)) : 0) + recede * 0.22 * Math.exp(-(((a - 0.5) / 0.22) ** 2));
   };
-  // the under-layer: the skull's shape, a little proud, cut at the hairline (and at the pate for a tonsure)
-if (h.style !== 'crop' && h.style !== 'swept') {
-  const cg = new THREE.SphereGeometry(1, 48, 30), cp = cg.attributes.position as THREE.BufferAttribute, keep: boolean[] = [];
-  for (let i = 0; i < cp.count; i++) {
-    const d = V(cp.getX(i), cp.getY(i), cp.getZ(i)), az = Math.atan2(d.x, d.z), el = Math.asin(Math.max(-1, Math.min(1, d.y)));
-    keep.push(el > line(az) - 0.04 && el < top);
-    const q = onScalp(d, 1.04 + 0.01 * Math.sin(az * 24 + el * 6)); cp.setXYZ(i, q.x, q.y, q.z);
-  }
-  const src = cg.index!, idx: number[] = []; for (let i = 0; i < src.count; i += 3) { const a = src.getX(i), b = src.getX(i + 1), c = src.getX(i + 2); if (keep[a] && keep[b] && keep[c]) idx.push(a, b, c); }
-  cg.setIndex(idx); cg.computeVertexNormals(); g.add(new THREE.Mesh(cg, soft(tone(color, '#000000', 0.2), true)));
+  // the under-layer: the skull's shape, a little proud, cut along the hairline (and at the pate for a tonsure), its edge
+  // sunk into the skin so the hairline is the line where hair meets skin (head, or neck at the nape)
+  if (h.style !== 'crop' && h.style !== 'swept') {
+    const elOf = (u: THREE.Vector3) => Math.asin(Math.max(-1, Math.min(1, u.y))), overOf = (u: THREE.Vector3) => Math.min(elOf(u) - line(Math.atan2(u.x, u.z)) + 0.09, h.style === 'tonsure' ? top + 0.05 - elOf(u) : 1);
+    const { U, idx } = cutSphere(48, 30, overOf);
+    const cpos = new Float32Array(U.length * 3);
+    U.forEach((d, i) => { const q = onScalp(d, 0.97 + (0.07 + 0.01 * Math.sin(Math.atan2(d.x, d.z) * 24 + elOf(d) * 6)) * smooth(0, 0.1, overOf(d))); cpos[i * 3] = q.x; cpos[i * 3 + 1] = q.y; cpos[i * 3 + 2] = q.z; });
+    const cg = new THREE.BufferGeometry(); cg.setAttribute('position', new THREE.BufferAttribute(cpos, 3)); cg.setIndex(idx); cg.computeVertexNormals();
+    g.add(new THREE.Mesh(cg, soft(tone(color, '#000000', 0.2), true)));
   }
   const shade = (i: number) => i % 3 === 0 ? sheen(color, 0.09) : i % 3 === 1 ? color : tone(color, '#000000', 0.16);
   const lock = (pts: THREE.Vector3[], r0: number, r1: number, i: number, c?: string, flat = 0.45) => g.add(new THREE.Mesh(lockGeometry(pts, r0 * s, r1 * s, flat, 6, 0.3), soft(c ?? shade(i), true)));

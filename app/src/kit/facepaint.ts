@@ -41,7 +41,7 @@ export function paintFace(spec: FaceSpec, look: PaintLook): THREE.Texture | null
   const S = look.size ?? 512, cv = document.createElement('canvas'); cv.width = cv.height = S;
   let c = cv.getContext('2d') as CanvasRenderingContext2D; if (!c) return null;
   const n = (v: number | undefined) => Math.max(-1, Math.min(1, v ?? 0));
-  const fem = !!look.fem, skin = look.skin, shade = mix(skin, '#3a1c22', 0.38), deep = mix(skin, '#160c12', 0.8);
+  const fem = !!look.fem, skin = look.skin, shade = mix(skin, '#3a1c22', 0.38), deep = mix(skin, '#160c12', 0.8), hollow = mix(skin, '#5a1e2c', 0.36);
   const lum = new THREE.Color(skin).getHSL({ h: 0, s: 0, l: 0 }).l;
   const lipBase = look.lips ?? mix(skin, '#9a2c40', fem ? 0.6 : 0.5), lipC = lipBase;
   const hairC = spec.browColor ?? look.hair ?? '#3a2a1a', browC = mix(hairC, '#140c0c', 0.25), lashC = mix(hairC, '#0c0808', 0.75);
@@ -73,7 +73,9 @@ export function paintFace(spec: FaceSpec, look: PaintLook): THREE.Texture | null
   const ex = 0.136 * (1 + 0.12 * n(spec.eyeSpace)), ew = (fem ? 0.078 : 0.07) * E.w * (1 + 0.14 * n(spec.eyeSize));
   const ehBase = ew / E.w * (fem ? 0.5 : 0.43), eh = ehBase * E.h * (1 - 0.2 * hoodK), tilt = (fem ? 0.1 : 0.05) + E.tilt + 0.2 * n(spec.eyeSlant);
   for (const sx of [-1, 1]) {
-    blob(sx * 0.215, -0.17, 0.085, 0.05, shade, 0.15 + 0.2 * Math.max(0, gaunt) + 0.1 * n(spec.cheekbones), sx * -0.5);
+    // the hollow under the cheekbone, a warm shade that deepens a little with a gaunt face (the sculpted hollow does the
+    // rest: painted as deep as it was carved, it read on pale skin as a muddy grey-brown patch)
+    blob(sx * 0.215, -0.17, 0.085, 0.05, hollow, 0.13 + 0.04 * Math.max(0, gaunt) + 0.02 * Math.max(0, n(spec.cheekbones)), sx * -0.5);
     blob(sx * 0.3, 0.1, 0.05, 0.12, shade, 0.16);
     if (!look.dead && spec.blush !== false) blob(sx * 0.19, -0.09, 0.075, 0.055, spec.blush || mix(skin, '#d2485a', 0.6), spec.blush ? 0.42 : fem ? 0.24 : 0.1);
     blob(sx * ex, 0.02, ew * 1.55, eh * 2.6, spec.shadow ?? shade, (spec.shadow ? 0.6 : 0.3) + 0.25 * Math.max(0, n(spec.sunken)));

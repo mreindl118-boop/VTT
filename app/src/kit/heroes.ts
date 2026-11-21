@@ -6,8 +6,9 @@ import * as THREE from 'three';
 import { mat, matClone } from '../render/materials';
 import { HIP, SHIN, THIGH, clipRings, forearmRings, frameOf, loftGeometry, lockGeometry, neckBump, neckLift, neckRings, pelvisRings, ringAt, ringPoint, shinRings, thighRings, torsoRings, upperArmRings, type Frame, type Measures, type Ring } from './anatomy';
 import type { CreatureSize } from '../core/units';
-import { faceFeatures, hairSkull, browLift, weld, type FaceSpec, type FaceDetail } from './faces';
-import { hairdo as buildHairdo, sheen, type Hairdo } from './hair';
+import { faceFeatures, hairSkull, browLift, weld, type FaceSpec, type FaceDetail, type Scalp } from './faces';
+import { hairdo as buildHairdo, cutSphere, sheen, type Hairdo } from './hair';
+import { smin } from './sdf';
 import { weapon as gearWeapon, scabbard, bladeOf, closeGrip, secondHandAt, secondHandSlide, walkingStick, caneFoot, type WeaponSpec } from './weapons';
 import { clothPoint, hangGarments, pointsOf, type DrapeWorld, type Garment } from './cloth';
 
@@ -390,14 +391,14 @@ const PAINTED_FACES = true as boolean;
  *  eyes, a jaw that is square on a masculine frame and tapered on a feminine one, a chin), a wedge of a nose, small
  *  shadowed eyes under lids, brows, lips with a philtrum, and ears. The eyes sit on the midline; brow, nose and chin
  *  split the face in thirds. Returns the face's depth at (x, y), to seat other features. */
-function buildFace(head: THREE.Group, s: number, hy: number, f: HeroFigure, fem = false, dead = false, gaze?: [number, number]): (x: number, y: number) => number {
+function buildFace(head: THREE.Group, s: number, hy: number, f: HeroFigure, fem = false, dead = false, gaze?: [number, number], neck?: Ring[]): (x: number, y: number) => number {
   const skin = f.skin ?? '#d9b899', shade = tone(skin, '#1e1216', 0.3), deep = tone(skin, '#1e1216', 0.5), hair = f.hair ?? '#3a2a1a';
   const lip = f.lips ?? tone(skin, '#8a3038', fem ? 0.4 : 0.2);
   if (f.face || PAINTED_FACES) {
     // the painted face (kit/faces.ts + kit/facepaint.ts), every figure's default; `face` gives a character its own
     // the character's own face (kit/faces.ts): the whole head from its recipe, with this figure's ears on it; the hair is
     // buildHair's, as for every other head
-    const fg = faceFeatures({ ...f.face, gaze: f.face?.gaze ?? gaze }, { skin, hair: f.hair, eyes: f.eyes, lips: f.lips, detail: f.detail ?? 2, fem, dead }); fg.scale.setScalar(0.4 * s); fg.position.set(0, hy, 0); head.add(fg);
+    const fg = faceFeatures({ ...f.face, gaze: f.face?.gaze ?? gaze }, { skin, hair: f.hair, eyes: f.eyes, lips: f.lips, detail: f.detail ?? 2, fem, dead, neck }); fg.scale.setScalar(0.4 * s); fg.position.set(0, hy, 0); head.add(fg);
     // ears, standing a little off the head behind: an elf's from the same root as a person's, its point sweeping up and
     // back; a person's a rim (the helix) curling over the top and down the back to the lobe, round a hollow
     const earLen = Math.max(-1, Math.min(1, f.face?.earLen ?? 0)), earOut = Math.max(0, Math.min(1, f.face?.earOut ?? 0));
@@ -482,11 +483,14 @@ function buildFace(head: THREE.Group, s: number, hy: number, f: HeroFigure, fem 
 function buildHair(head: THREE.Group, s: number, hy: number, f: HeroFigure, fem: boolean): void {
   if (f.face?.bald) return;
   if (!f.hair) return;
-  if (f.hairdo) { head.add(buildHairdo(f.hairdo, f.hair, s, hy, f.detail ?? 2, f.face)); return; }
+  // the hair lies on the head buildFace made (its own surface, kit/faces.ts), so it follows the lower head in
+  const own = head.children.find((c) => c.userData.scalp)?.userData.scalp as Scalp | undefined;
+  if (f.hairdo) { head.add(buildHairdo(f.hairdo, f.hair, s, hy, f.detail ?? 2, f.face, own)); return; }
   const H = f.hair, R = 0.4, style = f.hairStyle ?? 'short';
   // short hair is the sculpted crop (kit/hair.ts), its parting and fullness varied by the character's colours
-  if (style === 'short') { let h = 7; for (const ch of H + (f.skin ?? '') + (f.cloth ?? '')) h = (h * 31 + ch.charCodeAt(0)) >>> 0; head.add(buildHairdo({ style: 'crop', part: [0.4, -0.4, 0.15, -0.2][h % 4], length: 0.35 + (h >> 3) % 5 * 0.08 }, H, s, hy, f.detail ?? 2, f.face)); return; }
-  const cr = hairSkull(f.face), lift0 = browLift(f.face);
+  if (style === 'short') { let h = 7; for (const ch of H + (f.skin ?? '') + (f.cloth ?? '')) h = (h * 31 + ch.charCodeAt(0)) >>> 0; head.add(buildHairdo({ style: 'crop', part: [0.4, -0.4, 0.15, -0.2][h % 4], length: 0.35 + (h >> 3) % 5 * 0.08 }, H, s, hy, f.detail ?? 2, f.face, own)); return; }
+  const cr = own ?? hairSkull(f.face), lift0 = browLift(f.face);
+  const smooth = (a: number, b: number, v: number) => { const t = Math.max(0, Math.min(1, (v - a) / (b - a))); return t * t * (3 - 2 * t); };
   let seed = 11; const rnd = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
   // ears that stand out (buildFace) part the hair: the side locks are tucked behind them and no coil grows over their
   // roots, so the ear comes out of the hair whole, as in the art, instead of its point poking through
@@ -514,44 +518,37 @@ function buildHair(head: THREE.Group, s: number, hy: number, f: HeroFigure, fem:
     return ears.some((e) => pts.some((p) => p.distanceTo(e.c) < e.r + r && e.tris.some((t) => t.closestPointToPoint(p, q).distanceTo(p) < r)));
   };
   // a point on the scalp: azimuth from the front round through +x, elevation, and a lift off the skull
-  const scalp = (az: number, el: number, lift = 1.06) => { const c = Math.cos(el), dz = Math.cos(az) * c, [x, y, z] = cr(Math.sin(az) * c * 0.84 * lift, Math.sin(el) * 1.14 * lift, dz * (dz < 0 ? 0.99 : 0.94) * lift); return new THREE.Vector3(x * R * s, hy + y * R * s, z * R * s); };
+  // (`on`: the skull it lies on, this head's own unless given)
+  const scalp = (az: number, el: number, lift = 1.06, on: Scalp = cr) => { const c = Math.cos(el), dz = Math.cos(az) * c, [x, y, z] = on(Math.sin(az) * c * 0.84 * lift, Math.sin(el) * 1.14 * lift, dz * (dz < 0 ? 0.99 : 0.94) * lift); return new THREE.Vector3(x * R * s, hy + y * R * s, z * R * s); };
+  // braids gather low behind the ears on the skull's plain round, where the head itself draws in toward the neck: so they
+  // hang clear of what the chest wears (a breastplate's rim) as they always have
+  const plain = hairSkull(f.face);
   // the hairline: how low the hair comes at each azimuth (an elevation)
   // (round an ear that stands out of the hair, the hair comes down to the middle of its root and, behind it, to the lobe,
-  // so with the coils kept off the ear no bare scalp shows beside it: the ear comes out of the hair)
+  // so with the coils kept off the ear no bare scalp shows beside it: the ear comes out of the hair. It comes down from
+  // the temple along one smooth curve, and behind the ear on down to the nape: in straight runs and flats it stepped)
+  const base = (a: number) => (a < 1.25 ? lift0 * (a < 0.4 ? 1 : 1 - (a - 0.4) / 0.85) : 0) + (a < 0.25 ? 0.8 - 0.06 * (1 - a / 0.25) : a < 0.8 ? 0.8 + 0.07 * Math.sin((a - 0.25) * Math.PI / 0.55) : a < 1.3 ? 0.8 - 0.72 * (a - 0.8) / 0.5 : a < 1.8 ? 0.08 + 0.1 * Math.sin((a - 1.3) * Math.PI / 0.5) : 0.08 - 0.58 * Math.min(1, (a - 1.8) / 0.6));
   const line = (az: number) => {
     const a = Math.abs(Math.atan2(Math.sin(az), Math.cos(az)));
-    const el = (a < 1.25 ? lift0 * (a < 0.4 ? 1 : 1 - (a - 0.4) / 0.85) : 0) + (a < 0.25 ? 0.8 - 0.06 * (1 - a / 0.25) : a < 0.8 ? 0.8 + 0.07 * Math.sin((a - 0.25) * Math.PI / 0.55) : a < 1.3 ? 0.8 - 0.72 * (a - 0.8) / 0.5 : a < 1.8 ? 0.08 + 0.1 * Math.sin((a - 1.3) * Math.PI / 0.5) : 0.08 - 0.58 * Math.min(1, (a - 1.8) / 0.6));
-    if (earOut < 0.3) return el;
-    const d = a - earAz, round = d < -0.35 ? Infinity : d < -0.2 ? 0.25 - 0.3 * (d + 0.35) / 0.15 : d < 0 ? -0.05 : d < 0.2 ? -0.05 - 0.3 * d / 0.2 : -0.35;
-    return Math.min(el, round);
+    if (earOut < 0.3 || a < 1.2) return base(a);
+    // from the temple (leaving it along its own slope) down to the middle of the ear's root, just in front of it
+    const e0 = earAz - 0.04, h = e0 - 1.2;
+    if (a < e0) { const t = (a - 1.2) / h; return (2 * t ** 3 - 3 * t ** 2 + 1) * base(1.2) + (t ** 3 - 2 * t ** 2 + t) * h * (-1.44 - lift0 / 0.85) - 0.05 * (3 * t ** 2 - 2 * t ** 3); }
+    // and behind it down to the lobe, then gently on into the nape's line
+    return smin(base(a), -0.05 - 0.3 * smooth(earAz, earAz + 0.22, a) - 0.12 * smooth(earAz + 0.15, earAz + 0.7, a) + 2 * Math.max(0, a - earAz - 0.7) ** 2, 0.08);
   };
-  // the under-layer: the skull's own shape, a little proud, combed in strands, cut along the hairline (a triangle the
-  // line crosses is cut where it crosses, so the edge follows the line instead of stepping round the sphere's grid)
-  const sg = new THREE.SphereGeometry(1, 48, 28), sp = sg.attributes.position as THREE.BufferAttribute, si = sg.index!, U: THREE.Vector3[] = [], idx: number[] = [];
-  const elOf = (u: THREE.Vector3) => Math.asin(Math.max(-1, Math.min(1, u.y))), over = (u: THREE.Vector3) => elOf(u) - line(Math.atan2(u.x, u.z)) + 0.02;
-  for (let i = 0; i < sp.count; i++) U.push(new THREE.Vector3().fromBufferAttribute(sp, i));
-  const F = U.map(over), cuts = new Map<string, number>();
-  const cut = (a: number, b: number) => { // where the line crosses the edge from a (kept) to b, found by halving
-    const key = a + ',' + b; let i = cuts.get(key);
-    if (i === undefined) {
-      let t0 = 0, t1 = 1; for (let k = 0; k < 10; k++) { const t = (t0 + t1) / 2; if (over(U[a].clone().lerp(U[b], t).normalize()) >= 0) t0 = t; else t1 = t; }
-      i = U.length; U.push(U[a].clone().lerp(U[b], (t0 + t1) / 2).normalize()); cuts.set(key, i);
-    }
-    return i;
-  };
-  for (let i = 0; i < si.count; i += 3) {
-    const t = [si.getX(i), si.getX(i + 1), si.getX(i + 2)], kept = t.map((j) => F[j] >= 0), n = kept.filter(Boolean).length;
-    if (n === 3) { idx.push(t[0], t[1], t[2]); continue; } if (n === 0) continue;
-    // turned so that p is the odd corner out (the one kept, or the one cut off), keeping the winding
-    const o = kept.indexOf(n === 1), p = t[o], q = t[(o + 1) % 3], r = t[(o + 2) % 3];
-    if (n === 1) idx.push(p, cut(p, q), cut(p, r)); else { const rp = cut(r, p), qp = cut(q, p); idx.push(q, r, rp, q, rp, qp); }
-  }
+  // the under-layer: the skull's own shape, a little proud, combed in strands, cut along the hairline (kit/hair.ts
+  // cutSphere: the edge follows the line instead of stepping round the sphere's grid) and its edge sunk into the skin, so
+  // the hairline is the line where hair meets skin, on the head or, at the nape, on the neck (an edge standing proud
+  // there showed ragged where it met the neck)
+  const elOf = (u: THREE.Vector3) => Math.asin(Math.max(-1, Math.min(1, u.y))), overOf = (u: THREE.Vector3) => elOf(u) - line(Math.atan2(u.x, u.z)) + 0.07;
+  const { U, idx } = cutSphere(48, 28, overOf);
   const cpos = new Float32Array(U.length * 3);
   U.forEach((u, i) => {
-    const az = Math.atan2(u.x, u.z), el = elOf(u), k = 1.045 + 0.012 * Math.sin(az * 26 + el * 5) + 0.006 * Math.sin(az * 61), [qx, qy, qz] = cr(u.x * 0.84 * k, u.y * 1.14 * k, u.z * (u.z < 0 ? 0.99 : 0.94) * k);
+    const az = Math.atan2(u.x, u.z), el = elOf(u), k = 0.97 + (0.075 + 0.012 * Math.sin(az * 26 + el * 5) + 0.006 * Math.sin(az * 61)) * smooth(0, 0.1, overOf(u)), [qx, qy, qz] = cr(u.x * 0.84 * k, u.y * 1.14 * k, u.z * (u.z < 0 ? 0.99 : 0.94) * k);
     cpos[i * 3] = qx * R * s; cpos[i * 3 + 1] = qy * R * s; cpos[i * 3 + 2] = qz * R * s;
   });
-  sg.dispose(); const cg = new THREE.BufferGeometry(); cg.setAttribute('position', new THREE.BufferAttribute(cpos, 3)); cg.setIndex(idx); cg.computeVertexNormals();
+  const cg = new THREE.BufferGeometry(); cg.setAttribute('position', new THREE.BufferAttribute(cpos, 3)); cg.setIndex(idx); cg.computeVertexNormals();
   head.add(at(sm(cg, tone(H, '#000000', 0.18), true), 0, hy, 0));
   const shadeOf = (i: number) => i % 3 === 0 ? sheen(H, 0.1) : i % 3 === 1 ? H : tone(H, '#000000', 0.14);
   const lock = (pts: THREE.Vector3[], r0: number, r1: number, i: number, c?: string, flat = 0.5) => { const m = sm(lockGeometry(pts, r0 * s, r1 * s, flat, 6), c ?? shadeOf(i), true); head.add(m); return m; };
@@ -572,7 +569,7 @@ function buildHair(head: THREE.Group, s: number, hy: number, f: HeroFigure, fem:
         lock(pts, 0.062, 0.018, i + layer, streakAt(az));
       } else {
         // braids: swept back and gathered low behind each ear
-        const sx = Math.sin(az) >= 0 ? 1 : -1; pts.push(scalp(az * 0.5 + (sx > 0 ? 1.9 : Math.PI * 2 - 1.9) * 0.5, -0.32, 1.12)); lock(pts, 0.058, 0.03, i + layer, streakAt(az));
+        const sx = Math.sin(az) >= 0 ? 1 : -1; pts.push(scalp(az * 0.5 + (sx > 0 ? 1.9 : Math.PI * 2 - 1.9) * 0.5, -0.32, 1.12, plain)); lock(pts, 0.058, 0.03, i + layer, streakAt(az));
       }
     }
     // the fringe: locks from the parting swept across the brow to the temples
@@ -582,7 +579,7 @@ function buildHair(head: THREE.Group, s: number, hy: number, f: HeroFigure, fem:
       lock([crown(az), scalp(az, 0.85, 1.1), top, new THREE.Vector3(top.x * 1.05, top.y - 0.3 * s, top.z + 0.05 * s), new THREE.Vector3(top.x * 1.0, top.y - len * 0.7 * s, top.z + 0.12 * s), new THREE.Vector3(top.x * 0.92, top.y - len * s, top.z + 0.16 * s)], 0.05, 0.014, k, sx === RX && k === 0 ? f.hairStreak : undefined);
     }
     // the braids themselves hang from behind the ears once the figure is posed (drapeBraids), over whatever it wears
-    if (style === 'braids') head.userData.braids = { color: H, from: [-1, 1].map((sx) => ({ sx, at: scalp(sx * 1.9, -0.32, 1.12) })) };
+    if (style === 'braids') head.userData.braids = { color: H, from: [-1, 1].map((sx) => ({ sx, at: scalp(sx * 1.9, -0.32, 1.12, plain) })) };
   }
   if (style === 'curly') {
     // a mass of coils: each a little spiral springing off the scalp, bigger on top, hanging lower behind
@@ -920,7 +917,10 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
   const hy = (2.82 + neckLift(fr)) * s; // the head's centre, in the upper body's frame
   const headAt = neck.position.y + head.position.y; // the head joint, in the upper body's frame
   if (f.headSize) head.scale.setScalar(f.headSize);
-  const gz = gazeOf(poseOf(f, battle, dead, gown), battle), surf = buildFace(head, s, hy - headAt, f, fr.fem, dead, [RX * gz[0], gz[1]]); // (the face's +x is the figure's left)
+  // the neck in the head's own units (skull radius 1, from the head's centre), so the head goes in under it
+  const hs = f.headSize ?? 1, jy = head.position.y / s, cy = (hy - headAt) / s, ku = 0.4 * hs;
+  const neckIn = neckRings(fr).map((r) => ({ ...r, y: ((r.y - jy) / hs - cy) / 0.4, w: r.w / ku, f: r.f / ku, b: r.b / ku, z: (r.z ?? 0) / ku, x: (r.x ?? 0) / ku }));
+  const gz = gazeOf(poseOf(f, battle, dead, gown), battle), surf = buildFace(head, s, hy - headAt, f, fr.fem, dead, [RX * gz[0], gz[1]], neckIn); // (the face's +x is the figure's left)
   // the body's own surfaces (the rig's skin and boots, and the face): what a body laid out on the floor rests on
   const own = new Set<THREE.Object3D>(); body.traverse((c) => { if ((c as M).isMesh) own.add(c); });
   const [R, Lf] = arm;

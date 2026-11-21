@@ -8,8 +8,8 @@ import * as THREE from 'three';
 import { paintFace, wearFace } from './facepaint';
 import { mergeVertices } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { mat } from '../render/materials';
-import { loftGeometry } from './anatomy';
-import { smin } from './sdf';
+import { loftGeometry, ringAt, type Ring } from './anatomy';
+import { smax, smin } from './sdf';
 
 export type Beard = 'none' | 'stubble' | 'goatee' | 'full' | 'long' | 'chops';
 export type Moustache = 'none' | 'thin' | 'thick' | 'handlebar' | 'droop';
@@ -88,7 +88,13 @@ export const withJaw = (spec: FaceSpec = {}): FaceSpec => spec.jawShape ? { ...J
  *  corner); and how far it spreads, 0 to 1 (0.7 when left out). Each side branches differently. */
 export interface VeinMark { color: string; side?: 'L' | 'R' | 'both'; region?: 'cheek' | 'jaw' | 'temple' | 'brow' | 'eye'; size?: number }
 
-export interface FaceLook { skin: string; hair?: string; eyes?: string; lips?: string; detail?: FaceDetail; /** Sculpted on the feminine frame (a softer jaw and brow, fuller lips, larger eyes). */ fem?: boolean; /** Crossed-out eyes. */ dead?: boolean }
+export interface FaceLook {
+  skin: string; hair?: string; eyes?: string; lips?: string; detail?: FaceDetail; /** Sculpted on the feminine frame (a softer jaw and brow, fuller lips, larger eyes). */ fem?: boolean; /** Crossed-out eyes. */ dead?: boolean;
+  /** The neck the head sits on, in the head's own units (skull radius 1, from its centre, +z out of the face): its
+   *  sections from the bottom up (kit/heroes.ts gives each figure its own). Behind the jaw and below the ears the head
+   *  goes in under it, as a head does over a real neck. */
+  neck?: Ring[];
+}
 
 type M = THREE.Mesh;
 const soft = (c: string): THREE.MeshLambertMaterial => { const m = mat(c, { emissive: '#030303' }); m.userData.smooth = true; return m; };
@@ -115,10 +121,14 @@ export function craniumShape(spec: Pick<FaceSpec, 'skullDepth' | 'foreheadH' | '
     return [x * (1 - k), y, zc + (z - zc) * (1 - k)];
   };
 }
-/** The cranium as the hair sees it (kit/hair.ts, heroes.ts buildHair): the face's own proportions first, as the head is
- *  built (wider or narrower, longer, longer below the eyes), then craniumShape. Takes and returns skull units like
- *  craniumShape, so hair laid over any head fits it however far its sliders go. */
-export function hairSkull(spec0: Pick<FaceSpec, 'headW' | 'headL' | 'faceLen' | 'skullDepth' | 'foreheadH' | 'jawAngle' | 'jawShape'> = {}): (x: number, y: number, z: number) => [number, number, number] {
+/** Where hair lies on a head: takes a point in skull units on the skull's plain round (the unit sphere scaled to 0.84
+ *  across, 1.14 high and 0.94 deep in front, 0.99 behind) lifted some way off it, and returns where that point lies on
+ *  the head, lifted as far off it. */
+export type Scalp = (x: number, y: number, z: number) => [number, number, number];
+/** The cranium as the hair sees it (kit/hair.ts, heroes.ts buildHair) when it has no head of its own to lie on (a face
+ *  built by faceFeatures carries its own in `userData.scalp`): the face's own proportions first, as the head is built
+ *  (wider or narrower, longer, longer below the eyes), then craniumShape. */
+export function hairSkull(spec0: Pick<FaceSpec, 'headW' | 'headL' | 'faceLen' | 'skullDepth' | 'foreheadH' | 'jawAngle' | 'jawShape'> = {}): Scalp {
   const spec = withJaw(spec0), n = (v: number | undefined) => Math.max(-1, Math.min(1, v ?? 0)), cr = craniumShape(spec);
   const w = 1 + 0.07 * n(spec.headW), l = 1 + 0.05 * n(spec.headL), f = 1 + 0.08 * n(spec.faceLen);
   return (x, y, z) => cr(x * w, y * l * (y < 0 ? f : 1), z);
@@ -158,9 +168,10 @@ export function faceFeatures(spec0: FaceSpec, look: FaceLook): THREE.Group {
   // cheek to the jaw's corner, then the jaw's line in to the chin), and how square it is across. A masculine jaw turns
   // at a sharper corner lower down onto a broader chin; a feminine one turns higher and rounder onto a small chin.
   const gon = fem ? 0.54 + 0.03 * jaw : 0.55 + 0.04 * jaw;                                   // the jaw's corner (on the sphere, below the eyes)
-  const Wg = kx * (fem ? 0.73 + 0.07 * jaw : 0.77 + 0.1 * jaw + 0.06 * Math.max(0, jaw) ** 2) * (1 - 0.05 * gaunt) * (1 + 0.06 * jowls);
+  // (a strong feminine jaw, toward +1, widens and turns more crisply at its corner, as a masculine one does)
+  const Wg = kx * (fem ? 0.73 + 0.07 * jaw + 0.1 * Math.max(0, jaw) ** 2 : 0.77 + 0.1 * jaw + 0.06 * Math.max(0, jaw) ** 2) * (1 - 0.05 * gaunt) * (1 + 0.06 * jowls);
   const Wc = kx * Math.max(0.12, (fem ? 0.23 : 0.29) + 0.05 * jaw + 0.04 * chin - 0.08 * point);   // the chin's half-width, at its underside
-  const cornerR = Math.max(0.015, (fem ? 0.2 : 0.05) - 0.035 * jawA), CL = 0.92;
+  const cornerR = Math.max(0.015, (fem ? 0.2 - 0.07 * Math.max(0, jaw) : 0.05) - 0.035 * jawA), CL = 0.92;
   const squareN = (fem ? 0.4 : 0.9) + 0.4 * jaw + 0.3 * jawA;
   const roundU = Math.max(0, Math.min(1, (fem ? 0.5 : 0.15) - 0.25 * jawA - 0.15 * jaw));   // the jaw's line under the corner: straight (0) or curved round onto the chin (1)
   const jawW = (low: number) => {
@@ -170,6 +181,22 @@ export function faceFeatures(spec0: FaceSpec, look: FaceLook): THREE.Group {
   };
   /** The back of the head's width at a height: the ball narrowing under the skull, as it always has. */
   const backW = (low: number) => kx * Math.sqrt(Math.max(0, 1 - low * low)) * (fem ? 1 - 0.42 * low ** 1.7 : 1 - 0.38 * low ** 1.9);
+  // the jaw's underside, seen from below: nearly level along the middle from under the chin back to the throat, rising at
+  // each side to the jaw's line, which runs from the chin up to the jaw's corner (the whole underside rose steeply from
+  // the chin to the throat, so a head seen from the side came down to a wedge under a low chin)
+  const Y0 = -1.05 * (ky / 1.14) * (1 + 0.08 * flen), yG = -gon * ky * (1 + 0.08 * flen);
+  // the jaw's back edge runs from its corner up toward the ear's lobe; behind it and below the ear the head goes in under
+  // the neck's surface, the neck rising into the head as it does under a real ear (the skull's round hung below the jaw's
+  // corner there and met the neck facing down, a lump with a hard dark edge)
+  const neckIn = look.neck ?? [{ y: -2, w: fem ? 0.44 : 0.56, f: fem ? 0.36 : 0.45, b: fem ? 0.47 : 0.58, z: -0.08 }, { y: 0.2, w: fem ? 0.44 : 0.56, f: fem ? 0.36 : 0.45, b: fem ? 0.47 : 0.58, z: -0.08 }];
+  const backEdge = (yy: number) => -0.15 * Math.max(0, yy - yG);
+  /** How far a point (after shaping) has gone in under the neck, 0 to 1. */
+  const hugAt = (yy: number, z: number) => smooth(-0.24, -0.6, yy) * smooth(backEdge(yy), backEdge(yy) - 0.15, z);
+  /** The neck's section at a height and its radius toward a point. */
+  const neckToward = (x: number, yy: number, z: number) => {
+    const nr = ringAt(neckIn, yy), nz = nr.z ?? 0, rr = Math.hypot(x, z - nz), s1 = rr > 1e-9 ? x / rr : 0, c1 = rr > 1e-9 ? (z - nz) / rr : 1;
+    return { nz, rr, s1, c1, w: nr.w, d: c1 >= 0 ? nr.f : nr.b, re: 1 / Math.hypot(s1 / nr.w, c1 / (c1 >= 0 ? nr.f : nr.b)) };
+  };
   const skullAt = (ux: number, uy: number, uz: number, puff = 0): THREE.Vector3 => {
     const y = uy, low = Math.max(0, -y);
     // the round of the head at this height: r its radius on the sphere and (sn, cs) the way round it (cs 1 at the face's
@@ -198,17 +225,20 @@ export function faceFeatures(spec0: FaceSpec, look: FaceLook): THREE.Group {
       - 0.03 * bump(sx, y, 0.62, 0.3, 0.02, 0.05)
       + 0.07 * jowls * bump(sx, y, 0.3, -0.7, 0.03, 0.03)
       + 0.05 * Math.max(0, -gaunt) * bump(sx, y, 0.38, -0.38, 0.035, 0.03));                          // (a full face: round cheeks)
-    // the face's length below the eyes, then the cranium (shared with the hair), then the jaw's underside: a plane from
-    // under the chin back to the throat, rising to the jaw's corners, with the round of the skull below it cut away
+    // the face's length below the eyes, then the cranium (shared with the hair), then the jaw's underside (above), with
+    // the round of the skull below it cut away in front of the jaw's back edge
     let yy = y * ky * (y < 0 ? 1 + 0.08 * flen : 1);
     [x, yy, z] = crShape(x, yy, z);
-    const yJaw = -1.05 * (ky / 1.14) * (1 + 0.08 * flen) + 0.27 * smooth(0.86, 0.3, z) + 0.12 * smooth(0.8 * Wc, Wg, Math.abs(x)), fr = smooth(-0.04, 0.3, z);
+    const ax = Math.abs(x), along = smooth(0.78, 0.04, z), mid = Y0 + 0.07 * smooth(0.85, 0.25, z), xJ = Wc + (Wg - Wc) * along, yJL = Y0 + (yG - Y0) * along;
+    const yJaw = mid + Math.max(0, yJL - mid) * smooth(0.35 * xJ, 1.05 * xJ, ax), fr = smooth(backEdge(yy) - 0.15, backEdge(yy), z);
     if (yy < yJaw && fr > 0) { const sft = 0.07 - 0.035 * jawA, dd = yJaw - yy; yy += fr * (dd - sft * (1 - Math.exp(-dd / sft))); }
-    // and behind the jaw's corner, below the base of the skull, the head draws on in well inside the top of the neck, so
-    // the neck comes out from under it cleanly (the round of the skull ran down alongside the neck there, ragged where
-    // the two met, and hung below the jaw's corner like a hook)
-    const tuck = 0.45 * smooth(-0.5, -0.85, yy) * smooth(0.12, -0.2, z), zc = -0.12;
-    x *= 1 - tuck; z = zc + (z - zc) * (1 - tuck);
+    // and behind the jaw's back edge, below the ear, in under the neck: just under its surface where the two meet, well
+    // inside it lower down, so a turned or nodding head stays inside its neck
+    const hug = hugAt(yy, z);
+    if (hug > 0) {
+      const t = neckToward(x, yy, z), r2 = t.rr + (smin(t.rr, t.re * (0.78 - 0.2 * smooth(-0.45, -0.85, yy)), 0.05) - t.rr) * hug;
+      x = t.s1 * r2; z = t.nz + t.c1 * r2;
+    }
     return V(x * (R + puff), yy * (R + puff), z * (R + puff));
   };
   const shaped = (sphere: THREE.BufferGeometry, c: string, puff = 0): M => {
@@ -216,7 +246,39 @@ export function faceFeatures(spec0: FaceSpec, look: FaceLook): THREE.Group {
     // across them instead of breaking in a line
     const geo = weld(sphere), p = geo.attributes.position as THREE.BufferAttribute, v = V(0, 0, 0);
     for (let i = 0; i < p.count; i++) { v.fromBufferAttribute(p, i).normalize(); const q = skullAt(v.x, v.y, v.z, puff); p.setXYZ(i, q.x, q.y, q.z); }
-    geo.computeVertexNormals(); const m = new THREE.Mesh(geo, soft(c)); g.add(m); return m;
+    geo.computeVertexNormals();
+    // where the head goes in under the neck its surface is drawn in steeply, and its triangles' normals zigzag: smoothed
+    // there with their neighbours', then turned to the neck's own as they near it, so the two meet without a dark seam
+    const nm = geo.attributes.normal as THREE.BufferAttribute, k = R + puff, cnt = p.count, idx = geo.index!;
+    const hug = new Float32Array(cnt), wgt = new Float32Array(cnt), toN = new Float32Array(cnt * 2);
+    for (let i = 0; i < cnt; i++) {
+      // (begun a little above where the head starts in, where its round already turns under)
+      const x = p.getX(i) / k, yy = p.getY(i) / k, z = p.getZ(i) / k; hug[i] = smooth(-0.1, -0.5, yy) * smooth(backEdge(yy), backEdge(yy) - 0.15, z);
+      if (hug[i] <= 0) continue;
+      const t = neckToward(x, yy, z), gx = t.s1 / (t.w * t.w), gz = t.c1 / (t.d * t.d), gl = Math.hypot(gx, gz);
+      wgt[i] = hug[i]; toN[2 * i] = gx / gl; toN[2 * i + 1] = gz / gl;
+    }
+    const nbr: number[][] = [];
+    for (let i = 0; i < idx.count; i += 3) {
+      const a = idx.getX(i), b = idx.getX(i + 1), c2 = idx.getX(i + 2);
+      if (hug[a] <= 0 && hug[b] <= 0 && hug[c2] <= 0) continue;
+      for (const [u, w] of [[a, b], [b, c2], [c2, a]]) { (nbr[u] ??= []).push(w); (nbr[w] ??= []).push(u); }
+    }
+    const cur = Float32Array.from(nm.array as Float32Array), nxt = Float32Array.from(cur);
+    for (let it = 0; it < 8; it++) {
+      for (let i = 0; i < cnt; i++) {
+        if (hug[i] <= 0 || !nbr[i]) continue;
+        let sx = cur[3 * i], sy = cur[3 * i + 1], sz = cur[3 * i + 2];
+        for (const j of nbr[i]) { sx += cur[3 * j]; sy += cur[3 * j + 1]; sz += cur[3 * j + 2]; }
+        const l = Math.hypot(sx, sy, sz) || 1; nxt[3 * i] = sx / l; nxt[3 * i + 1] = sy / l; nxt[3 * i + 2] = sz / l;
+      }
+      cur.set(nxt);
+    }
+    for (let i = 0; i < cnt; i++) {
+      if (hug[i] <= 0) continue;
+      v.set(cur[3 * i], cur[3 * i + 1], cur[3 * i + 2]).lerp(V(toN[2 * i], 0, toN[2 * i + 1]), wgt[i]).normalize(); nm.setXYZ(i, v.x, v.y, v.z);
+    }
+    const m = new THREE.Mesh(geo, soft(c)); g.add(m); return m;
   };
   const headMesh = shaped(new THREE.SphereGeometry(1, d >= 3 ? 64 : 48, d >= 3 ? 48 : 36).rotateZ(Math.PI / 2), skin); headMesh.userData.skull = true;   // (found again by what is made over it later: a shadow's face)
   const paint = paintFace(spec, { skin, hair: look.hair, eyes: look.eyes, lips: look.lips, fem, dead: look.dead, size: d >= 3 ? 512 : 256 });
@@ -293,6 +355,17 @@ export function faceFeatures(spec0: FaceSpec, look: FaceLook): THREE.Group {
 
   g.scale.setScalar(1 / R);
   const out = new THREE.Group(); out.add(g);
+  // this head's own surface, for the hair laid over it (heroes.ts buildHair, kit/hair.ts): hair follows the head in where
+  // it narrows under the ears, and where the head goes in under the neck it lies on the neck, so the nape's hairline is
+  // on the neck (laid over the skull's plain round instead, hair stood off the lower head and the nape, and the cut edge
+  // of short hair, meant to sink into the scalp, showed in steps behind the ear)
+  const scalp: Scalp = (x, y, z) => {
+    const ux = x / 0.84, uy = y / 1.14, uz = z / (z < 0 ? 0.99 : 0.94), k = Math.hypot(ux, uy, uz) || 1, p = skullAt(ux / k, uy / k, uz / k).divideScalar(R);
+    const under = hugAt(p.y, p.z);
+    if (under > 0) { const t = neckToward(p.x, p.y, p.z), r2 = t.rr + (smax(t.rr, t.re, 0.04) - t.rr) * under; p.x = t.s1 * r2; p.z = t.nz + t.c1 * r2; }
+    return [p.x * k, p.y * k, p.z * k];
+  };
+  out.userData.scalp = scalp;
   return out;
 }
 
