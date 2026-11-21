@@ -1122,18 +1122,21 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
   };
   // a point on the chest as the torso is lofted (pectorals and all), at an angle round it and a height: scaled out from
   // the middle by `ease` (how far out a fitted garment is cut), then stood `off` it along the way out there
-  const onChest = (() => {
-    const tm = up.children[0] as M, tp = tm.geometry.getAttribute('position') as THREE.BufferAttribute, tn = tm.geometry.getAttribute('normal') as THREE.BufferAttribute, TAU = Math.PI * 2;
-    let seg = 1; while (seg < tp.count && Math.abs(tp.getY(seg) - tp.getY(0)) < 1e-6) seg++;
-    const trows = Math.floor(tp.count / seg) - 1, yLo = tr[0].y, yHi = tr[tr.length - 1].y, v = new THREE.Vector3();
-    return (th: number, y: number, ease: number, off: number, way?: THREE.Vector3) => {
-      const fi = clampTo((y - yLo) / (yHi - yLo), 0, 1) * trows, fj = (((th / TAU) % 1) + 1) % 1 * seg, i0 = Math.min(trows - 1, Math.floor(fi)), j0 = Math.floor(fj) % seg, ca = fj - Math.floor(fj), cb = fi - i0;
-      const out = new THREE.Vector3(), n = way ?? new THREE.Vector3(); n.set(0, 0, 0);
-      for (const [di, dj, k] of [[0, 0, (1 - ca) * (1 - cb)], [0, 1, ca * (1 - cb)], [1, 0, (1 - ca) * cb], [1, 1, ca * cb]] as const) { const i = (i0 + di) * seg + (j0 + dj) % seg; out.addScaledVector(v.fromBufferAttribute(tp, i), k); n.addScaledVector(v.fromBufferAttribute(tn, i), k); }
-      out.x *= ease; out.z *= ease;
-      return out.addScaledVector(n.normalize(), off);
-    };
-  })();
+  // (the torso's grid is read when first asked for: a figure that hangs nothing on its chest never reads it)
+  let chestGrid: { tp: THREE.BufferAttribute; tn: THREE.BufferAttribute; seg: number; trows: number } | undefined;
+  const onChest = (th: number, y: number, ease: number, off: number, way?: THREE.Vector3) => {
+    if (!chestGrid) {
+      const tm = up.children[0] as M, tp = tm.geometry.getAttribute('position') as THREE.BufferAttribute, tn = tm.geometry.getAttribute('normal') as THREE.BufferAttribute;
+      let seg = 1; while (seg < tp.count && Math.abs(tp.getY(seg) - tp.getY(0)) < 1e-6) seg++;
+      chestGrid = { tp, tn, seg, trows: Math.floor(tp.count / seg) - 1 };
+    }
+    const { tp, tn, seg, trows } = chestGrid, yLo = tr[0].y, yHi = tr[tr.length - 1].y, v = new THREE.Vector3(), TAU = Math.PI * 2;
+    const fi = clampTo((y - yLo) / (yHi - yLo), 0, 1) * trows, fj = (((th / TAU) % 1) + 1) % 1 * seg, i0 = Math.min(trows - 1, Math.floor(fi)), j0 = Math.floor(fj) % seg, ca = fj - Math.floor(fj), cb = fi - i0;
+    const out = new THREE.Vector3(), n = way ?? new THREE.Vector3(); n.set(0, 0, 0);
+    for (const [di, dj, k] of [[0, 0, (1 - ca) * (1 - cb)], [0, 1, ca * (1 - cb)], [1, 0, (1 - ca) * cb], [1, 1, ca * cb]] as const) { const i = (i0 + di) * seg + (j0 + dj) % seg; out.addScaledVector(v.fromBufferAttribute(tp, i), k); n.addScaledVector(v.fromBufferAttribute(tn, i), k); }
+    out.x *= ease; out.z *= ease;
+    return out.addScaledVector(n.normalize(), off);
+  };
   // (a chain shirt's yoke is fitted to its hung mail whenever that is hung: see the mail)
   let yokeMeet: ((G?: Garment) => void) | undefined;
   // (small things hung on the chest, which a strap worn across it lies under, not over)
@@ -1144,9 +1147,12 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
     // chest's slope, standing clear of it, each turned a little so that it passes through the other
     const ease = f.chainShirt && f.armor?.kind === 'mail' && !gown ? 1.1 : 1, way = new THREE.Vector3(), yR = 1.69;
     const on = (x: number, y: number, off: number) => onChest(Math.asin(clampTo(x / (ringAt(tr, y).w * ease), -1, 1)), y, ease, off * s, way);
-    // (round the neck it lies on the slope of the shoulders, a little out from the neck: the highest point there at each
-    // angle round from the front)
-    const nape = (th: number) => { let p = onChest(th, 2.3, 1, 0.02 * s); for (let y = 2.29; y > 2.1 && Math.hypot(p.x, p.z) < 0.26 * s; y -= 0.01) p = onChest(th, y, 1, 0.02 * s); return p; };
+    // (round the neck it lies on the slope of the shoulders, far enough out from the neck's foot that the neck clears it
+    // when the head is turned or tipped: the highest point there at each angle round from the front)
+    let round = 0.2 * s; const nv = new THREE.Vector3();
+    for (const m of neck.children as M[]) if (m.isMesh) { const pos = m.geometry.getAttribute('position'); for (let i = 0; i < pos.count; i++) if (nv.fromBufferAttribute(pos, i).y < 0.12 * s) round = Math.max(round, Math.hypot(nv.x, nv.z)); }
+    round += 0.06 * s;
+    const nape = (th: number) => { let p = onChest(th, 2.3, ease, 0.02 * s); for (let y = 2.29; y > 2.1 && Math.hypot(p.x, p.z) < round; y -= 0.01) p = onChest(th, y, ease, 0.02 * s); return p; };
     const half = (sx: number) => [...[2.7, 2.0, 1.3, 0.7].map((th) => nape(sx * th)), on(sx * 0.15, 2.12, 0.045), on(sx * 0.11, 1.96, 0.035), on(sx * 0.035, 1.82, 0.04)];
     const pts = [...half(-1), on(0, yR + 0.085, 0.05), ...half(1).reverse()];
     const hung = (m: M) => { m.userData.part = 'pendant'; return trinket(m); };
@@ -2634,15 +2640,19 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
       let tieTo: THREE.Vector3; // (where a bundle of herbs is tied on: the baldric's ring, or the top of the nearer strap)
       if (kit.strap === 'belt') {
         // hung from the waist belt: two short straps from the bag's top corners up to the belt (with no belt worn, to the
-        // strap at a corset's foot, or to the waist where a belt would be), each on a small ring there
+        // strap at a corset's foot, or to the waist where a belt would be), each on a small ring there, round at the hip
+        // (never at the middle of the front, where a buckle or a lacing is)
         // (all that is worn round the waist there, whatever it is built of: a corset's straps and buckles too)
         const worn0: THREE.Object3D[] = [], stop = new Set<THREE.Object3D>([up, neck, joints0.beltL, joints0.beltR, joints0.back, ...arm.map((l) => l.collar ?? l.root), ...leg.map((l) => l.root)]);
         const walk = (n: THREE.Object3D) => { for (const c of n.children) { if (stop.has(c) || c.userData.garment) continue; worn0.push(c); walk(c); } }; walk(up); walk(pel);
         const waistT = [...T, ...soup(worn0)];
-        const tops = [0.1, 0.27].map((dx) => {
-          const low = new THREE.Vector3(inx * dx * s, -0.01 * s, 0.03 * s).applyMatrix4(M), aim = new THREE.Vector3(0, (f.belt ? 0.42 : f.corset ? 0.57 : 0.5) * s, 0), out = new THREE.Vector3(low.x, 0, low.z).normalize(), [o0, d] = rayTo(aim, out), reach = meet(waistT, o0, d);
-          const top = o0.addScaledVector(d, (reach < Infinity ? reach : far) - 0.03 * s), loop = sm(new THREE.TorusGeometry(0.028 * s, 0.009 * s, 5, 12), silver); loop.userData.part = 'ring';
-          over.add(link(top, low, 0.045 * s, leather), setOn(loop, top.clone().addScaledVector(Y, 0.02 * s), new THREE.Vector3().crossVectors(Y, out).normalize(), Y, out));
+        const tops = [0.1, 0.27].map((dx, k) => {
+          const low = new THREE.Vector3(inx * dx * s, -0.01 * s, 0.03 * s).applyMatrix4(M), aim = new THREE.Vector3(0, (f.belt ? 0.42 : f.corset ? 0.57 : 0.5) * s, 0), az = side * Math.max(side * Math.atan2(low.x, low.z), 0.55 - 0.2 * k), out = new THREE.Vector3(Math.sin(az), 0, Math.cos(az)), [o0, d] = rayTo(aim, out), across = new THREE.Vector3().crossVectors(Y, out).normalize();
+          // (on the highest of what the ring lies over: a buckle or a lacing may stand proud beside it)
+          const reach = Math.min(far, ...[[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]].map(([i, j]) => meet(waistT, o0.clone().addScaledVector(across, i * 0.04 * s).addScaledVector(Y, j * 0.04 * s), d)));
+          const top = o0.addScaledVector(d, reach - (f.corset && !f.belt ? 0.065 : 0.03) * s), // (a corset's straps and buckles are put on later, over what is read here)
+            loop = sm(new THREE.TorusGeometry(0.028 * s, 0.009 * s, 5, 12), silver); loop.userData.part = 'ring';
+          over.add(link(top, low, 0.045 * s, leather), setOn(loop, top.clone().addScaledVector(Y, 0.02 * s), across, Y, out));
           return top;
         });
         tieTo = tops[1];
