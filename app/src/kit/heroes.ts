@@ -722,11 +722,14 @@ function buildHair(head: THREE.Group, s: number, hy: number, f: HeroFigure, fem:
   const smooth = (a: number, b: number, v: number) => { const t = Math.max(0, Math.min(1, (v - a) / (b - a))); return t * t * (3 - 2 * t); };
   let seed = 11; const rnd = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
   // ears that stand out (buildFace) part the hair: the side locks are tucked behind them and no coil grows over their
-  // roots, so the ear comes out of the hair whole, as in the art, instead of its point poking through
+  // roots, so the ear comes out of the hair whole, as in the art, instead of its point poking through; long hair worn
+  // with drop earrings is tucked behind the ears too, every lock from beside the face back (all of them go back over
+  // the shoulders, and from in front of the ear they would cross under it), so the earrings hang clear in front of it,
+  // as in the art, rather than through it or under a lump of it
   const earOut = f.ears === 'pointed' ? Math.max(0, Math.min(1, f.face?.earOut ?? 0)) : 0, earAz = Math.atan2(0.318 + 0.012 * earOut, -0.035 + 0.012 * earOut);
-  const tuckK = Math.max(0, Math.min(1, (earOut - 0.2) / 0.4));
+  const drops = !!f.earrings && style === 'long', tuckK = drops ? 1 : Math.max(0, Math.min(1, (earOut - 0.2) / 0.4));
   const tuck = (az: number) => {
-    const an = Math.atan2(Math.sin(az), Math.cos(az)), a = Math.abs(an), lo = earAz - 0.55, hi = earAz + 0.3;
+    const an = Math.atan2(Math.sin(az), Math.cos(az)), a = Math.abs(an), lo = drops ? 0.6 : earAz - 0.55, hi = earAz + 0.3;
     return tuckK === 0 || a < lo || a > hi ? az : Math.sign(an) * (a + (hi + (a - lo) * 0.2 - a) * tuckK);
   };
   // an elf's ears (buildFace has set them on the head), as triangles in the head's frame, within a ball round each:
@@ -770,11 +773,15 @@ function buildHair(head: THREE.Group, s: number, hy: number, f: HeroFigure, fem:
   // cutSphere: the edge follows the line instead of stepping round the sphere's grid) and its edge sunk into the skin, so
   // the hairline is the line where hair meets skin, on the head or, at the nape, on the neck (an edge standing proud
   // there showed ragged where it met the neck)
-  const elOf = (u: THREE.Vector3) => Math.asin(Math.max(-1, Math.min(1, u.y))), overOf = (u: THREE.Vector3) => elOf(u) - line(Math.atan2(u.x, u.z)) + 0.07;
+  // (before the ears, where the hairline shows once the hair is swept or tucked back past them, the edge lies on the skin
+  // instead, a hair proud of it, cut that much higher: the hairline there is the cut's own line. Sunk, it was the line
+  // where the layer came up out of the skin, which it does across a single row of its grid, and that line was ragged)
+  const fore = (u: THREE.Vector3) => 1 - smooth(1.35, 1.65, Math.abs(Math.atan2(u.x, u.z)));
+  const elOf = (u: THREE.Vector3) => Math.asin(Math.max(-1, Math.min(1, u.y))), overOf = (u: THREE.Vector3) => elOf(u) - line(Math.atan2(u.x, u.z)) + 0.07 - 0.045 * fore(u);
   const { U, idx } = cutSphere(48, 28, overOf);
   const cpos = new Float32Array(U.length * 3);
   U.forEach((u, i) => {
-    const az = Math.atan2(u.x, u.z), el = elOf(u), k = 0.97 + (0.075 + 0.012 * Math.sin(az * 26 + el * 5) + 0.006 * Math.sin(az * 61)) * smooth(0, 0.1, overOf(u)), [qx, qy, qz] = cr(u.x * 0.84 * k, u.y * 1.14 * k, u.z * (u.z < 0 ? 0.99 : 0.94) * k);
+    const az = Math.atan2(u.x, u.z), el = elOf(u), k0 = 0.97 + 0.038 * fore(u), k = k0 + (1.045 - k0 + 0.012 * Math.sin(az * 26 + el * 5) + 0.006 * Math.sin(az * 61)) * smooth(0, 0.1, overOf(u)), [qx, qy, qz] = cr(u.x * 0.84 * k, u.y * 1.14 * k, u.z * (u.z < 0 ? 0.99 : 0.94) * k);
     cpos[i * 3] = qx * R * s; cpos[i * 3 + 1] = qy * R * s; cpos[i * 3 + 2] = qz * R * s;
   });
   const cg = new THREE.BufferGeometry(); cg.setAttribute('position', new THREE.BufferAttribute(cpos, 3)); cg.setIndex(idx); cg.computeVertexNormals();
@@ -838,39 +845,63 @@ function drapeBraids(up: THREE.Object3D, neck: THREE.Object3D, head: THREE.Objec
   // the surfaces the braids may lie on, as one list of triangles in the chest's frame: the chest's and the neck's own
   // parts, only where the braids hang (the front, between the shoulders, from the ears down)
   const tops = b.from.map(({ at: a0 }) => up.worldToLocal(head.localToWorld(a0.clone())).y), y1 = Math.max(...tops) + 0.1 * s, y0 = Math.min(...tops) - 1.5 * s;
+  // (sorted into slabs of height, so that a level ray reads only the triangles that reach its height)
+  const SH = 0.04 * s, NS = Math.max(1, Math.ceil((y1 - y0) / SH)), slab: number[][] = Array.from({ length: NS }, () => []);
   const tri: number[] = [], toUp = new THREE.Matrix4().copy(up.matrixWorld).invert(), m4 = new THREE.Matrix4(), v = new THREE.Vector3();
-  for (const m of [...up.children, ...neck.children]) {
-    if (!(m as M).isMesh || ((m as M).material as THREE.Material).transparent) continue;
-    const g = (m as M).geometry, pos = g.getAttribute('position') as THREE.BufferAttribute, idx = g.index, P = new Float32Array(pos.count * 3);
+  for (const m of hairRests([up, neck], head, s)) {
+    const g = m.geometry, pos = g.getAttribute('position') as THREE.BufferAttribute, idx = g.index, P = new Float32Array(pos.count * 3);
     m4.multiplyMatrices(toUp, m.matrixWorld);
     for (let i = 0; i < pos.count; i++) { v.fromBufferAttribute(pos, i).applyMatrix4(m4); P[i * 3] = v.x; P[i * 3 + 1] = v.y; P[i * 3 + 2] = v.z; }
     const n = idx ? idx.count : pos.count;
     for (let i = 0; i < n; i += 3) {
       const A = (idx ? idx.getX(i) : i) * 3, B = (idx ? idx.getX(i + 1) : i + 1) * 3, C = (idx ? idx.getX(i + 2) : i + 2) * 3;
-      if (Math.max(P[A + 1], P[B + 1], P[C + 1]) < y0 || Math.min(P[A + 1], P[B + 1], P[C + 1]) > y1 || Math.max(P[A + 2], P[B + 2], P[C + 2]) < -0.2 * s || Math.min(Math.abs(P[A]), Math.abs(P[B]), Math.abs(P[C])) > 1.1 * s) continue;
+      const lo = Math.min(P[A + 1], P[B + 1], P[C + 1]), hi = Math.max(P[A + 1], P[B + 1], P[C + 1]);
+      if (hi < y0 || lo > y1 || Math.max(P[A + 2], P[B + 2], P[C + 2]) < -0.2 * s || Math.min(Math.abs(P[A]), Math.abs(P[B]), Math.abs(P[C])) > 1.1 * s) continue;
+      const k0 = Math.max(0, Math.floor((lo - y0) / SH)), k1 = Math.min(NS - 1, Math.floor((hi - y0) / SH));
+      for (let k = k0; k <= k1; k++) slab[k].push(tri.length);
       tri.push(P[A], P[A + 1], P[A + 2], P[B], P[B + 1], P[B + 2], P[C], P[C + 1], P[C + 2]);
     }
   }
-  // how far out from the line behind the neck the outermost surface lies, along a level ray at height y toward (dx, dz)
+  // how far out from the line behind the neck the outermost surface lies, along a level ray at height y toward (dx, dz);
+  // `aslant` is then how far the face met there turns from the ray toward its side (the sine, read level), 0 for one
+  // facing it or sloping straight up or down toward it
+  let aslant = 0;
   const outermost = (y: number, dx: number, dz: number) => {
-    let far = 0;
-    for (let i = 0; i < tri.length; i += 9) {
+    let far = 0; aslant = 0; const k = Math.floor((y - y0) / SH); if (k < 0 || k >= NS) return 0;
+    for (const i of slab[k]) {
       const e1x = tri[i + 3] - tri[i], e1y = tri[i + 4] - tri[i + 1], e1z = tri[i + 5] - tri[i + 2], e2x = tri[i + 6] - tri[i], e2y = tri[i + 7] - tri[i + 1], e2z = tri[i + 8] - tri[i + 2];
       const px = -dz * e2y, py = dz * e2x - dx * e2z, pz = dx * e2y, det = e1x * px + e1y * py + e1z * pz; if (Math.abs(det) < 1e-12) continue;
       const tx = -tri[i], ty = y - tri[i + 1], tz = back - tri[i + 2], u = (tx * px + ty * py + tz * pz) / det; if (u < 0 || u > 1) continue;
       const qx = ty * e1z - tz * e1y, qy = tz * e1x - tx * e1z, qz = tx * e1y - ty * e1x, w = (dx * qx + dz * qz) / det; if (w < 0 || u + w > 1) continue;
-      const d = (e2x * qx + e2y * qy + e2z * qz) / det; if (d > far) far = d;
+      const d = (e2x * qx + e2y * qy + e2z * qz) / det; if (d <= far) continue;
+      const nx = e1y * e2z - e1z * e2y, ny = e1z * e2x - e1x * e2z, nz = e1x * e2y - e1y * e2x;
+      far = d; aslant = Math.abs(nz * dx - nx * dz) / (Math.hypot(nx, ny, nz) || 1);
     }
     return far;
   };
   // (cast from behind the neck, so a point sunk in the shoulders comes out over the front of them, not off their side;
   // on a body laid on its back the braid falls onto what is under it, so it lies along the plate or the bust instead of
   // standing off where the body falls away below them)
+  // (its room is kept from what it lies on read over its own height, every hundredth of the way from its room below to
+  // its room above, each surface met there cleared as a point by its room less the height between: so it lies as clear
+  // of a gorget sloping up to the neck or the underside of a bust as of plate facing the ray, rides over a rim as thin as
+  // a wire, and lies close over the top of a rim rather than standing off it as it would off a plate sloping all the way
+  // up to it; the room grows where the face met turns aside from the ray, the flank of a bust or the front of a
+  // pauldron, as it lies nearer the braid off to the side than along the ray)
+  const clearOf = (y: number, dx: number, dz: number, R: number) => {
+    let want = 0; const n = Math.ceil(R / (0.01 * s));
+    for (let j = -n; j <= n; j++) {
+      const h = (j / n) * R, f = outermost(y + h, dx, dz); if (f <= 0) continue;
+      const Rs = R / Math.max(Math.sqrt(Math.max(0, 1 - aslant * aslant)), 0.35);
+      want = Math.max(want, f + Math.sqrt(Math.max(0, Rs * Rs - h * h)));
+    }
+    return want;
+  };
   const lift = (path: THREE.Vector3[]) => path.forEach((p, i) => {
     if (i === 0) return;
     const dx = p.x, dz = p.z - back, d = Math.hypot(dx, dz); if (d < 1e-6) return;
-    const far = outermost(p.y, dx / d, dz / d), want = far + room(i / (path.length - 1));
-    if (d < want || (lie === 'back' && far > 0)) p.set(dx / d * want, p.y, back + dz / d * want);
+    const want = clearOf(p.y, dx / d, dz / d, room(i / (path.length - 1)));
+    if (want > 0 && (d < want || lie === 'back')) p.set(dx / d * want, p.y, back + dz / d * want);
   });
   for (const { sx, at: a0 } of b.from) {
     const a = up.worldToLocal(head.localToWorld(a0.clone())), path: THREE.Vector3[] = [];
@@ -884,9 +915,16 @@ function drapeBraids(up: THREE.Object3D, neck: THREE.Object3D, head: THREE.Objec
     for (const t of [0.42, 0.9]) { const c = at2(t), band = sm(new THREE.TorusGeometry(0.075 * (1 - 0.3 * t) * s, 0.018 * s, 6, 16), '#b8bec8'); band.rotation.x = Math.PI / 2; add(at(band, c.x, c.y, c.z), 'band'); }
     const e = path[path.length - 1], shade = (i: number) => i % 3 === 0 ? sheen(H, 0.1) : i % 3 === 1 ? H : tone(H, '#000000', 0.14);
     for (let k = 0; k < 5; k++) {
-      const tuft = [e, new THREE.Vector3(e.x + (k - 2) * 0.02 * s, e.y - 0.1 * s, e.z + 0.01 * s), new THREE.Vector3(e.x + (k - 2) * 0.035 * s, e.y - 0.2 * s, e.z)];
-      // on a body laid on its back the tuft lies on it too, not out in the air past the curve of the chest
-      if (lie === 'back') for (const q of tuft.slice(1)) { const dx = q.x, dz = q.z - back, d = Math.hypot(dx, dz), far = d > 1e-6 ? outermost(q.y, dx / d, dz / d) : 0; if (far > 0) q.set(dx / d * (far + 0.03 * s), q.y, back + dz / d * (far + 0.03 * s)); }
+      let tuft = [e, new THREE.Vector3(e.x + (k - 2) * 0.02 * s, e.y - 0.1 * s, e.z + 0.01 * s), new THREE.Vector3(e.x + (k - 2) * 0.035 * s, e.y - 0.2 * s, e.z)];
+      // on a body laid on its back the tuft lies on it too, not out in the air past the curve of the chest: on what is under
+      // each of its points, read at the point's own height (read over a span of heights, as the braid is, a tuft below
+      // the bust stood off the body by the bust's own reach), its room grown as the braid's is where the face turns aside,
+      // and taken at twice as many points, so that between them it does not dip into the plate it lies along
+      if (lie === 'back') tuft = [tuft[0], tuft[0].clone().lerp(tuft[1], 0.5), tuft[1], tuft[1].clone().lerp(tuft[2], 0.5), tuft[2]];
+      if (lie === 'back') for (const q of tuft.slice(1)) {
+        const dx = q.x, dz = q.z - back, d = Math.hypot(dx, dz), far = d > 1e-6 ? outermost(q.y, dx / d, dz / d) : 0; if (far <= 0) continue;
+        const want = far + 0.03 * s / Math.max(Math.sqrt(Math.max(0, 1 - aslant * aslant)), 0.35); q.set(dx / d * want, q.y, back + dz / d * want);
+      }
       add(sm(lockGeometry(tuft, 0.03 * s, 0.006 * s, 0.5, 6), shade(k), true), 'tuft');
     }
   }
@@ -930,9 +968,9 @@ function drapeLong(up: THREE.Object3D, neck: THREE.Object3D, head: THREE.Object3
   const slab: number[][] = Array.from({ length: NS }, () => []), band: number[][][] = Array.from({ length: NS }, () => Array.from({ length: NX }, () => [])), deep = Array.from({ length: NS }, () => [Infinity, -Infinity]);
   const bx = (x: number) => Math.min(NX - 1, Math.max(0, Math.floor((x + 1.2 * s) / XB)));
   const toUpM = new THREE.Matrix4().copy(up.matrixWorld).invert(), m4 = new THREE.Matrix4(), v = new THREE.Vector3();
-  for (const m of [...up.children, ...neck.children]) {
-    if (!(m as M).isMesh || ((m as M).material as THREE.Material).transparent || m.userData.braid || m.userData.hair) continue;
-    const g = (m as M).geometry, pos = g.getAttribute('position') as THREE.BufferAttribute, idx = g.index, P = new Float32Array(pos.count * 3);
+  const { hang, centre: hc } = headWear(head, s); // (what hangs from the head beside the hair, an earring: below)
+  for (const m of hairRests([up, neck], head, s)) {
+    const g = m.geometry, pos = g.getAttribute('position') as THREE.BufferAttribute, idx = g.index, P = new Float32Array(pos.count * 3);
     m4.multiplyMatrices(toUpM, m.matrixWorld);
     for (let i = 0; i < pos.count; i++) { v.fromBufferAttribute(pos, i).applyMatrix4(m4); P[i * 3] = v.x; P[i * 3 + 1] = v.y; P[i * 3 + 2] = v.z; }
     const n = idx ? idx.count : pos.count;
@@ -974,12 +1012,16 @@ function drapeLong(up: THREE.Object3D, neck: THREE.Object3D, head: THREE.Object3
   // clear on a sloping shoulder as on the back), and of what stands out a little below it by `room` too, less a run of
   // slope down to it from a little above it, so that it comes out over an edge (the top of a cloak, a hood fallen on the
   // back) before it reaches the edge, and passes over the edge as clear as over the cloth below it
-  type Org = (p: THREE.Vector3) => [number, number, boolean];
+  // (an origin may also read over a height either side of the point, `win`, so that a lock rides over a ring or a rim as
+  // thin as a wire rather than through it between two of its points; what it meets there it clears as a point, by its
+  // room less the height between)
+  type Org = (p: THREE.Vector3) => [number, number, boolean, number?];
   const AHEAD = [0.04 * s, 0.1 * s], RUN = 1.5;
   // (how far out along its cast a point should be, and how far out it is, 0 where nothing is there; and the cast)
   const wants = (p: THREE.Vector3, org: Org, room: number): [number, number, number, number, number] => {
-    const [oz, within, ahead] = org(p), dx = p.x, dz = p.z - oz, d = Math.hypot(dx, dz); if (d < 1e-6) return [0, d, 0, 1, oz];
+    const [oz, within, ahead, win] = org(p), dx = p.x, dz = p.z - oz, d = Math.hypot(dx, dz); if (d < 1e-6) return [0, d, 0, 1, oz];
     const ux = dx / d, uz = dz / d; let want = outermost(p.y, oz, ux, uz, d + within) > 0 ? far + room / Math.max(slope, 0.35) : 0;
+    if (win) for (const j of [-1, -0.5, 0.5, 1]) if (outermost(p.y + j * win, oz, ux, uz, d + within) > 0) want = Math.max(want, far + Math.sqrt(Math.max(0, room * room - (j * win) ** 2)));
     if (ahead) for (const h of AHEAD) if (outermost(p.y - h, oz, ux, uz, d + within) > 0) want = Math.max(want, far + room - RUN * (h - AHEAD[0]));
     return [want, d, ux, uz, oz];
   };
@@ -993,7 +1035,7 @@ function drapeLong(up: THREE.Object3D, neck: THREE.Object3D, head: THREE.Object3
   const behind: Org = (p) => {
     const e = Math.max(ease((foot + 0.15 * s - p.y) / (0.4 * s)), ease((Math.hypot(p.x, p.z - zc) - 0.25 * s) / (0.15 * s)));
     return [zc + 0.3 * s + (zF - zc - 0.3 * s) * e, 0.25 * s + 3 * s * e * e, true];
-  }, before: Org = () => [zB, Infinity, false];
+  }, before: Org = () => [zB, Infinity, false, 0.035 * s];
   // a fall `len` down from `top` in 16 steps, drifting by `off(t)`, each point hung from the one above it and set out
   // from (0, org(y)), so that below whatever it was set out over (a capelet, a cloak's top, the shoulder blades) it hangs
   // on down from it rather than tucking back in under its edge; smoothed and set out again five times. Where something
@@ -1033,15 +1075,39 @@ function drapeLong(up: THREE.Object3D, neck: THREE.Object3D, head: THREE.Object3
   // (each lock drifts out from the head's middle a little as it falls, waves, and sweeps back the more, the nearer the
   // front it grows, so the locks from beside the face go back over the shoulders)
   const drift = (l: (typeof locks)[number], B: THREE.Vector3) => (t: number): [number, number] => [(B.x - C.x) * 0.12 * t + Math.sin(t * 5 + l.i) * l.wave * s, (B.z - C.z) * 0.1 * t - (0.14 * (1 - l.back) + l.back * 0.12) * Math.sin(t * Math.PI / 2) * s - (1 - l.back) * 0.3 * t * s];
+  // (hair passes over an earring hanging beside it, not through it: round the head's own upright, where the earring
+  // hangs, a lock or the sheet that would pass through it, or just outside it, swells out over it, easing back to where
+  // it lay above, below and to either side; hair that passes inside it, nearer the neck, is left where it is)
+  const toHead = new THREE.Matrix4().copy(head.matrixWorld).invert().multiply(up.matrixWorld), fromHead = toHead.clone().invert();
+  const drops = hang.map((m) => {
+    const e = { a0: Infinity, a1: -Infinity, rIn: Infinity, rOut: 0, yLo: Infinity, yHi: -Infinity, ac: 0 }, m4h = new THREE.Matrix4().copy(head.matrixWorld).invert().multiply(m.matrixWorld), p = m.geometry.getAttribute('position'), w = new THREE.Vector3();
+    m.geometry.computeBoundingSphere(); e.ac = Math.atan2(...((q) => [q.x - hc.x, q.z - hc.z] as const)(m.geometry.boundingSphere!.center.clone().applyMatrix4(m4h)));
+    for (let i = 0; i < p.count; i++) { w.fromBufferAttribute(p, i).applyMatrix4(m4h); const x = w.x - hc.x, z = w.z - hc.z, a = Math.atan2(Math.sin(Math.atan2(x, z) - e.ac), Math.cos(Math.atan2(x, z) - e.ac)), r = Math.hypot(x, z); e.a0 = Math.min(e.a0, a); e.a1 = Math.max(e.a1, a); e.rIn = Math.min(e.rIn, r); e.rOut = Math.max(e.rOut, r); e.yLo = Math.min(e.yLo, w.y); e.yHi = Math.max(e.yHi, w.y); }
+    return e;
+  });
+  const near = (t: number, lo: number, hi: number, run: number) => { const o = Math.max(lo - t, t - hi, 0) / run; return o >= 1 ? 0 : 1 - o * o * (3 - 2 * o); };
+  const swell = (p: THREE.Vector3, h: number) => {
+    if (!drops.length) return false; const q = p.clone().applyMatrix4(toHead), x = q.x - hc.x, z = q.z - hc.z, r = Math.hypot(x, z); let to = r;
+    for (const e of drops) {
+      if (r < e.rIn - h) continue; const da = (h + 0.01 * s) / e.rOut, a = Math.atan2(Math.sin(Math.atan2(x, z) - e.ac), Math.cos(Math.atan2(x, z) - e.ac));
+      const w = near(a, e.a0 - da, e.a1 + da, da) * near(q.y, e.yLo - h, e.yHi + h, 0.06 * s); if (w > 0) to = Math.max(to, r + (e.rOut + h + 0.01 * s - r) * w);
+    }
+    if (to <= r + 1e-6 || r < 1e-6) return false;
+    p.copy(q.set(hc.x + (x / r) * to, q.y, hc.z + (z / r) * to).applyMatrix4(fromHead)); return true;
+  };
   for (const l of locks) {
     const B = l.P[l.P.length - 1], path = fall(B, l.len * s, drift(l, B), behind, room, { over: true });
-    const m = sm(lockGeometry(through([...l.P, ...every2(path)], l.P.length - 1, behind, room), r0, r1, 0.5, 6), l.c, true); m.userData.hair = 'lock'; up.add(m);
+    let Q = through([...l.P, ...every2(path)], l.P.length - 1, behind, room);
+    // (a lock that swells over an earring is first taken finely along its line, so that it swells smoothly)
+    if (drops.length && Q.some((p) => swell(p.clone(), 0.6 * r0))) { const curve = new THREE.CatmullRomCurve3(Q); Q = curve.getSpacedPoints(Math.ceil(curve.getLength() / (0.025 * s))); for (const p of Q) swell(p, 0.6 * r0); }
+    const m = sm(lockGeometry(Q, r0, r1, 0.5, 6), l.c, true); m.userData.hair = 'lock'; up.add(m);
   }
   // the sheet under the locks behind: a line down from under each inner lock's foot (the first layer's, from behind one ear
   // round to behind the other), falling as the lock does but nearer the body, and ending short of it
   const cols = locks.filter((l) => l.layer === 0 && Math.abs(Math.atan2(Math.sin(l.az), Math.cos(l.az))) >= 1.2);
   if (cols.length > 1) {
     const sheet = cols.map((l) => fall(l.U, l.len * s * (0.8 + 0.05 * Math.sin(l.i * 2.3)), drift(l, l.U), behind, 0.025 * s, { short: true })), pos: number[] = [];
+    for (const path of sheet) for (const p of path) swell(p, 0.02 * s);
     for (let r = 0; r <= 16; r++) for (const path of sheet) pos.push(path[r].x, path[r].y, path[r].z);
     const m = sm(gridGeometry(pos, cols.length, 16), L.under, true); m.userData.hair = 'sheet'; up.add(m);
   }
@@ -1070,6 +1136,128 @@ function drapeLong(up: THREE.Object3D, neck: THREE.Object3D, head: THREE.Object3
 /** Curls kept off the wings once the figure is posed: a coil of curly hair that would pass through or touch a wing's
  *  membrane (an insect's wings, or spirit wings) is left out. The hair's cap under the coils still covers the scalp, so
  *  the head keeps its hair; only the coils hanging low behind the head near the wings' roots go. */
+/** What hair hung after the pose lies on: the meshes under `roots` (the chest's and the neck's own parts, however deep
+ *  they sit in groups: a gorget, a pendant, a brooch, a bow slung on the back), but not the head (the hair's own), the
+ *  arms and what they hold (an arm held across the chest is in front of the hair, not under it) save what rides on the
+ *  shoulder itself (a pauldron: a piece on the shoulder joint, not past the elbow, whose middle is within 0.4 ft of the
+ *  joint at the figure's scale), the wings, the hair itself, or anything see-through. */
+function hairRests(roots: THREE.Object3D[], head: THREE.Object3D, s: number): M[] {
+  const out = new Set<M>(), w = new THREE.Vector3(), j = new THREE.Vector3();
+  const take = (m: M) => { if (!m.userData.hair && !m.userData.braid && !m.userData.coil && !(m.material as THREE.Material).transparent) out.add(m); };
+  const walk = (o: THREE.Object3D) => {
+    // (not what is slung on the back, a bow or a crossbow: it is slung over the hair, which lies on the body under it; laid
+    // over a crossbow's prod standing off the back the locks fanned out level)
+    if (o === head || o.userData.wing || o.name === 'spiritWings' || o.name === 'back') return;
+    if (/^collar/.test(o.name)) {
+      const sh = o.children.find((c) => /^shoulder/.test(c.name)); if (!sh) return; sh.getWorldPosition(j);
+      const near = (c: THREE.Object3D) => { if (/^elbow/.test(c.name)) return; const m = c as M; if (m.isMesh) { m.geometry.computeBoundingSphere(); if (w.copy(m.geometry.boundingSphere!.center).applyMatrix4(m.matrixWorld).distanceTo(j) < 0.4 * s) take(m); } for (const d of c.children) near(d); };
+      for (const c of sh.children) near(c); return;
+    }
+    if ((o as M).isMesh) take(o as M);
+    for (const c of o.children) walk(c);
+  };
+  for (const r of roots) for (const c of r.children) walk(c);
+  return [...out];
+}
+
+/** What the head wears rather than is: its pieces that are neither hair nor the head itself (the skull and the ears,
+ *  known by the skull's colour) nor see-through. Those standing above the head's middle are worn over the hair (a
+ *  wreath, a crown: `over`), those below hang beside it (an earring: `hang`). `centre` is the skull's middle, in the
+ *  head's frame. */
+function headWear(head: THREE.Object3D, s: number): { over: THREE.Object3D[]; hang: M[]; centre: THREE.Vector3; skull?: M } {
+  let skull: M | undefined; head.traverse((o) => { if (!skull && (o as M).isMesh && o.userData.skull) skull = o as M; });
+  const centre = new THREE.Vector3(), over: THREE.Object3D[] = [], hang: M[] = []; if (!skull) return { over, hang, centre };
+  head.updateWorldMatrix(true, true);
+  skull.geometry.computeBoundingBox(); head.worldToLocal(skull.localToWorld(skull.geometry.boundingBox!.getCenter(centre)));
+  const skin = (skull.material as THREE.MeshStandardMaterial).color;
+  // (a band goes all the way round the head and is low: a wreath, a circlet)
+  const m4 = new THREE.Matrix4().copy(head.matrixWorld).invert(), v = new THREE.Vector3();
+  const reach = (ms: M[]) => {
+    const box = new THREE.Box3(), seen = new Set<number>();
+    for (const m of ms) {
+      const p = m.geometry.getAttribute('position'), mm = new THREE.Matrix4().multiplyMatrices(m4, m.matrixWorld);
+      for (let i = 0; i < p.count; i++) { v.fromBufferAttribute(p, i).applyMatrix4(mm); box.expandByPoint(v); seen.add(Math.floor(((Math.atan2(v.x - centre.x, v.z - centre.z) + Math.PI) / (2 * Math.PI)) * 36) % 36); }
+    }
+    return { box, band: seen.size >= 27 && box.max.y - box.min.y < 0.25 * s };
+  };
+  for (const c of head.children) {
+    if (c.name === 'halo') continue;
+    let worn = true; const ms: M[] = [];
+    c.traverse((o) => {
+      const m = o as M; if (!m.isMesh) return; const mat = m.material as THREE.MeshStandardMaterial;
+      if (m.userData.hair || m.userData.braid || m.userData.coil || m.userData.skull || mat.color?.equals(skin)) worn = false; else if (!mat.transparent) ms.push(m);
+    });
+    // (what is part of the head itself, the face, is not worn over the hair: an eyepatch's strap lies on the skull, under it)
+    if (!worn || !ms.length) continue;
+    // (a band, or a piece that sits up on the head, goes over the hair; a piece beside the head, an earring, a beard, hangs
+    // beside it)
+    const { box, band } = reach(ms);
+    if (band || box.getCenter(v).y > centre.y + 0.02 * s) over.push(c); else hang.push(...ms);
+  }
+  return { over, hang, centre, skull };
+}
+
+/** Hair under what the head wears over it (a wreath, a crown) is pressed in beneath it, as a band presses it, so that it
+ *  never shows between its twigs: round the head, every point of the hair within the band's height is brought just
+ *  inside the band's inner face there (but never into the skull), easing back to its own height a little above and
+ *  below. Read round the head's own upright, in its frame, so it holds however the head is turned. */
+function underBands(head: THREE.Object3D, root: THREE.Object3D, s: number): void {
+  const { over, centre, skull } = headWear(head, s); if (!over.length || !skull) return;
+  root.updateWorldMatrix(true, true);
+  const N = 90, rIn = new Float32Array(N).fill(Infinity), rOut = new Float32Array(N), yLo = new Float32Array(N).fill(Infinity), yHi = new Float32Array(N).fill(-Infinity);
+  const toHead = new THREE.Matrix4().copy(head.matrixWorld).invert(), m4 = new THREE.Matrix4(), v = new THREE.Vector3();
+  const bin = (x: number, z: number) => (Math.floor(((Math.atan2(x, z) + Math.PI) / (2 * Math.PI)) * N) % N + N) % N;
+  const each = (m: M, f: (x: number, y: number, z: number) => void) => { m4.multiplyMatrices(toHead, m.matrixWorld); const p = m.geometry.getAttribute('position'); for (let i = 0; i < p.count; i++) { v.fromBufferAttribute(p, i).applyMatrix4(m4); f(v.x - centre.x, v.y, v.z - centre.z); } };
+  const iO = new Float32Array(N).fill(Infinity), oO = new Float32Array(N), lO = new Float32Array(N).fill(Infinity), hO = new Float32Array(N).fill(-Infinity);
+  for (const b of over) b.traverse((o) => { if ((o as M).isMesh) each(o as M, (x, y, z) => { const k = bin(x, z), r = Math.hypot(x, z); iO[k] = Math.min(iO[k], r); oO[k] = Math.max(oO[k], r); lO[k] = Math.min(lO[k], y); hO[k] = Math.max(hO[k], y); }); });
+  // (each way round, the band's innermost face and its full height over the next way round on either side, so the hair
+  // goes under it whole)
+  for (let k = 0; k < N; k++) for (const j of [k - 1, k, k + 1]) { const q = (j + N) % N; rIn[k] = Math.min(rIn[k], iO[q]); rOut[k] = Math.max(rOut[k], oO[q]); yLo[k] = Math.min(yLo[k], lO[q]); yHi[k] = Math.max(yHi[k], hO[q]); }
+  // (eased back out over a span above and below, longer below, where the hair falls away from the head steeply enough
+  // that over a shorter span it would step out under the band's lower edge)
+  const ramp = 0.06 * s, rampLo = 0.1 * s, gap = 0.006 * s;
+  // (the head's own surface there, the skull and the face, read along a level ray out from the head's upright through
+  // the point: where a band sits close on the skull the hair under it is pressed nearly to the skull, which a reading
+  // taken over a span of heights, the skull widening below a band, would not let it reach)
+  const SH = 0.02 * s, yA = Math.min(...yLo.filter((y) => y < Infinity)) - rampLo, yB = Math.max(...yHi.filter((y) => y > -Infinity)) + ramp;
+  const NS = Math.max(1, Math.ceil((yB - yA) / SH)), slab: number[][] = Array.from({ length: NS }, () => []), tri: number[] = [];
+  skull.parent!.traverse((o) => {
+    const m = o as M; if (!m.isMesh || !(m.material as THREE.MeshStandardMaterial).color?.equals((skull.material as THREE.MeshStandardMaterial).color)) return;
+    const P: number[] = []; each(m, (x, y, z) => { P.push(x, y, z); });
+    const ix = m.geometry.index, n = ix ? ix.count : P.length / 3;
+    for (let i = 0; i < n; i += 3) {
+      const a = (ix ? ix.getX(i) : i) * 3, b = (ix ? ix.getX(i + 1) : i + 1) * 3, c = (ix ? ix.getX(i + 2) : i + 2) * 3;
+      const lo = Math.min(P[a + 1], P[b + 1], P[c + 1]), hi = Math.max(P[a + 1], P[b + 1], P[c + 1]); if (hi < yA || lo > yB) continue;
+      for (let k = Math.max(0, Math.floor((lo - yA) / SH)); k <= Math.min(NS - 1, Math.floor((hi - yA) / SH)); k++) slab[k].push(tri.length);
+      tri.push(P[a], P[a + 1], P[a + 2], P[b], P[b + 1], P[b + 2], P[c], P[c + 1], P[c + 2]);
+    }
+  });
+  const skullAt = (y: number, dx: number, dz: number) => {
+    const k = Math.floor((y - yA) / SH); if (k < 0 || k >= NS) return 0; let far = 0;
+    for (const i of slab[k]) {
+      const e1x = tri[i + 3] - tri[i], e1y = tri[i + 4] - tri[i + 1], e1z = tri[i + 5] - tri[i + 2], e2x = tri[i + 6] - tri[i], e2y = tri[i + 7] - tri[i + 1], e2z = tri[i + 8] - tri[i + 2];
+      const px = -dz * e2y, py = dz * e2x - dx * e2z, pz = dx * e2y, det = e1x * px + e1y * py + e1z * pz; if (Math.abs(det) < 1e-12) continue;
+      const tx = -tri[i], ty = y - tri[i + 1], tz = -tri[i + 2], u = (tx * px + ty * py + tz * pz) / det; if (u < 0 || u > 1) continue;
+      const qx = ty * e1z - tz * e1y, qy = tz * e1x - tx * e1z, qz = tx * e1y - ty * e1x, w = (dx * qx + dz * qz) / det; if (w < 0 || u + w > 1) continue;
+      const d = (e2x * qx + e2y * qy + e2z * qz) / det; if (d > far) far = d;
+    }
+    return far;
+  };
+  const ease = (t: number) => t * t * (3 - 2 * t);
+  root.traverse((o) => {
+    const m = o as M; if (!m.isMesh || !(m.userData.hair || m.userData.braid || m.userData.coil)) return;
+    m4.multiplyMatrices(toHead, m.matrixWorld); const back = m4.clone().invert(), p = m.geometry.getAttribute('position') as THREE.BufferAttribute; let moved = false;
+    for (let i = 0; i < p.count; i++) {
+      v.fromBufferAttribute(p, i).applyMatrix4(m4); const x = v.x - centre.x, z = v.z - centre.z, r = Math.hypot(x, z), k = bin(x, z);
+      if (!(rIn[k] < Infinity) || r > rOut[k] + 0.05 * s || v.y < yLo[k] - rampLo || v.y > yHi[k] + ramp || r <= rIn[k] - gap) continue;
+      const to = Math.max(rIn[k] - gap, skullAt(v.y, x / r, z / r) + 0.002 * s); if (r <= to) continue;
+      const w = ease(Math.min(1, Math.max(0, 1 - Math.max((yLo[k] - v.y) / rampLo, (v.y - yHi[k]) / ramp, 0)))), r2 = r - (r - to) * w;
+      v.set(centre.x + (x / r) * r2, v.y, centre.z + (z / r) * r2).applyMatrix4(back); p.setXYZ(i, v.x, v.y, v.z); moved = true;
+    }
+    if (moved) { p.needsUpdate = true; m.geometry.computeVertexNormals(); m.geometry.computeBoundingSphere(); m.geometry.computeBoundingBox(); }
+  });
+}
+
 function clearOfWings(head: THREE.Object3D, up: THREE.Object3D, s: number): void {
   const coils: M[] = []; head.traverse((o) => { if ((o as M).isMesh && o.userData.coil) coils.push(o as M); });
   const sheets: M[] = []; up.traverse((o) => { if (o.userData.wing || o.name === 'spiritWings') o.traverse((d) => { if ((d as M).isMesh) sheets.push(d as M); }); });
@@ -4051,6 +4239,7 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
   }
   drapeBraids(up, neck, head, s, P.lie);
   drapeLong(up, neck, head, s);
+  underBands(head, up, s);
   clearOfWings(head, up, s);
   const joints: Record<string, THREE.Object3D> = {};
   body.traverse((o) => { if (o.name) joints[o.name] = o; });

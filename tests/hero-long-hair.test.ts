@@ -1,6 +1,8 @@
 // Long hair (kit/heroes.ts buildHair, drapeLong) falls from the head once the figure is posed: over the shoulders and
 // down the back, over whatever the back wears instead of through it, with an under-layer so that no skin shows between
-// its locks from behind; the locks framing the face fall in front to the collarbone and lie on what the chest wears. On
+// its locks from behind; the locks framing the face fall in front to the collarbone and lie on what the chest wears. It
+// lies under a wreath and, with drop earrings, is tucked behind the ears so that they hang clear (underBands, buildHair),
+// and before the ears its under-layer's edge lies on the skin, so that the hairline there is clean once it shows. On
 // a body laid out no hair (long, braided or curly) lies under the floor, and a fairy's curls keep off her wings.
 import { describe, expect, it } from 'vitest';
 import * as THREE from 'three';
@@ -86,6 +88,64 @@ describe('long hair', () => {
       }
     }
   }, 30000);
+});
+
+/** World triangles of some meshes. */
+function trisOf(ms: M[]): THREE.Vector3[][] {
+  const out: THREE.Vector3[][] = [];
+  for (const m of ms) { const p = m.geometry.getAttribute('position'), ix = m.geometry.index, at = (j: number) => new THREE.Vector3().fromBufferAttribute(p, ix ? ix.getX(j) : j).applyMatrix4(m.matrixWorld); for (let i = 0; i + 2 < (ix ? ix.count : p.count); i += 3) out.push([at(i), at(i + 1), at(i + 2)]); }
+  return out;
+}
+/** Whether segment ab passes through triangle t (strictly between its ends). */
+function segThrough(a: THREE.Vector3, b: THREE.Vector3, t: THREE.Vector3[]): boolean {
+  const d = b.clone().sub(a), len = d.length(); if (len < 1e-9) return false; d.divideScalar(len);
+  const e1 = t[1].clone().sub(t[0]), e2 = t[2].clone().sub(t[0]), h = new THREE.Vector3().crossVectors(d, e2), det = e1.dot(h); if (Math.abs(det) < 1e-12) return false;
+  const sv = a.clone().sub(t[0]), u = sv.dot(h) / det; if (u < 0 || u > 1) return false;
+  const q = new THREE.Vector3().crossVectors(sv, e1), w = d.dot(q) / det; if (w < 0 || u + w > 1) return false;
+  const k = e2.dot(q) / det; return k > 0 && k < len;
+}
+const trisCross = (A: THREE.Vector3[], B: THREE.Vector3[]) => [0, 1, 2].some((i) => segThrough(A[i], A[(i + 1) % 3], B) || segThrough(B[i], B[(i + 1) % 3], A));
+/** How many of the triangles of `a` pass through a triangle of `b`, the two binned together in cells `cell` wide. */
+function crossings(a: THREE.Vector3[][], b: THREE.Vector3[][], cell: number): number {
+  const grid = new Map<string, THREE.Vector3[][]>(), lo = new THREE.Vector3(), hi = new THREE.Vector3();
+  const cells = (t: THREE.Vector3[], f: (k: string) => void) => {
+    lo.copy(t[0]).min(t[1]).min(t[2]); hi.copy(t[0]).max(t[1]).max(t[2]);
+    for (let x = Math.floor(lo.x / cell); x <= Math.floor(hi.x / cell); x++) for (let y = Math.floor(lo.y / cell); y <= Math.floor(hi.y / cell); y++) for (let z = Math.floor(lo.z / cell); z <= Math.floor(hi.z / cell); z++) f(`${x},${y},${z}`);
+  };
+  for (const t of b) cells(t, (k) => { const l = grid.get(k); if (l) l.push(t); else grid.set(k, [t]); });
+  let n = 0;
+  for (const t of a) { let hit = false; const seen = new Set<THREE.Vector3[]>(); cells(t, (k) => { if (hit) return; for (const u of grid.get(k) ?? []) { if (seen.has(u)) continue; seen.add(u); if (trisCross(t, u)) { hit = true; return; } } }); if (hit) n++; }
+  return n;
+}
+const hexOf = (m: M) => ((m.material as THREE.MeshStandardMaterial).color?.getHexString() ?? '');
+
+describe('long hair and what the head wears', () => {
+  // the woman in the gown under a wreath, with drop earrings (as in Rowena's art: the hair tucked behind the ears, the
+  // earrings hanging clear in front of it)
+  const WREATH = ['2a1a0c', 'f7f1dd', '4a7a2a'], DROPS = ['c9a227', 'c9c2b0'];
+  const crowned: HeroFigure = { ...gowned, wreath: { color: '#2a1a0c', flower: '#f7f1dd', leaf: '#4a7a2a' }, earrings: '#c9a227' };
+  it('lies under the wreath and is tucked behind the ears for drop earrings: no hair through either, standing, fighting or fallen', () => {
+    for (const st of ['rest', 'battle', 'dead'] as const) {
+      const g = build(crowned, st), s = scaleOf(g), all = meshes(g), hair = trisOf(all.filter(isHair));
+      const wreath = all.filter((m) => WREATH.includes(hexOf(m))), drops = all.filter((m) => DROPS.includes(hexOf(m)));
+      expect(wreath.length, st).toBeGreaterThan(10); expect(drops.length, st).toBe(4);
+      expect(crossings(hair, trisOf(wreath), 0.06 * s), `${st}: hair through the wreath`).toBe(0);
+      expect(crossings(hair, trisOf(drops), 0.06 * s), `${st}: hair through an earring`).toBe(0);
+    }
+  }, 120000);
+
+  it('lays the hairline before the ears on the skin: the under-layer there never dips through it', () => {
+    for (const f of [gowned, mailed, braided, crowned]) {
+      const g = build(f, 'rest'), s = scaleOf(g), head = g.getObjectByName('head')!; let skull: M | undefined;
+      head.traverse((o) => { if (!skull && (o as M).isMesh && o.userData.skull) skull = o as M; });
+      skull!.geometry.computeBoundingBox(); const c = skull!.localToWorld(skull!.geometry.boundingBox!.getCenter(new THREE.Vector3())), inv = head.matrixWorld.clone().invert(), hc = c.clone().applyMatrix4(inv);
+      // (the under-layer's triangles before the ears: out from the skull's middle, within 1.3 of the front either way)
+      const before = (t: THREE.Vector3[]) => { const m = t[0].clone().add(t[1]).add(t[2]).divideScalar(3).applyMatrix4(inv).sub(hc); return Math.abs(Math.atan2(m.x, m.z)) < 1.3; };
+      const cap = trisOf(meshes(head).filter((m) => m.userData.hair === 'do')).filter(before);
+      expect(cap.length, `${f.hairStyle}`).toBeGreaterThan(200);
+      expect(crossings(cap, trisOf([skull!]), 0.06 * s), `${f.hairStyle}${f.earrings ? ' with earrings' : ''}`).toBe(0);
+    }
+  }, 60000);
 });
 
 describe('hair on a body laid out', () => {
