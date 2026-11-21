@@ -545,7 +545,7 @@ function snugBack(G: Garment, tr: Ring[], s: number, skip: THREE.Object3D, rows 
     const e = Math.min(1, Math.min(k, C - 1 - k) / 10), d = Math.min(most[k], sum / cnt) * e * e * (3 - 2 * e); if (d <= 0) continue;
     for (let r = 0; r < rows; r++) pos.setZ(r * C + k, Z(r * C + k) + d * (1 - r / rows));
   }
-  pos.needsUpdate = true; m.geometry.computeVertexNormals();
+  pos.needsUpdate = true; m.geometry.computeVertexNormals(); m.geometry.computeBoundingBox(); m.geometry.computeBoundingSphere();
 }
 
 /** Faces are painted onto a clean head (the stylised look); false brings back the sculpted standard face below. */
@@ -3546,7 +3546,7 @@ export function giveWay(m: THREE.Mesh, cols: number, gear: THREE.Object3D, clear
     const hit = cross(); if (!hit.length) break;
     for (const i of hit) need[i] = Math.max(need[i], D[i]) + clear; // (still crossed: those go further in, and the dent with them)
   }
-  pos.needsUpdate = true; geo.computeVertexNormals();
+  pos.needsUpdate = true; geo.computeVertexNormals(); geo.computeBoundingBox(); geo.computeBoundingSphere();
 }
 
 /** An elbow or a knee bends as one limb: near the joint (within `reach` of it, along the limb) the surface of each side

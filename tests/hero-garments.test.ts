@@ -150,13 +150,14 @@ describe('hero garments', () => {
     expect(report(['cloak and capelet', 'cloak over mail'].map((o) => laid(o, 'crumpled', CRUMPLED)), (p) => p.part === 'neck' && CAPES.has(p.garment))).toEqual([]);
   }, 60000);
 
-  it('hang a gown\'s cloak against the back at its top edge, not standing off it, with its corners still behind the arms', () => {
+  it('hang a gown\'s cloak against the back at its top edge, not standing off it, with its corners still out where they were cut', () => {
     // (its top edge was cut round and stood almost half a foot off the back at the middle, a flat back being flatter than
     // that round; read along a level ray from the top edge in toward the trunk's axis, in the trunk's own frame)
     const C = 57, rc = new THREE.Raycaster();
     const gowns: Record<string, Record<string, unknown>> = { plain: OUTFITS['gown and cloak'], 'curvy, full sleeves': { ...OUTFITS['gown and cloak'], build: 'curvy', puffSleeves: true, fullSleeves: true, sleeves: '#efe3c8' } };
     for (const [name, rec] of Object.entries(gowns)) for (const st of ['rest', 'battle'] as const) {
-      const fig = heroFigure(rec as never, 'medium', st); fig.updateMatrixWorld(true);
+      // (in a fight, a caster's stance: with no stance of its own a figure fights at ease, as it rests)
+      const fig = heroFigure((st === 'battle' ? { ...rec, stance: 'conjure' } : rec) as never, 'medium', st); fig.updateMatrixWorld(true);
       const all: THREE.Mesh[] = []; fig.traverse((o) => { if ((o as THREE.Mesh).isMesh) all.push(o as THREE.Mesh); });
       const cloak = all.find((m) => m.userData.garment === 'cloak' && !m.userData.veil)!, tag = `${name} ${st}`;
       expect(cloak, tag).toBeTruthy();
@@ -169,7 +170,7 @@ describe('hero garments', () => {
       };
       // the middle of the top edge lies close on the back, and so does the edge either side of it
       for (const k of [21, 28, 35]) expect(gap(k), `${tag} column ${k}`).toBeLessThan(0.16);
-      // the corners stay out where they were cut, behind the arms: the edge is not drawn in round the sides
+      // the corners stay out where they were cut (they are never brought in): the edge is not drawn in round the sides
       for (const k of [0, C - 1]) expect(gap(k), `${tag} corner ${k}`).toBeGreaterThan(0.1);
     }
   }, 120000);
