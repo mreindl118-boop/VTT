@@ -324,6 +324,10 @@ export interface HeroFigure {
   shoulderCloak?: boolean;
   /** A glowing spell wisp above the off hand. */
   wisp?: string;
+  /** The wisp's shape: `'skull'` makes it a small spectral skull (a round cranium, two slanted eye sockets, a nose notch
+   *  and a narrower jaw with tooth nicks), see-through and glowing in the wisp's colour, on a curl of smoke rising from
+   *  the book. Without it the wisp is a plain round ghost. */
+  wispShape?: 'skull';
   /** Feet above the floor (a flier hovering). */
   hoverFt?: number;
   /** Detail: eye colour (a glow when bright), the shirt at the collar, sleeves, forearm bracers, a pendant, the belt
@@ -388,6 +392,47 @@ function glassy(m: M, c: string, opacity: number): M {
   nm.userData = { ...nm.userData, keepLook: true }; // on the material too: merging by material keeps it
   m.material = nm; m.userData.keepLook = true;
   return m;
+}
+/** A spectral skull on a curl of smoke: the skull about the origin, its face to +z, the smoke winding down `drop` below
+ *  it to a thin foot (where it rises from). All of it see-through and lit from within in the colour `c`: the cranium
+ *  round, the face narrowing under the cheekbones to the jaw, which sits under the front of the skull; on the face two
+ *  slanted eye sockets, a nose notch and a row of tooth nicks, dark, following its surface. */
+function spectralSkull(c: string, s: number, drop: number): THREE.Group {
+  const g = new THREE.Group(), R = 0.21 * s, dark = tone(c, '#03140c', 0.86);
+  const lit = (m: M, col: string, opacity: number, glow: number) => { const lm = glassy(m, col, opacity).material as THREE.MeshLambertMaterial; lm.emissive = new THREE.Color(col); lm.emissiveIntensity = glow; return m; };
+  // a point of the skull: `lon` round it from the front, `lat` up from its middle, `k` how far off its surface
+  const skullAt = (lon: number, lat: number, k = 1): THREE.Vector3 => {
+    const y = Math.sin(lat), x = Math.cos(lat) * Math.sin(lon), z = Math.cos(lat) * Math.cos(lon), t = clampTo((-0.12 - y) / 0.88, 0, 1);
+    const wide = (1 - 0.36 * t ** 0.8) * (1 + 0.09 * Math.exp(-((y + 0.22) ** 2) / 0.02)); // (the cheekbones, then in to the jaw)
+    return new THREE.Vector3(0.92 * x * wide, y < 0 ? -1.18 * (1 - (1 + y) ** 1.5) : 0.98 * y, (z > 0 ? z * (1 - 0.3 * t) : 1.12 * z * (1 - 0.8 * t)) + 0.08 * t).multiplyScalar(R * k);
+  };
+  const NLON = 24, NLAT = 14, pos: number[] = [];
+  for (let i = 0; i <= NLAT; i++) for (let j = 0; j <= NLON; j++) { const q = skullAt(2 * Math.PI * j / NLON, -Math.PI / 2 + Math.PI * i / NLAT); pos.push(q.x, q.y, q.z); }
+  g.add(lit(new THREE.Mesh(gridGeometry(pos, NLON + 1, NLAT), mat(c)), c, 0.72, 0.55));
+  // the face's marks, flat on the skull: each a fan of points round a middle, given as (lon, lat)
+  const mp: number[] = [], mi: number[] = [];
+  const mark = (mid: [number, number], rim: [number, number][]) => {
+    const o = mp.length / 3; for (const [lon, lat] of [mid, ...rim]) { const q = skullAt(lon, lat, 1.035); mp.push(q.x, q.y, q.z); }
+    for (let i = 0; i < rim.length; i++) mi.push(o, o + 1 + i, o + 1 + (i + 1) % rim.length);
+  };
+  for (const sx of [-1, 1]) mark([sx * 0.44, -0.02], Array.from({ length: 14 }, (_, i) => { const a = 2 * Math.PI * i / 14, u = 0.23 * Math.cos(a), v = 0.18 * Math.sin(a); return [sx * (0.44 + u * Math.cos(0.35) + v * Math.sin(0.35)), -0.02 + u * Math.sin(0.35) - v * Math.cos(0.35)] as [number, number]; })); // (the sockets, their inner ends lower)
+  mark([0, -0.36], [[0, -0.24], [-0.11, -0.46], [-0.03, -0.43], [0, -0.47], [0.03, -0.43], [0.11, -0.46]]); // (the nose: a notch pointing up)
+  for (let i = -2; i <= 2; i++) { const lon = 0.15 * i, w = 0.022; mark([lon, -0.66], [[lon - w, -0.57], [lon - w, -0.75], [lon + w, -0.75], [lon + w, -0.57]]); } // (the nicks between the teeth)
+  mark([0, -0.66], [[-0.42, -0.62], [-0.42, -0.66], [0, -0.68], [0.42, -0.66], [0.42, -0.62], [0, -0.64]]); // (the line of the mouth)
+  const mg = new THREE.BufferGeometry(); mg.setAttribute('position', new THREE.Float32BufferAttribute(mp, 3)); mg.setIndex(mi); mg.computeVertexNormals();
+  const marks = lit(new THREE.Mesh(mg, mat(dark)), dark, 0.88, 0.1); marks.renderOrder = 1; g.add(marks);
+  // the smoke: from a thin foot it winds up, swelling, into the skull from below and behind; and a wisp curling off the crown
+  const smoke = (mid: (t: number) => THREE.Vector3, rad: (t: number) => number, rows: number) => {
+    const q: number[] = [], SEG = 8, up = new THREE.Vector3(0, 1, 0);
+    for (let i = 0; i <= rows; i++) {
+      const t = i / rows, m = mid(t), d = mid(Math.min(1, t + 0.02)).sub(mid(Math.max(0, t - 0.02))).normalize(), ax = new THREE.Vector3().crossVectors(d, Math.abs(d.y) > 0.95 ? new THREE.Vector3(1, 0, 0) : up).normalize(), ay = new THREE.Vector3().crossVectors(d, ax);
+      for (let j = 0; j <= SEG; j++) { const a = 2 * Math.PI * j / SEG; q.push(m.x + (ax.x * Math.cos(a) + ay.x * Math.sin(a)) * rad(t), m.y + (ax.y * Math.cos(a) + ay.y * Math.sin(a)) * rad(t), m.z + (ax.z * Math.cos(a) + ay.z * Math.sin(a)) * rad(t)); }
+    }
+    return lit(new THREE.Mesh(gridGeometry(q, SEG + 1, rows), mat(c)), c, 0.36, 0.5);
+  };
+  g.add(smoke((t) => new THREE.Vector3(0.09 * s * Math.sin(5.2 * t) * (1 - 0.7 * t), -drop + (drop - 0.2 * s) * t, 0.07 * s * Math.sin(3.9 * t + 0.6) * (1 - t) - 0.06 * s * t), (t) => (0.022 + 0.1 * t ** 1.6) * s, 16));
+  g.add(smoke((t) => new THREE.Vector3(-0.05 * s - 0.1 * s * Math.sin(2.6 * t), 0.17 * s + 0.26 * s * t, -0.12 * s - 0.1 * s * t + 0.07 * s * Math.sin(4 * t)), (t) => (0.05 * (1 - t) ** 0.8 + 0.006) * s, 10));
+  return g;
 }
 /** A smooth-shaded palette colour (faces, hair, draped cloth). Its faint emissive keeps it in its own bucket when a token
  *  merges its meshes by material, and the token pass reads `smooth` to keep the shading soft. */
@@ -1115,12 +1160,14 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
   // (a frock coat's front edge: how far from the middle it runs at each height, meeting at the waist's button, cut away
   // below it and opening above it to the collar)
   const FROCK_EDGE: [number, number][] = [[0.44, 0.6], [0.75, 0.56], [1.05, 0.1], [1.4, 0.33], [1.8, 0.36], [2.1, 0.5], [2.2, 0.6]];
+  // (a stand-collared shirt's front: its half width, as a share of the chest's, and how far it stands off the chest, at each height)
+  const shirtCut = (y: number) => { const t = Math.min(1, Math.max(0, (y - 1.98) / 0.12)); return { k: Math.min(0.62, 0.25 + Math.max(0, y - 1.3) * 0.6) + 0.1 * t, l: 0.02 + 0.014 * t }; };
 
   // collar, pendant, buckle
   if (f.shirt && f.shirtCollar === 'stand') {
     // the shirt's front, lying on the chest under whatever is worn open over it, its buttons down the middle; and a high
     // stand collar round the neck, open at the throat, its two points standing up either side of the chin
-    const front = panel(tailorRows(1.26, 2.3).map((y) => { const t = Math.min(1, Math.max(0, (y - 1.98) / 0.12)), k = Math.min(0.62, 0.25 + Math.max(0, y - 1.3) * 0.6) + 0.1 * t, l = 0.02 + 0.014 * t; return { y, a: across(y, -k), b: across(y, k), la: l, lb: l }; }), 17, f.shirt, true).geometry.attributes.position; // (over the neckband, up to the collar)
+    const front = panel(tailorRows(1.26, 2.3).map((y) => { const { k, l } = shirtCut(y); return { y, a: across(y, -k), b: across(y, k), la: l, lb: l }; }), 17, f.shirt, true).geometry.attributes.position; // (over the neckband, up to the collar)
     for (const i of [4, 8, 13, 17]) up.add(at(sph(0.02 * s, '#c9c2b0', 6, 4), 0, front.getY(i * 17 + 8), front.getZ(i * 17 + 8) + 0.007 * s)); // (on the middle of every few rows)
     const pos: number[] = [], ROWS = 4, COLS = 25;
     for (let i = 0; i <= ROWS; i++) for (let j = 0; j < COLS; j++) {
@@ -1303,19 +1350,21 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
   // skirts cut on the hips from the waist seam and hung to mid-thigh, open at the front; peaked lapels and a collar
   if (f.coat && f.coatCut === 'frock') {
     const cc = f.coat.tails, lc = f.coat.lapel ?? tone(cc, '#000000', 0.25), dark = tone(cc, '#000000', 0.3), em = f.coatEmbroidery, edge = (y: number) => radiusAt(FROCK_EDGE, y);
-    // the skirts: close on the waist and the hips, hanging straight from the widest of them with a few soft folds, each
-    // front edge falling from where the fronts are cut away to at the waist seam (DRAPE_COLS columns, the edges first and last)
+    // the skirts: close on the waist and the hips, hanging from the widest of them in soft folds that deepen toward the
+    // hem and flaring a little, the hem itself curling out and waving with the folds; each front edge falls from where the
+    // fronts are cut away to at the waist seam, its corner at the hem rounded off (DRAPE_COLS columns, the edges first and last)
     const TOP = 0.5, HEM = -0.95, ROWS = 14, gap = 2 * across(TOP, edge(TOP)), pr = pelvisRings(fr), pos: number[] = [], widest = new Float64Array(DRAPE_COLS * 2), seated = new Float64Array(DRAPE_COLS);
     for (let i = 0; i <= ROWS; i++) {
-      const y = TOP + (HEM - TOP) * i / ROWS, t = i / ROWS;
+      const t = i / ROWS;
       for (let j = 0; j < DRAPE_COLS; j++) {
-        const th = gap / 2 + (2 * Math.PI - gap) * j / (DRAPE_COLS - 1);
+        const u = j / (DRAPE_COLS - 1), th = gap / 2 + (2 * Math.PI - gap) * u, fold = 0.5 + 0.5 * Math.sin(5 * th + 0.6) + 0.18 * Math.sin(11 * th + 2); // (the folds, each swelling out from the cut)
+        const y = TOP + (HEM + 0.2 * (1 - Math.sqrt(1 - (1 - Math.min(1, Math.min(u, 1 - u) / 0.06)) ** 2)) - 0.05 * (fold - 0.5) - TOP) * t;
         let [bx, bz] = y >= tr[0].y ? ringPoint(ringAt(tr, y), th, 1.09) : [0, 0];
         let over = 0;
         if (y >= pr[0].y) { const sb = seatBump(th, y), [x, z] = ringPoint(ringAt(pr, y), th, 1.14 * (1 + sb)); if (Math.hypot(x, z) > Math.hypot(bx, bz)) { bx = x; bz = z; over = sb; } }
         if (Math.hypot(bx, bz) < Math.hypot(widest[j * 2], widest[j * 2 + 1])) { bx = widest[j * 2]; bz = widest[j * 2 + 1]; } else { widest[j * 2] = bx; widest[j * 2 + 1] = bz; seated[j] = over; }
         // (below the seat it falls in again, half way back to the line of the hips by the hem)
-        const fl = (1 + 0.04 * t ** 1.5 + 0.03 * t * Math.sin(4 * th + 0.6)) * (1 - 0.5 * seated[j] / (1 + seated[j]) * Math.max(0, (-0.1 - y) / (-0.1 - HEM)));
+        const fl = (1 + 0.13 * t ** 1.6 + 0.13 * t ** 1.3 * fold + 0.05 * Math.max(0, (t - 0.78) / 0.22) ** 2) * (1 - 0.5 * seated[j] / (1 + seated[j]) * Math.max(0, (-0.1 - y) / (-0.1 - HEM)));
         pos.push(bx * fl * s, y * s, bz * fl * s);
       }
     }
@@ -1331,7 +1380,11 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
     for (const sx of [-1, 1]) {
       // the front: proud of the waistcoat at its edge, soon closer and running into the coat's body at the side (an arm
       // resting at the waist lies on it there)
-      panel(tailorRows(0.46, 2.18).map((y) => ({ y, a: sx * across(y, edge(y)), b: sx * 1.45, la: 0.062, lb: 0.008, fall: 0.4 })), 16, cc);
+      // (over a shirt front that reaches out under it, it stays proud of the shirt as far as the shirt goes)
+      panel(tailorRows(0.46, 2.18).map((y) => {
+        const a = across(y, edge(y)), sh = f.shirt && f.shirtCollar === 'stand' && y > 1.26 ? shirtCut(y) : undefined, ts = sh ? (across(y, sh.k) - a) / (1.45 - a) : 0;
+        return { y, a: sx * a, b: sx * 1.45, la: 0.062, lb: 0.008, fall: sh && ts > 0.02 ? Math.max(0.4, Math.log((0.062 - sh.l - 0.012) / 0.054) / Math.log(Math.min(0.95, ts))) : 0.4 };
+      }), 16, cc);
       // the lapel, rolled back from the button at the waist: widening to its peak, which points up and out toward the
       // shoulder, then cut in at the gorge to the collar's end, which runs on up to the neck
       const lapel: PanelRow[] = tailorRows(1.02, 1.98).map((y) => {
@@ -1357,9 +1410,18 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
       // the button at the waist, on the left front
       if (sx === LX) { const q = chestAt(across(1.05, 0.16), 1.05, 0.068); up.add(at(sph(0.035 * s, em ?? dark, 8, 6), q.x, q.y, q.z)); }
     }
-    // the collar, standing round the back and the sides of the neck outside the shirt's, its ends sloping down toward the lapels (faced
-    // outward only: a body on its back rests on it)
-    { const q: number[] = []; for (let i = 0; i <= 3; i++) for (let j = 0; j <= 20; j++) { const t = i / 3, th = 2 * Math.PI - 0.95 - (2 * Math.PI - 1.9) * j / 20; q.push(Math.sin(th) * (0.37 - 0.03 * t) * s, (2.1 + 0.17 * t * Math.min(1, (Math.min(j, 20 - j) + 0.5) / 4)) * s, (-0.02 + Math.cos(th) * (Math.cos(th) > 0 ? 0.25 : 0.275 - 0.03 * t)) * s); } up.add(sm(gridGeometry(q, 21, 3), lc)); }
+    // the collar, turned down: a stand round the back and the sides of the neck outside the shirt's, leaning in with it, rolled over at the top
+    // and falling outside it onto the shoulders, over the neckband; toward each lapel it sinks, its end rounded off, to
+    // nothing on the shoulder
+    {
+      const q: number[] = [], N = 24, foot = ringAt(tr, 2.03), oval = (th: number, rx: number, rb: number, y: number) => new THREE.Vector3(Math.sin(th) * rx, y, -0.02 + Math.cos(th) * (Math.cos(th) > 0 ? rb - 0.022 : rb));
+      for (let k = 0; k <= 4; k++) for (let c = 0; c <= N; c++) {
+        const th = 2 * Math.PI - 0.95 - (2 * Math.PI - 1.9) * c / N, e = Math.sqrt(1 - (1 - Math.min(1, Math.min(c, N - c) / 5)) ** 2), h = 0.15 * e, [fx, fz] = ringPoint(foot, th, 1.1);
+        const pt = [oval(th, 0.335, 0.245, 2.11), oval(th, 0.335 - 0.2 * h, 0.245 - 0.13 * h, 2.11 + h), oval(th, 0.353 - 0.2 * h, 0.255 - 0.13 * h, 2.11 + h + 0.012 * e), oval(th, 0.375, 0.26, 2.11 + 0.55 * h), new THREE.Vector3(fx, 2.03, fz)][k];
+        pt.lerp(new THREE.Vector3(fx, 2.03, fz), 1 - e).multiplyScalar(s); q.push(pt.x, pt.y, pt.z);
+      }
+      up.add(sm(gridGeometry(q, N + 1, 4), lc, true));
+    }
     // the cuffs: turned back wide over the end of each sleeve, the shirt's cuff showing at the wrist, a line of
     // embroidery round the top and two buttons on the outside
     const fa = forearmRings(fr), ring = (y: number, k: number) => { const r = ringAt(fa, y); return { ...r, w: r.w * k, f: r.f * k, b: r.b * k }; };
@@ -2060,10 +2122,13 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
     const wg = new THREE.Group(), ob = !shutBook && o?.kind === 'book' ? gL.children.find((c) => (c as THREE.Group).isGroup) : undefined; gL.add(wg);
     if (ob) { wg.quaternion.copy(ob.quaternion); wg.position.copy(ob.position).addScaledVector(Y_AXIS.clone().applyQuaternion(ob.quaternion), 0.8 * s); } // over the open pages
     else if (shutBook) wg.position.set(0, 1.0 * s, 0.1 * s); else wg.position.set(-LX * 0.27 * s, 1.75 * s, 0.35 * s);
-    wg.add(glassy(sph(0.2 * s, f.wisp, 14, 10), f.wisp, 0.75));
-    const jaw = glassy(box(0.22 * s, 0.1 * s, 0.16 * s, f.wisp), f.wisp, 0.65); wg.add(at(jaw, 0, -0.17 * s, 0.05 * s));
-    for (const sx of [-1, 1]) wg.add(at(sph(0.045 * s, '#1a3a2a', 8, 6), sx * 0.07 * s, 0.02 * s, 0.17 * s));
-    const trail = glassy(sm(new THREE.ConeGeometry(0.16 * s, 0.75 * s, 10), f.wisp), f.wisp, 0.4); trail.rotation.x = Math.PI; wg.add(at(trail, 0, -0.55 * s, 0));
+    if (f.wispShape === 'skull') wg.add(spectralSkull(f.wisp, s, ob ? 0.7 * s : 0.5 * s));
+    else {
+      wg.add(glassy(sph(0.2 * s, f.wisp, 14, 10), f.wisp, 0.75));
+      const jaw = glassy(box(0.22 * s, 0.1 * s, 0.16 * s, f.wisp), f.wisp, 0.65); wg.add(at(jaw, 0, -0.17 * s, 0.05 * s));
+      for (const sx of [-1, 1]) wg.add(at(sph(0.045 * s, '#1a3a2a', 8, 6), sx * 0.07 * s, 0.02 * s, 0.17 * s));
+      const trail = glassy(sm(new THREE.ConeGeometry(0.16 * s, 0.75 * s, 10), f.wisp), f.wisp, 0.4); trail.rotation.x = Math.PI; wg.add(at(trail, 0, -0.55 * s, 0));
+    }
   }
 
   // wings, halo, crown
@@ -2470,6 +2535,52 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
     solveArm(A, () => { A.collar!.updateMatrixWorld(true); return 400 * sink(armBalls(A, sx)) + (A.root.rotation.x - r0.x) ** 2 + (A.root.rotation.y - r0.y) ** 2 + (A.root.rotation.z - r0.z) ** 2 + (A.mid.rotation.x - m0) ** 2; }, 0.15);
     body.updateMatrixWorld(true);
   });
+  // out of a fight the free hand goes under a book held open, never into it: where the pose brings that hand into the
+  // covers or the pages it is laid flat under the cover of the half the other hand does not hold, the palm up against it,
+  // the arm moved as little as that takes
+  if (!battle && !dead && mounted && o?.kind === 'book' && !gR.children.length && !P.lie) {
+    const A = R, u = (A.hs ?? 1) * s, hm = handMeshes(A.end), q = new THREE.Vector3(), pad = 0.012 * s;
+    const boxes = (gL.children.find((c) => (c as THREE.Group).isGroup)?.children ?? []).filter((c) => (c as M).geometry?.type === 'BoxGeometry') as M[];
+    const size = (b: M) => (b.geometry as THREE.BoxGeometry).parameters;
+    const inBook = (balls: [THREE.Vector3, number][]) => {
+      let c = 0;
+      for (const b of boxes) {
+        const { width, height, depth } = size(b);
+        for (const [p, r] of balls) {
+          b.worldToLocal(q.copy(p));
+          const dx = Math.abs(q.x) - width / 2, dy = Math.abs(q.y) - height / 2, dz = Math.abs(q.z) - depth / 2;
+          const gap = Math.hypot(Math.max(dx, 0), Math.max(dy, 0), Math.max(dz, 0)) + Math.min(0, Math.max(dx, dy, dz)), d = Math.max(0, r + pad - gap) / s;
+          c += d * d;
+        }
+      }
+      return c;
+    };
+    body.updateMatrixWorld(true);
+    if (hm.length >= 10 && boxes.length >= 4 && inBook(armBalls(A, RX)) > 1e-6) {
+      // (the free half's cover is the one further from the hand that holds the book; the palm's middle goes under it,
+      // inside its edges, the palm's face turned up to it: brought in from below, then up to the cover)
+      const held = Lf.end.getWorldPosition(new THREE.Vector3()), far = (b: M) => b.getWorldPosition(new THREE.Vector3()).distanceTo(held);
+      const cover = boxes.filter((b) => size(b).height < 0.06 * s && size(b).width > 0.3 * s).sort((a, b) => far(b) - far(a))[0], cs = size(cover);
+      const palm = new THREE.Vector3(0, -0.03 * s - 0.1 * u, 0.005 * s), stand = 0.06 * u + pad, upW = new THREE.Vector3(), nW = new THREE.Vector3();
+      const r0 = A.root.rotation.clone(), m0 = A.mid.rotation.x, q0 = A.end.quaternion.clone(), shape = hm.map((m) => [m.position.clone(), m.quaternion.clone()] as const), sunk = sink(armBalls(A, RX));
+      const w = wristTurnOf(q0, RX) as unknown as Record<string, number>, wrist: Knob[] = [[w, 'twist', -3.2, 3.2], [w, 'dev', -1, 1], [w, 'bend', -1.5, 1.5]];
+      const kept = () => (A.root.rotation.x - r0.x) ** 2 + (A.root.rotation.y - r0.y) ** 2 + (A.root.rotation.z - r0.z) ** 2 + (A.mid.rotation.x - m0) ** 2;
+      const pose = () => { A.end.quaternion.copy(wristQ(wristIn(w as unknown as WristTurn), RX)); A.collar!.updateMatrixWorld(true); return armBalls(A, RX); };
+      const miss = (below: number) => { cover.worldToLocal(q.copy(palm).applyMatrix4(A.end.matrixWorld)); return Math.hypot(q.x - clampTo(q.x, -cs.width / 2 + 0.1 * s, cs.width / 2 - 0.1 * s), q.y + cs.height / 2 + stand + below, q.z - clampTo(q.z, -cs.depth / 2 + 0.12 * s, cs.depth / 2 - 0.12 * s)) / s; };
+      const faced = () => nW.set(0, 0, 1).transformDirection(A.end.matrixWorld).dot(upW.set(0, 1, 0).transformDirection(cover.matrixWorld));
+      const under = (below: number) => () => { const balls = pose(); return 400 * (inBook(balls) + Math.max(0, sink(balls) - sunk)) + 40 * miss(below) ** 2 + 0.8 * (1 - faced()) + 0.05 * kept(); };
+      const asPosed = () => { A.root.rotation.copy(r0); A.mid.rotation.x = m0; Object.assign(w, wristTurnOf(q0, RX)); }, there = () => inBook(pose()) < 1e-4 && miss(0) < 0.1 && faced() > 0.8; // (the wrist's own thickness keeps the palm a little under the cover)
+      shapeHand(hm, -RX, u, s, FLAT);
+      solveArm(A, under(0), 0.3, wrist);
+      if (!there()) { asPosed(); solveArm(A, under(0.3 * s), 0.5, wrist); solveArm(A, under(0.1 * s), 0.2, wrist); solveArm(A, under(0), 0.1, wrist); }
+      if (!there()) {
+        // (out of reach under the book: the arm keeps its pose and its hand, and is moved clear of the book only)
+        asPosed(); hm.forEach((m, k) => { m.position.copy(shape[k][0]); m.quaternion.copy(shape[k][1]); });
+        solveArm(A, () => { const balls = pose(); return 400 * (inBook(balls) + Math.max(0, sink(balls) - sunk)) + kept(); }, 0.15);
+      }
+      body.updateMatrixWorld(true);
+    }
+  }
   // a hand set on the body, the arm solved to reach it (outside anything worn there). On the hip, a fist: its knuckles
   // resting on the side of the waist above the belt, the forearm running in to it from an elbow out to the side and a
   // little back; an open hand there lies flat, the fingers forward and down. On the belt: the open hand flat on the front
@@ -2937,13 +3048,24 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
   body.userData.joints = joints;
 
   const out = new THREE.Group(); out.add(body); out.userData.joints = joints;
-  if (f.sparkles && !dead) for (let i = 0; i < 16; i++) { const a = i * 2.39996, r = (1.1 + (i % 3) * 0.35) * s, y = (0.8 + ((i * 7) % 11) * 0.42) * s + (f.hoverFt ?? 0); out.add(at(glassy(sph((0.05 + (i % 3) * 0.02) * s, f.sparkles, 6, 4), f.sparkles, 0.85), Math.cos(a) * r, y, Math.sin(a) * r)); }
   if (laid) {
     placeLay(out, body, laid, s, own, { up, head, gR, gL, drop: dead });
     // (a harness's pieces, and the trims of its tassets and coat skirt, laid on them once they hung)
     if (harness.length) { body.traverse((o) => { if ((o as M).isMesh && /^(coat|tasset)/.test(o.userData.cloth ?? '')) harness.push(o as M); }); pressOnFloor(harness, 0.004 * s); }
   }
   else if (f.hoverFt && !dead) body.position.y += f.hoverFt;
+  if (f.sparkles && !dead) {
+    // sparkles in the air round the figure, each in its own place; one that would sit in a limb as the body is posed, or
+    // against it, drifts further out until it hangs clear
+    out.updateMatrixWorld(true);
+    const solid: M[] = []; body.traverse((c) => { const m = c as M; if (m.isMesh && !(m.material as THREE.Material).transparent) solid.push(m); });
+    for (let i = 0; i < 16; i++) {
+      const a = i * 2.39996, rad = (0.05 + (i % 3) * 0.02) * s, y = (0.8 + ((i * 7) % 11) * 0.42) * s + (f.hoverFt ?? 0), away = new THREE.Vector3(Math.cos(a), 0, Math.sin(a)), q = new THREE.Vector3();
+      let r = (1.1 + (i % 3) * 0.35) * s;
+      for (let k = 0; k < 10 && solid.some((m) => ballMeets(m, q.copy(away).multiplyScalar(r).setY(y), rad + 0.03 * s, away)); k++) r += 0.12 * s;
+      out.add(at(glassy(sph(rad, f.sparkles, 6, 4), f.sparkles, 0.85), away.x * r, y, away.z * r));
+    }
+  }
   return out;
 }
 
@@ -3352,6 +3474,22 @@ function eachVertex(ms: M[], fn: (v: THREE.Vector3) => void): void {
   for (const m of ms) { const p = m.geometry.getAttribute('position') as THREE.BufferAttribute; for (let i = 0; i < p.count; i++) fn(v.fromBufferAttribute(p, i).applyMatrix4(m.matrixWorld)); }
 }
 
+/** Whether a ball in the world (centre `p`, radius `r`) meets a mesh: any of its faces nearer than the radius, or the
+ *  centre inside it (the faces a ray from the centre along `ray` passes through counted: an odd number is inside). */
+function ballMeets(m: M, p: THREE.Vector3, r: number, ray: THREE.Vector3): boolean {
+  const g = m.geometry; if (!g.boundingBox) g.computeBoundingBox();
+  const box = BALL_BOX.copy(g.boundingBox!).applyMatrix4(m.matrixWorld).expandByScalar(r); if (!box.containsPoint(p)) return false;
+  const pos = g.getAttribute('position') as THREE.BufferAttribute, idx = g.index, tris = (idx ? idx.count : pos.count) / 3, tri = new THREE.Triangle(), near = new THREE.Vector3(), line = new THREE.Ray(p, ray);
+  let through = 0;
+  for (let t = 0; t < tris; t++) {
+    tri.a.fromBufferAttribute(pos, idx ? idx.getX(3 * t) : 3 * t).applyMatrix4(m.matrixWorld); tri.b.fromBufferAttribute(pos, idx ? idx.getX(3 * t + 1) : 3 * t + 1).applyMatrix4(m.matrixWorld); tri.c.fromBufferAttribute(pos, idx ? idx.getX(3 * t + 2) : 3 * t + 2).applyMatrix4(m.matrixWorld);
+    if (tri.closestPointToPoint(p, near).distanceToSquared(p) < r * r) return true;
+    if (line.intersectTriangle(tri.a, tri.b, tri.c, false, near)) through++;
+  }
+  return through % 2 === 1;
+}
+const BALL_BOX = new THREE.Box3();
+
 /** Calls `fn` on each vertex of a mesh in the world, and on points spread over every face too big for a sampling of
  *  `step` to see whole. */
 function eachSurfacePoint(m: M, step: number, fn: (x: number, y: number, z: number) => void): void {
@@ -3672,7 +3810,8 @@ function pressOnFloor(ms: M[], y: number): void {
 }
 /** A wing of a body laid out: flat on the floor from its root when the root is down there (the body on its back lies on
  *  its wings), otherwise sloping from its root on the back down to the floor; spread out along the floor the way it was
- *  spread (`sx` the side it spreads to, in its own frame), each pair (`i`) a hair above the one before. */
+ *  spread (`sx` the side it spreads to, in its own frame), each pair (`i`) a hair above the one before: on the floor
+ *  itself, under an arm lying there, and drawn over the floor (a depth offset) so that it does not flicker against it. */
 function layWing(g: THREE.Object3D, sx: number, s: number, i: number): void {
   g.updateMatrixWorld(true);
   const root = g.getWorldPosition(new THREE.Vector3());
@@ -3680,12 +3819,13 @@ function layWing(g: THREE.Object3D, sx: number, s: number, i: number): void {
   if (d.lengthSq() < 0.09) d.set(root.x, 0, root.z).applyAxisAngle(new THREE.Vector3(0, 1, 0), 0.35 * sx); // (spread straight up or down: out from the body's middle)
   if (d.lengthSq() < 1e-8) d.set(sx, 0, 0);
   d.normalize();
-  const lift = (0.012 + 0.012 * i) * s, h = root.y - lift, tilt = h > 0.05 * s ? Math.asin(Math.min(0.9, h / span)) : 0;
+  const lift = 0.0006 * i * s, h = root.y - lift, tilt = h > 0.12 * s ? Math.asin(Math.min(0.9, h / span)) : 0;
   const along = d.clone().multiplyScalar(Math.cos(tilt)).setY(-Math.sin(tilt)), X = along.clone().multiplyScalar(sx);
   const Z = new THREE.Vector3(0, 1, 0).addScaledVector(along, -along.y).normalize(), Y = new THREE.Vector3().crossVectors(Z, X);
   const pq = g.parent ? g.parent.getWorldQuaternion(new THREE.Quaternion()) : new THREE.Quaternion();
   g.quaternion.copy(pq.invert().multiply(new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(X, Y, Z))));
   if (!tilt && g.parent) g.position.copy(g.parent.worldToLocal(root.setY(lift)));
+  g.traverse((c) => { const m = (c as M).material as THREE.Material | undefined; if (m) { m.polygonOffset = true; m.polygonOffsetFactor = -1; m.polygonOffsetUnits = -4 * (1 + i); } });
   g.updateMatrixWorld(true);
 }
 

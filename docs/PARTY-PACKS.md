@@ -81,6 +81,16 @@ frame, over a bust or a chest's muscle, and move with the bust. Wings are an ins
 point, with a net of veins and a glowing rim (`wingRim`); `wingSheen` (a list of colours) shifts the membrane through
 those colours across each wing.
 
+`wispShape` (`skull`) makes the wisp a small spectral skull, see-through and glowing in the wisp's colour: a round
+cranium, two slanted eye sockets, a nose notch and a narrower jaw with tooth nicks, on a curl of smoke rising from the
+open book (or from the top of one carried shut); without it the wisp is a plain round ghost.
+A frock coat's collar is turned down over the shoulders, its skirts flare in soft folds to a waving hem with rounded
+front corners, and its fronts stay proud of a stand-collared shirt worn under them.
+A pose that holds the book open out of a fight (`book: 'open'`) takes the free hand under the book's cover, palm up,
+where the pose would otherwise put that hand into the book; out of reach of the cover, the arm is only moved clear.
+Sparkles hang clear of the posed body: one that would sit in a limb drifts further out.
+On a fallen body, wings that lie flat lie on the floor itself, under an arm flung out over them.
+
 Faces are smooth (cranium, jaw, cheekbones, a nose with a tip, eyes with whites, irises and pupils under a lid, brows
 and lips; `lips` sets their colour) and hair is a smooth cap with its style on top. More parts: `gauntlets`, `clasps`
 (cloak brooches), `bodice` (`{color, lacing}`), `puffSleeves`, `wingRim`, `gownTrim` (with `skirt` and `underskirt`,

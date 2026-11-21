@@ -169,10 +169,15 @@ describe('wings', () => {
     const a = tails(coat), b = tails({ ...coat, wings: WINGS.wings });
     expect(b.max.x - b.min.x).toBeCloseTo(a.max.x - a.min.x, 2); expect(b.min.z).toBeCloseTo(a.min.z, 2);
   }, 300000);
-  it('lie flat on the floor under a body fallen on its back, and slope to the floor from one fallen on its front', () => {
+  it('lie flat on the floor itself under a body fallen on its back, drawn over the floor, and slope to the floor from one fallen on its front', () => {
     for (const [p, flat] of [['dead', true], ['dead-comic', true], ['dead-prone', false]] as const) {
       const g = heroFigure({ ...WINGS, deadPose: p }, 'small', 'dead'); g.updateMatrixWorld(true);
-      for (const w of wingsOf(g)) { const b = new THREE.Box3().setFromObject(w); expect(b.min.y, p).toBeGreaterThan(-0.005); if (flat) expect(b.max.y, p).toBeLessThan(0.12); }
+      for (const w of wingsOf(g)) {
+        const b = new THREE.Box3().setFromObject(w); expect(b.min.y, p).toBeGreaterThan(-0.005); if (flat) expect(b.max.y, p).toBeLessThan(0.12); if (p === 'dead-comic') expect(b.max.y, p).toBeLessThan(0.002); // (flung out flat: under an arm lying on the floor, not through it)
+        for (const m of w.children as M[]) { const mt = m.material as THREE.Material; expect(mt.polygonOffset, p).toBe(true); expect(mt.polygonOffsetUnits, p).toBeLessThan(0); }
+      }
     }
+    // (standing, a wing is drawn as it is)
+    for (const w of wingsOf(heroFigure(WINGS))) for (const m of w.children as M[]) expect((m.material as THREE.Material).polygonOffset).toBe(false);
   }, 300000);
 });
