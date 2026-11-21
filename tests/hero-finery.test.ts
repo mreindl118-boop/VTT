@@ -212,6 +212,43 @@ describe('a gown\'s finer dress', () => {
     const span = boxOf(cords(g)); expect(span.max.x - span.min.x, 'from one brooch to the other').toBeGreaterThan(0.5);
     for (const st of STATES) { const f = heroFigure(recipe, 'medium', st); expect(describeClips(findClips(f, recipe)), st).toBe(''); expect(describePokes(findPokes(f)), st).toBe(''); }
   }, 60000);
+  it('hangs a gem on a fine chain of its own colour when the recipe names one: it lies on the chest, clean in every state', () => {
+    const worn: HeroFigure = { ...DRESSED, pendant: '#9a6ad0', pendantChain: '#8a6a3c' };
+    for (const st of STATES) {
+      const g = heroFigure(worn, 'medium', st), chain = coloured(g, '#8a6a3c');
+      expect(chain.length, st).toBe(1);
+      expect(describeClips(findClips(g, worn)), st).toBe('');
+    }
+    // (the gem on its plain chain, and a figure with no pendant, are as they were: nothing in the chain's colour)
+    expect(coloured(heroFigure({ ...DRESSED, pendant: '#9a6ad0' }), '#8a6a3c').length).toBe(0);
+    expect(coloured(heroFigure({ ...DRESSED, pendantChain: '#8a6a3c' }), '#8a6a3c').length).toBe(0);
+  });
+
+  it('sets the rings of a bag hung from the corset\'s belt on the belt\'s lower edge, standing and in the fight', () => {
+    const worn: HeroFigure = { ...DRESSED, satchel: '#5a3a20', satchelKit: { strap: 'belt' } }, dark = '#' + new THREE.Color('#5b3a24').lerp(new THREE.Color('#000000'), 0.32).getHexString();
+    for (const st of ['rest', 'battle'] as const) {
+      const g = heroFigure(worn, 'medium', st), rings = meshes(g, (m) => m.userData.part === 'ring'), belt = coloured(g, dark).filter((m) => m.geometry.attributes.position.count === 66 * 4)[0];
+      expect(rings.length, st).toBe(2); expect(belt, 'the belt').toBeDefined();
+      const p = belt.geometry.attributes.position, v = new THREE.Vector3();
+      for (const r of rings) {
+        // (the ring lies on the leather: its middle within seven hundredths of a foot of the leather's nearest point; hung below the belt it stood a tenth off)
+        const c = r.getWorldPosition(new THREE.Vector3()); let near = Infinity;
+        for (let i = 0; i < p.count; i++) near = Math.min(near, v.fromBufferAttribute(p, i).applyMatrix4(belt.matrixWorld).distanceTo(c));
+        expect(near, st).toBeLessThan(st === 'rest' ? 0.07 : 0.12); // (in the fight the cloth swings on under it)
+      }
+    }
+  });
+
+  it('keeps the head of the slit shut in every state: the two edges of a dagged gown are one line down to where it opens', () => {
+    for (const st of STATES) {
+      const g = heroFigure(DRESSED, 'medium', st), gown = meshes(g, (m) => m.userData.garment === 'gown')[0], p = gown.geometry.attributes.position, a = new THREE.Vector3(), b = new THREE.Vector3();
+      // (65 points to a row, the first and the last the slit's two edges: no gap between them in the top rows, where
+      // a leg stepping through once held one edge before the other)
+      const gap = (i: number) => a.fromBufferAttribute(p, i * 65).distanceTo(b.fromBufferAttribute(p, i * 65 + 64));
+      for (let i = 0; i < 6; i++) expect(gap(i), `${st} row ${i}`).toBeLessThan(1e-4);
+    }
+  });
+
   it('leaves a figure without the fields as it was', () => {
     const base = heroFigure(GOWN), again = heroFigure({ ...GOWN, wreath: undefined, corset: undefined, fullSleeves: false, vines: undefined, dagged: false, bootLaces: undefined, bracerLaces: undefined, brooch: undefined });
     expect(verts(again)).toBe(verts(base)); expect(meshes(again).length).toBe(meshes(base).length);
