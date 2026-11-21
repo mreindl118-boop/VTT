@@ -4,7 +4,7 @@
 // a halo, a thorn crown, a shield, an axe, a book ...) and the pack says which a character wears, in what colours.
 import * as THREE from 'three';
 import { mat, matClone } from '../render/materials';
-import { HIP, SHIN, THIGH, clipRings, forearmRings, frameOf, loftGeometry, lockGeometry, neckLift, neckRings, pelvisRings, ringAt, ringPoint, shinRings, thighRings, torsoRings, upperArmRings, type Frame, type Measures, type Ring } from './anatomy';
+import { HIP, SHIN, THIGH, clipRings, forearmRings, frameOf, loftGeometry, lockGeometry, neckBump, neckLift, neckRings, pelvisRings, ringAt, ringPoint, shinRings, thighRings, torsoRings, upperArmRings, type Frame, type Measures, type Ring } from './anatomy';
 import type { CreatureSize } from '../core/units';
 import { faceFeatures, hairSkull, browLift, weld, type FaceSpec, type FaceDetail } from './faces';
 import { hairdo as buildHairdo, sheen, type Hairdo } from './hair';
@@ -847,9 +847,8 @@ function rig(f: HeroFigure, s: number, gown: boolean) {
     }
   }
   const neck = new THREE.Group(); neck.position.y = 2.24 * s; neck.name = 'neck'; up.add(neck);
-  // the neck, and on a masculine one the larynx: a soft rise in the front of the throat, not a bead on it
-  const ly = 0.13 + 0.28 * neckLift(fr), larynx = fr.fem ? undefined : (th: number, y: number) => { const t = th > Math.PI ? th - 2 * Math.PI : th; return 0.06 * Math.exp(-((t / 0.26) ** 2) - ((y - ly) / 0.07) ** 2); };
-  neck.add(loft(neckRings(fr), skin, { seg: 32, rows: 24, bump: larynx }));
+  // the neck, its muscles and on a masculine one the larynx: a soft rise in the front of the throat, not a bead on it
+  neck.add(loft(neckRings(fr), skin, { seg: 40, rows: 30, bump: neckBump(fr) }));
   const head = new THREE.Group(); head.position.y = (0.21 + neckLift(fr)) * s; head.name = 'head'; neck.add(head);
   // empty mounts for gear: the belt at each hip (sheaths hang down -y), and between the shoulder blades (+y up the back)
   for (const sx of [RX, LX]) { const b = new THREE.Group(); b.name = sx === RX ? 'beltR' : 'beltL'; b.position.set(sx * ringAt(tr, 0.42).w * s, 0.42 * s, 0.05 * s); up.add(b); }

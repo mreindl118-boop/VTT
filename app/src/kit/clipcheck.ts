@@ -74,11 +74,14 @@ export function findClips(figure: THREE.Object3D, recipe: HeroFigure, o: ClipOpt
   // a limb thickened after the build (a fiend's arm) says by how much in its joint's userData.girth
   const girth = (rings: Ring[], obj: THREE.Object3D | undefined) => { const k = obj?.userData.girth as number | undefined; return k ? scaleRings(rings, k) : rings; };
   const stack = (name: string, obj: THREE.Object3D | undefined, rings: Ring[]): Volume[] => obj ? [{ name, inside: (p) => { const [d, t] = ringDepth(rings, local(obj, p)); return [d * s, t * s]; } }] : [];
-  // the skull: an ellipsoid round the head's centre (0.37 above the head joint), a little inside the painted surface
+  // the skull: an ellipsoid round the head's centre (0.37 above the head joint), a little inside the painted surface;
+  // and the lower face carried forward of it, the mouth, the jaw and the chin, a smaller one under the nose
   const skull = (p: THREE.Vector3): [number, number] => {
     const q = local(head, p), c = new THREE.Vector3(0, 0.35, 0.0), rx = 0.31, ry = 0.44, rz = q.z > 0 ? 0.36 : 0.39;
     const v = ((q.x - c.x) / rx) ** 2 + ((q.y - c.y) / ry) ** 2 + ((q.z - c.z) / rz) ** 2;
-    return v < 1 ? [(1 - Math.sqrt(v)) * rx * s, rx * s] : [0, 0];
+    const jx = 0.18, jv = (q.x / jx) ** 2 + ((q.y - 0.08) / 0.14) ** 2 + ((q.z - 0.13) / 0.2) ** 2;
+    const d = Math.max(v < 1 ? (1 - Math.sqrt(v)) * rx : 0, jv < 1 ? (1 - Math.sqrt(jv)) * jx : 0);
+    return d > 0 ? [d * s, rx * s] : [0, 0];
   };
   const vols: Volume[] = [
     ...stack('torso', J.chest, torsoRings(fr)), ...stack('pelvis', J.hips, pelvisRings(fr)), ...stack('neck', neck, neckRings(fr)),

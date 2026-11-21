@@ -9,6 +9,7 @@ import { paintFace, wearFace } from './facepaint';
 import { mergeVertices } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { mat } from '../render/materials';
 import { loftGeometry } from './anatomy';
+import { smin } from './sdf';
 
 export type Beard = 'none' | 'stubble' | 'goatee' | 'full' | 'long' | 'chops';
 export type Moustache = 'none' | 'thin' | 'thick' | 'handlebar' | 'droop';
@@ -25,6 +26,9 @@ export interface FaceSpec {
   /** The jaw from narrow to square; the chin from receding to strong; a pointed chin; jowls; the jaw's line from soft and
    *  rounded (-1) to a sharp, cut corner (1). */
   jaw?: number; chin?: number; chinPoint?: number; jowls?: number; jawAngle?: number;
+  /** A characteristic jaw, setting those sliders at once (and the face's length and width where the build needs them);
+   *  any of them the recipe gives still wins. */
+  jawShape?: JawShape;
   /** Cheekbones, and how hollow the cheeks under them are. */
   cheekbones?: number; gaunt?: number;
   /** The nose: length, width, the bridge from upturned (-1) to hooked (1), the size of the tip. */
@@ -55,6 +59,28 @@ export interface FaceSpec {
    *  sticking straight out sideways through the hair (1), as an elf's or a fairy's often do in their art. */
   earLen?: number; earOut?: number;
 }
+
+/** Characteristic jaws. square: broad, cut at the corners, a strong flat chin. heavy: a brute's lantern jaw, wide and deep,
+ *  the face long and broad. chiseled: lean and sharp-cornered under high cheekbones, a defined chin. round: full and soft
+ *  with no corner, plump cheeks. soft: a gentle oval. heart: wide at the cheekbones, tapering to a small neat chin.
+ *  long: a long narrow face and jaw. weak: a small receding chin. pointed: a long jutting chin, a witch's. jowly: soft
+ *  heavy jowls hanging past the jaw. child: small, round and short below the nose. */
+export type JawShape = 'square' | 'heavy' | 'chiseled' | 'round' | 'soft' | 'heart' | 'long' | 'weak' | 'pointed' | 'jowly' | 'child';
+export const JAW_SHAPES: Record<JawShape, FaceSpec> = {
+  square: { jaw: 0.75, jawAngle: 0.8, chin: 0.5, chinPoint: -0.4 },
+  heavy: { jaw: 1, jawAngle: 0.5, chin: 0.8, chinPoint: -0.5, jowls: 0.25, faceLen: 0.3, headW: 0.3 },
+  chiseled: { jaw: 0.35, jawAngle: 1, chin: 0.5, chinPoint: 0.15, cheekbones: 0.6, gaunt: 0.3 },
+  round: { jaw: 0.25, jawAngle: -1, chin: -0.1, chinPoint: -0.5, jowls: 0.3, gaunt: -0.6, headW: 0.2 },
+  soft: { jaw: -0.2, jawAngle: -0.6, chin: 0.1, chinPoint: 0 },
+  heart: { jaw: -0.6, jawAngle: -0.3, chin: 0, chinPoint: 0.45, cheekbones: 0.6 },
+  long: { jaw: -0.1, jawAngle: 0.3, chin: 0.3, faceLen: 0.6, headW: -0.3, headL: 0.3 },
+  weak: { jaw: -0.5, jawAngle: -0.5, chin: -0.9, chinPoint: -0.3 },
+  pointed: { jaw: -0.4, jawAngle: 0, chin: 0.9, chinPoint: 0.85, gaunt: 0.3 },
+  jowly: { jaw: 0.4, jawAngle: -0.8, chin: -0.2, jowls: 0.9 },
+  child: { jaw: -0.5, jawAngle: -0.9, chin: -0.3, chinPoint: -0.2, faceLen: -0.5, headW: 0.15 },
+};
+/** A recipe with its jaw's build filled in under the sliders it gives itself. */
+export const withJaw = (spec: FaceSpec = {}): FaceSpec => spec.jawShape ? { ...JAW_SHAPES[spec.jawShape], ...spec } : spec;
 
 /** A branching pattern of veins painted on the face: its colour; the side it spreads over, the figure's own ('L', 'R',
  *  or 'both', the default); where it spreads from (cheek: from the cheekbone down to the jaw, the default; jaw: along
@@ -92,8 +118,8 @@ export function craniumShape(spec: Pick<FaceSpec, 'skullDepth' | 'foreheadH' | '
 /** The cranium as the hair sees it (kit/hair.ts, heroes.ts buildHair): the face's own proportions first, as the head is
  *  built (wider or narrower, longer, longer below the eyes), then craniumShape. Takes and returns skull units like
  *  craniumShape, so hair laid over any head fits it however far its sliders go. */
-export function hairSkull(spec: Pick<FaceSpec, 'headW' | 'headL' | 'faceLen' | 'skullDepth' | 'foreheadH' | 'jawAngle'> = {}): (x: number, y: number, z: number) => [number, number, number] {
-  const n = (v: number | undefined) => Math.max(-1, Math.min(1, v ?? 0)), cr = craniumShape(spec);
+export function hairSkull(spec0: Pick<FaceSpec, 'headW' | 'headL' | 'faceLen' | 'skullDepth' | 'foreheadH' | 'jawAngle' | 'jawShape'> = {}): (x: number, y: number, z: number) => [number, number, number] {
+  const spec = withJaw(spec0), n = (v: number | undefined) => Math.max(-1, Math.min(1, v ?? 0)), cr = craniumShape(spec);
   const w = 1 + 0.07 * n(spec.headW), l = 1 + 0.05 * n(spec.headL), f = 1 + 0.08 * n(spec.faceLen);
   return (x, y, z) => cr(x * w, y * l * (y < 0 ? f : 1), z);
 }
@@ -106,7 +132,8 @@ export function weld(geo: THREE.BufferGeometry): THREE.BufferGeometry {
   const w = mergeVertices(geo); w.computeVertexNormals(); return w;
 }
 
-export function faceFeatures(spec: FaceSpec, look: FaceLook): THREE.Group {
+export function faceFeatures(spec0: FaceSpec, look: FaceLook): THREE.Group {
+  const spec = withJaw(spec0);
   const d = look.detail ?? 2, g = new THREE.Group(), n = (v: number | undefined) => Math.max(-1, Math.min(1, v ?? 0));
   const [sw, sh] = ([[16, 12], [20, 14], [24, 18], [32, 24]] as const)[d - 1];
   const skin = look.skin;
@@ -127,28 +154,61 @@ export function faceFeatures(spec: FaceSpec, look: FaceLook): THREE.Group {
   const kx = 0.84 * (1 + 0.07 * headW), ky = 1.14 * (1 + 0.05 * headL);
   const bump = (x: number, y: number, cx: number, cy: number, wx: number, wy = wx) => Math.exp(-((x - cx) ** 2 / wx + (y - cy) ** 2 / wy));
   const flen = n(spec.faceLen), jawA = n(spec.jawAngle), crShape = craniumShape(spec);
+  // the lower face, below the eyes: how wide it is at each height (the temples, drawn in under the ears, straight down the
+  // cheek to the jaw's corner, then the jaw's line in to the chin), and how square it is across. A masculine jaw turns
+  // at a sharper corner lower down onto a broader chin; a feminine one turns higher and rounder onto a small chin.
+  const gon = fem ? 0.54 + 0.03 * jaw : 0.55 + 0.04 * jaw;                                   // the jaw's corner (on the sphere, below the eyes)
+  const Wg = kx * (fem ? 0.73 + 0.07 * jaw : 0.77 + 0.1 * jaw + 0.06 * Math.max(0, jaw) ** 2) * (1 - 0.05 * gaunt) * (1 + 0.06 * jowls);
+  const Wc = kx * Math.max(0.12, (fem ? 0.23 : 0.29) + 0.05 * jaw + 0.04 * chin - 0.08 * point);   // the chin's half-width, at its underside
+  const cornerR = Math.max(0.015, (fem ? 0.2 : 0.05) - 0.035 * jawA), CL = 0.92;
+  const squareN = (fem ? 0.4 : 0.9) + 0.4 * jaw + 0.3 * jawA;
+  const roundU = Math.max(0, Math.min(1, (fem ? 0.5 : 0.15) - 0.25 * jawA - 0.15 * jaw));   // the jaw's line under the corner: straight (0) or curved round onto the chin (1)
+  const jawW = (low: number) => {
+    const t = (low - gon) / (CL - gon), line = Wg - (Wg - Wc) * t;
+    const under = t > 0 && t < 1 ? line + (Wc + (Wg - Wc) * Math.sqrt(1 - t * t) - line) * roundU : line;
+    return Math.max(0.04, smin(kx - (kx - Wg) * (0.7 * smooth(0.08, gon + 0.06, low) + 0.3 * Math.min(1, low / gon) ** 1.5), under, cornerR));
+  };
+  /** The back of the head's width at a height: the ball narrowing under the skull, as it always has. */
+  const backW = (low: number) => kx * Math.sqrt(Math.max(0, 1 - low * low)) * (fem ? 1 - 0.42 * low ** 1.7 : 1 - 0.38 * low ** 1.9);
   const skullAt = (ux: number, uy: number, uz: number, puff = 0): THREE.Vector3 => {
-    let x = ux, z = uz; const y = uy, fz = Math.max(0, z), low = Math.max(0, -y), ax = Math.abs(ux);
-    x *= kx * (fem ? 1 - (0.42 - 0.12 * jaw + 0.05 * gaunt) * low ** 1.7 : 1 - (0.38 - 0.1 * jaw + 0.05 * gaunt) * low ** 1.9);
-    z *= 0.94 * (1 - 0.1 * low * low);
-    if (z < 0) z *= 1 + 0.05 * smooth(-0.5, -0.15, y);
+    const y = uy, low = Math.max(0, -y);
+    // the round of the head at this height: r its radius on the sphere and (sn, cs) the way round it (cs 1 at the face's
+    // front, sn 1 at the figure's left), squared toward a superellipse on the lower face so its cheeks and jaw run flat
+    // and its front is broad; the bottom of the sphere, under the chin, closes as the rounds shrink to nothing
+    const r = Math.hypot(ux, uz), sn = r > 1e-9 ? ux / r : 0, cs = r > 1e-9 ? uz / r : 1, cap = Math.min(1, r / Math.sqrt(1 - CL * CL));
+    const ne = 2 + Math.max(0, squareN) * smooth(0.5, 0.9, low) * smooth(0, 0.6, cs);
+    const sq = Math.sign(sn) * Math.abs(sn) ** (2 / ne), cq = Math.sign(cs) * Math.abs(cs) ** (2 / ne);
+    // its depth: the face's front held forward down to the chin (a ball's lower half falls away under the nose, which made
+    // every chin recede into a point), the back of the head as round as ever
+    const ball = r * 0.94 * (1 - 0.1 * low * low);
+    const held = 0.94 * ((fem ? 0.89 - 0.21 * smooth(0.45, 1, low) : 0.9 - 0.2 * smooth(0.45, 1, low)) + 0.035 * Math.max(0, jaw) * Math.max(0, chin) * smooth(0.5, 0.85, low));
+    const D = cs >= 0 ? ball + (held * cap - ball) * smooth(0.35, 0.65, low) : ball * (1 + 0.05 * smooth(-0.5, -0.15, y));
+    let x = y >= 0 ? kx * ux : (jawW(low) * cap + (backW(low) - jawW(low) * cap) * smooth(0, -0.6, cs)) * sq, z = D * cq;
+    const fz = Math.max(0, uz + (cs - uz) * smooth(0, 0.5, low));    // (how far round to the front: features fade out toward the sides)
     const sx = Math.abs(x);
+    const chinW = (fem ? 0.21 : 0.25) * (1 - 0.45 * Math.max(0, point)) + 0.04 * jaw, chinSq = fem ? 2.4 : 3 + jawA;
     z += fz * (
-      (fem ? 0.07 : 0.1) * (1 + 0.6 * chin + 0.3 * point) * bump(sx, y, 0, -0.84, 0.03 * (1 - 0.55 * Math.max(0, point)), 0.02)
-      + 0.05 * bump(sx, y, 0, -0.52, 0.06, 0.03)
+      (fem ? 0.07 : 0.1) * (1 + 0.6 * chin + 0.3 * point) * Math.exp(-((sx / chinW) ** chinSq) - (y + 0.84) ** 2 / 0.02)
+      - 0.022 * bump(sx, y, 0, -0.71, 0.05, 0.004)
+      + 0.04 * bump(sx, y, 0, -0.52, 0.06, 0.03)
       + (fem ? 0.05 : 0.045) * (1 + 0.9 * cb) * bump(sx, y, 0.42, -0.1, 0.02, 0.012)
-      - (fem ? 0.035 : 0.06) * (1 + 1.3 * gaunt) * bump(sx, y, 0.36, -0.45, 0.02, 0.03)
+      - (fem ? 0.018 : 0.03) * (1 + 2.3 * gaunt) * bump(sx, y, 0.36, -0.45, 0.02, 0.03)
       + (fem ? 0.02 : 0.045) * (1 + 0.8 * ridge) * Math.exp(-((y - 0.2) ** 2) / 0.004) * Math.max(0, z - 0.45) * (1 - 0.5 * bump(sx, y, 0, 0.2, 0.01))
       - 0.05 * (1 + 0.3 * sunk) * bump(sx, y, 0.3, 0.03, 0.02, 0.012)
       - 0.03 * bump(sx, y, 0.62, 0.3, 0.02, 0.05)
-      + 0.07 * jowls * bump(sx, y, 0.3, -0.7, 0.03, 0.03));
-    x += Math.sign(x) * (fem ? 0.02 + 0.025 * Math.max(0, jaw) : 0.05 * (1 + 0.8 * jaw)) * (1 + 0.6 * jawA) * bump(ax, y, 0.62, -0.52, 0.025, 0.02) * smooth(-0.35, 0.05, z);
+      + 0.07 * jowls * bump(sx, y, 0.3, -0.7, 0.03, 0.03)
+      + 0.05 * Math.max(0, -gaunt) * bump(sx, y, 0.38, -0.38, 0.035, 0.03));                          // (a full face: round cheeks)
     // the face's length below the eyes, then the cranium (shared with the hair), then the jaw's underside: a plane from
     // under the chin back to the throat, rising to the jaw's corners, with the round of the skull below it cut away
     let yy = y * ky * (y < 0 ? 1 + 0.08 * flen : 1);
     [x, yy, z] = crShape(x, yy, z);
-    const yJaw = -1.05 * (ky / 1.14) * (1 + 0.08 * flen) + 0.27 * smooth(0.86, 0.3, z) + 0.24 * Math.min(1, (x / 0.6) ** 2), fr = smooth(0.06, 0.3, z);
+    const yJaw = -1.05 * (ky / 1.14) * (1 + 0.08 * flen) + 0.27 * smooth(0.86, 0.3, z) + 0.12 * smooth(0.8 * Wc, Wg, Math.abs(x)), fr = smooth(-0.04, 0.3, z);
     if (yy < yJaw && fr > 0) { const sft = 0.07 - 0.035 * jawA, dd = yJaw - yy; yy += fr * (dd - sft * (1 - Math.exp(-dd / sft))); }
+    // and behind the jaw's corner, below the base of the skull, the head draws on in well inside the top of the neck, so
+    // the neck comes out from under it cleanly (the round of the skull ran down alongside the neck there, ragged where
+    // the two met, and hung below the jaw's corner like a hook)
+    const tuck = 0.45 * smooth(-0.5, -0.85, yy) * smooth(0.12, -0.2, z), zc = -0.12;
+    x *= 1 - tuck; z = zc + (z - zc) * (1 - tuck);
     return V(x * (R + puff), yy * (R + puff), z * (R + puff));
   };
   const shaped = (sphere: THREE.BufferGeometry, c: string, puff = 0): M => {

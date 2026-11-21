@@ -43,10 +43,8 @@
      "headL": 0.3,
      "headW": -0.2,
      "faceLen": 0.4,
-     "jaw": 0.1,
-     "jawAngle": 0.6,
-     "chin": 0.5,
-     "chinPoint": 0.45,
+     "jawShape": "chiseled",
+     "chinPoint": 0.3,
      "cheekbones": 0.9,
      "gaunt": 0.55,
      "noseLen": 0.3,
@@ -90,7 +88,7 @@
     },
     "bracers": "#2a2422",
     "body": {
-     "neck": 0.9
+     "neckBuild": "slender"
     },
     "sleeves": "#3b322e",
     "hem": false,
@@ -300,9 +298,7 @@
     "eyes": "#4a5a3a",
     "face": {
      "headW": -0.1,
-     "jaw": -0.5,
-     "chin": -0.1,
-     "chinPoint": 0.3,
+     "jawShape": "soft",
      "cheekbones": 0.4,
      "noseLen": -0.2,
      "noseW": -0.4,
@@ -327,7 +323,10 @@
     "pose": "demure easy R:skirt L:chest look:L",
     "battlePose": "ready intent R:lowguard L:balance eyes:glare",
     "frame": "feminine",
-    "build": "curvy"
+    "build": "curvy",
+    "body": {
+     "neckBuild": "swan"
+    }
    },
    "importance": 20.4
   },
@@ -369,8 +368,7 @@
      "rim": "#8a8a8a"
     },
     "face": {
-     "jaw": 0.7,
-     "chin": 0.5,
+     "jawShape": "square",
      "noseLen": 0.2,
      "noseW": 0.2,
      "browRidge": 0.4,
@@ -398,7 +396,10 @@
     "pose": "weightR easy R:hilt L:hilt",
     "battlePose": "shield",
     "frame": "masculine",
-    "build": "broad"
+    "build": "broad",
+    "body": {
+     "neckBuild": "thick"
+    }
    },
    "importance": 12.2
   },
@@ -459,8 +460,7 @@
     "eyes": "#8a8aa0",
     "face": {
      "headL": 0.4,
-     "jaw": -0.3,
-     "chinPoint": 0.6,
+     "jawShape": "heart",
      "cheekbones": 0.9,
      "gaunt": 0.5,
      "noseLen": 0.5,
@@ -499,6 +499,9 @@
      "style": "swept",
      "peak": true,
      "length": 0.9
+    },
+    "body": {
+     "neckBuild": "slender"
     }
    },
    "importance": 12.1
@@ -539,6 +542,7 @@
     "bracers": "#6a4a2a",
     "earrings": "#d8b040",
     "face": {
+     "jawShape": "soft",
      "jaw": 0.1,
      "cheekbones": 0.5,
      "noseW": 0.1,
@@ -573,7 +577,10 @@
     "pose": "weightL sway R:hip L:hilt look:L",
     "battlePose": "duelist",
     "frame": "feminine",
-    "build": "curvy"
+    "build": "curvy",
+    "body": {
+     "neckBuild": "slender"
+    }
    },
    "importance": 15.2
   },
@@ -620,7 +627,7 @@
     },
     "face": {
      "headL": 0.2,
-     "jaw": -0.1,
+     "jawShape": "long",
      "cheekbones": 0.2,
      "gaunt": 0.3,
      "noseLen": 0.5,
@@ -651,6 +658,9 @@
      "style": "swept",
      "recede": 0.7,
      "length": 0.1
+    },
+    "body": {
+     "neckBuild": "scrawny"
     }
    },
    "importance": 17.1
@@ -693,8 +703,7 @@
     "glow": "#c08aff",
     "face": {
      "headW": 0.3,
-     "jaw": -0.2,
-     "jowls": 0.5,
+     "jawShape": "jowly",
      "cheekbones": 0.4,
      "noseLen": 0.5,
      "noseW": 0.4,
@@ -715,6 +724,9 @@
     "frame": "feminine",
     "hairdo": {
      "style": "bun"
+    },
+    "body": {
+     "neckBuild": "scrawny"
     }
    }
   },
@@ -752,8 +764,7 @@
     "height": 1.05,
     "glow": "#ffe8a0",
     "face": {
-     "jaw": 0.3,
-     "chin": 0.3,
+     "jawShape": "chiseled",
      "cheekbones": 0.5,
      "noseLen": 0.1,
      "noseW": -0.2,
@@ -767,7 +778,10 @@
     "pose": "stand proud R:offer L:offer",
     "battlePose": "rebuke",
     "frame": "masculine",
-    "build": "broad"
+    "build": "broad",
+    "body": {
+     "neckBuild": "slender"
+    }
    }
   },
   {
@@ -804,7 +818,7 @@
     "lips": "#a83a48",
     "face": {
      "headW": -0.1,
-     "jaw": -0.3,
+     "jawShape": "soft",
      "cheekbones": 0.4,
      "noseW": -0.2,
      "eyeSize": 0.5,
@@ -824,6 +838,9 @@
     "stitched": {
      "fine": true,
      "shoulders": true
+    },
+    "body": {
+     "neckBuild": "swan"
     }
    },
    "importance": 6.5
@@ -863,9 +880,7 @@
     "glow": "#9ac860",
     "face": {
      "headW": 1,
-     "jaw": 0.8,
-     "chin": -0.2,
-     "chinPoint": 0,
+     "jawShape": "jowly",
      "cheekbones": 0.2,
      "gaunt": -0.7,
      "noseLen": 0.7,
@@ -911,7 +926,7 @@
      "bust": 1.3,
      "arms": 1.35,
      "legs": 1.2,
-     "neck": 1.5
+     "neckBuild": "short"
     },
     "eyes": "#c8e04a",
     "headSize": 1.3,
@@ -952,8 +967,7 @@
     "wisp": "#8a9ad8",
     "face": {
      "headL": 0.3,
-     "jaw": -0.4,
-     "chinPoint": 0.5,
+     "jawShape": "long",
      "cheekbones": 0.7,
      "gaunt": 0.4,
      "noseLen": 0.3,
@@ -980,7 +994,10 @@
     "pose": "weightL bowed R:staff L:hang",
     "battlePose": "staff-cast",
     "frame": "masculine",
-    "concealed": true
+    "concealed": true,
+    "body": {
+     "neckBuild": "slender"
+    }
    },
    "importance": 10.1
   },
@@ -1023,8 +1040,7 @@
     "eyes": "#c8d0e0",
     "markings": "#4a4a4a",
     "face": {
-     "jaw": 0.8,
-     "chin": 0.6,
+     "jawShape": "square",
      "cheekbones": 0.6,
      "gaunt": 0.9,
      "sunken": 0.9,
@@ -1050,7 +1066,10 @@
     "pose": "wide proud R:folded L:foldedLow",
     "battlePose": "overhead",
     "frame": "masculine",
-    "build": "broad"
+    "build": "broad",
+    "body": {
+     "neckBuild": "thick"
+    }
    },
    "importance": 11.9
   },
@@ -1095,8 +1114,7 @@
      "mark": "#d8d8e0"
     },
     "face": {
-     "jaw": 0.5,
-     "chin": 0.3,
+     "jawShape": "heavy",
      "gaunt": 0.6,
      "sunken": 0.6,
      "browAngle": -0.3,
@@ -1117,7 +1135,10 @@
     "pose": "weightR easy R:hang L:hilt",
     "battlePose": "shield",
     "frame": "masculine",
-    "build": "broad"
+    "build": "broad",
+    "body": {
+     "neckBuild": "thick"
+    }
    },
    "importance": 3.7
   },
@@ -1149,9 +1170,11 @@
     "height": 1.2,
     "glow": "#e86a20",
     "face": {
-     "headW": 0.4,
-     "jaw": 0.9,
-     "chin": 0.7,
+     "headW": 0.9,
+     "headL": -1,
+     "foreheadH": -1,
+     "skullDepth": -0.4,
+     "jawShape": "heavy",
      "noseW": 0.6,
      "noseHook": 0.3,
      "browRidge": 0.9,
@@ -1190,8 +1213,7 @@
      "hips": 1.08,
      "arms": 1.35,
      "legs": 1.25,
-     "neck": 1.5,
-     "neckLen": 1.1
+     "neckBuild": "bull"
     },
     "mantle": {
      "fur": "#e6e1d8",
@@ -1237,8 +1259,7 @@
     "pendant": "#c8a040",
     "face": {
      "headW": 0.3,
-     "jaw": 0.3,
-     "jowls": 0.6,
+     "jawShape": "jowly",
      "noseW": 0.3,
      "noseTip": 0.4,
      "browAngle": 0.6,
@@ -1266,6 +1287,9 @@
      "style": "swept",
      "recede": 0.6,
      "length": 0.15
+    },
+    "body": {
+     "neckBuild": "short"
     }
    },
    "importance": 15.0
@@ -1302,7 +1326,7 @@
     },
     "face": {
      "headW": -0.1,
-     "jaw": -0.3,
+     "jawShape": "round",
      "cheekbones": 0.3,
      "noseLen": 0.2,
      "noseW": -0.3,
@@ -1319,7 +1343,10 @@
     "pose": "wringing",
     "battlePose": "wringing",
     "frame": "feminine",
-    "build": "curvy"
+    "build": "curvy",
+    "body": {
+     "neckBuild": "short"
+    }
    },
    "importance": 5.3
   },
@@ -1374,8 +1401,7 @@
     "pendant": "#c8a040",
     "face": {
      "headL": 0.3,
-     "jaw": -0.2,
-     "chinPoint": 0.4,
+     "jawShape": "long",
      "cheekbones": 0.8,
      "gaunt": 0.4,
      "noseLen": 0.4,
@@ -1409,7 +1435,10 @@
     "hairdo": {
      "style": "bun"
     },
-    "concealed": true
+    "concealed": true,
+    "body": {
+     "neckBuild": "slender"
+    }
    },
    "importance": 15.5
   },
@@ -1507,7 +1536,7 @@
     "cloak": "#1e1e22",
     "shirt": "#6a5a48",
     "face": {
-     "jaw": 0.3,
+     "jawShape": "round",
      "noseW": 0.3,
      "browThick": 0.4,
      "smile": 0.3,
@@ -1524,7 +1553,10 @@
     "pose": "weightL easy R:folded L:foldedLow",
     "battlePose": "ready intent R:claw L:ward",
     "frame": "masculine",
-    "build": "broad"
+    "build": "broad",
+    "body": {
+     "neckBuild": "thick"
+    }
    },
    "importance": 9.5
   },
@@ -1556,7 +1588,7 @@
     "skirt": "#3a3236",
     "cloak": "#1e1e22",
     "face": {
-     "jaw": -0.2,
+     "jawShape": "soft",
      "cheekbones": 0.3,
      "noseLen": 0.1,
      "eyeSize": 0.2,
@@ -1575,7 +1607,10 @@
     "battlePose": "ready turnL R:ward L:claw",
     "deadPose": "crumpled",
     "frame": "feminine",
-    "build": "curvy"
+    "build": "curvy",
+    "body": {
+     "neckBuild": "slender"
+    }
    },
    "importance": 4.0
   },
@@ -1600,7 +1635,7 @@
     "height": 0.8,
     "face": {
      "headW": 0.1,
-     "jaw": -0.6,
+     "jawShape": "child",
      "noseLen": -0.6,
      "noseTip": 0.2,
      "noseHook": -0.5,
@@ -1611,7 +1646,11 @@
     },
     "pose": "stand easy R:hang L:hang look:up",
     "battlePose": "cower",
-    "frame": "masculine"
+    "frame": "masculine",
+    "body": {
+     "neck": 0.95,
+     "neckLen": 0.85
+    }
    },
    "figure": {
     "cloth": "#3a3a3e",
@@ -1641,7 +1680,7 @@
     "height": 0.75,
     "face": {
      "headW": 0.1,
-     "jaw": -0.6,
+     "jawShape": "child",
      "noseLen": -0.6,
      "noseTip": 0.1,
      "noseHook": -0.5,
@@ -1653,7 +1692,11 @@
     },
     "pose": "stand easy R:hang L:chest look:up",
     "battlePose": "cower",
-    "frame": "masculine"
+    "frame": "masculine",
+    "body": {
+     "neck": 0.95,
+     "neckLen": 0.85
+    }
    },
    "figure": {
     "cloth": "#4a3e36",
@@ -1691,7 +1734,7 @@
     "hood": true,
     "face": {
      "headL": 0.2,
-     "jaw": 0.2,
+     "jawShape": "long",
      "gaunt": 0.3,
      "noseLen": 0.5,
      "noseHook": 0.5,
@@ -1717,7 +1760,10 @@
     },
     "pose": "weightL bowed R:staff L:hang",
     "battlePose": "staff-raised",
-    "frame": "masculine"
+    "frame": "masculine",
+    "body": {
+     "neckBuild": "scrawny"
+    }
    },
    "importance": 11.8
   },
@@ -1748,7 +1794,7 @@
     "boots": "#2a2218",
     "cloak": "#7a6a52",
     "face": {
-     "jaw": 0.4,
+     "jawShape": "square",
      "noseLen": 0.3,
      "browAngle": 0.3,
      "beard": "full",
@@ -1771,7 +1817,10 @@
     "pose": "weightL easy R:folded L:foldedLow look:L",
     "battlePose": "slash",
     "frame": "masculine",
-    "build": "broad"
+    "build": "broad",
+    "body": {
+     "neckBuild": "thick"
+    }
    },
    "importance": 3.0
   },
@@ -1804,7 +1853,7 @@
     "cloak": "#6a5a42",
     "face": {
      "headW": 0.3,
-     "jaw": 0.8,
+     "jawShape": "heavy",
      "noseW": 0.5,
      "browRidge": 0.6,
      "browThick": 0.6,
@@ -1826,7 +1875,10 @@
     "pose": "stand intent R:hang L:hilt look:R",
     "battlePose": "ready intent R:lowguard L:brace",
     "frame": "masculine",
-    "build": "broad"
+    "build": "broad",
+    "body": {
+     "neckBuild": "thick"
+    }
    }
   },
   {
@@ -1869,9 +1921,7 @@
     "height": 0.92,
     "glow": "#8a40c0",
     "face": {
-     "jaw": -0.2,
-     "chin": 0.7,
-     "chinPoint": 0.9,
+     "jawShape": "pointed",
      "cheekbones": 0.6,
      "gaunt": 0.7,
      "noseLen": 1,
@@ -1896,6 +1946,9 @@
     "hairdo": {
      "style": "wild",
      "length": 1.2
+    },
+    "body": {
+     "neckBuild": "scrawny"
     }
    }
   },
@@ -2002,7 +2055,7 @@
     },
     "face": {
      "headL": 0.2,
-     "jaw": -0.3,
+     "jawShape": "weak",
      "gaunt": 0.5,
      "noseLen": 0.4,
      "noseHook": 0.3,
@@ -2023,7 +2076,10 @@
     },
     "pose": "wringing",
     "battlePose": "brawl",
-    "frame": "masculine"
+    "frame": "masculine",
+    "body": {
+     "neckBuild": "scrawny"
+    }
    },
    "importance": 6.5
   },
@@ -2058,7 +2114,7 @@
     "earrings": "#d8b040",
     "face": {
      "headW": 0.3,
-     "jaw": 0.6,
+     "jawShape": "square",
      "jowls": 0.3,
      "noseW": 0.5,
      "browThick": 0.8,
@@ -2083,7 +2139,10 @@
     "pose": "wide proud R:hip L:hip",
     "battlePose": "slash",
     "frame": "masculine",
-    "build": "broad"
+    "build": "broad",
+    "body": {
+     "neckBuild": "thick"
+    }
    },
    "importance": 8.3
   },
@@ -2120,8 +2179,7 @@
     "earrings": "#d8b040",
     "face": {
      "headL": 0.2,
-     "jaw": 0.2,
-     "chinPoint": 0.3,
+     "jawShape": "chiseled",
      "cheekbones": 0.6,
      "noseLen": 0.3,
      "noseHook": 0.4,
@@ -2150,7 +2208,10 @@
     "battlePose": "duelist",
     "frame": "masculine",
     "build": "broad",
-    "concealed": true
+    "concealed": true,
+    "body": {
+     "neckBuild": "slender"
+    }
    },
    "importance": 6.0
   },
@@ -2235,8 +2296,7 @@
     "shirt": "#d8ccb8",
     "face": {
      "headW": 0.2,
-     "jaw": 0.8,
-     "chin": 0.5,
+     "jawShape": "square",
      "noseW": 0.6,
      "browRidge": 0.8,
      "browThick": 0.8,
@@ -2258,7 +2318,10 @@
     "pose": "weightL intent R:hang L:hip",
     "battlePose": "thrust",
     "frame": "masculine",
-    "build": "broad"
+    "build": "broad",
+    "body": {
+     "neckBuild": "thick"
+    }
    },
    "importance": 8.3
   },
@@ -2295,7 +2358,7 @@
     "eyes": "#c8a040",
     "tattered": true,
     "face": {
-     "jaw": 0.2,
+     "jawShape": "square",
      "cheekbones": 0.6,
      "noseW": 0.3,
      "browThick": 0.4,
@@ -2318,7 +2381,10 @@
     "pose": "weightR easy R:hang L:chest",
     "battlePose": "thrust",
     "frame": "feminine",
-    "build": "curvy"
+    "build": "curvy",
+    "body": {
+     "neckBuild": "slender"
+    }
    },
    "importance": 6.3
   },
@@ -2397,7 +2463,7 @@
     "wisp": "#c84a3a",
     "face": {
      "headL": 0.1,
-     "jaw": -0.2,
+     "jawShape": "long",
      "gaunt": 0.4,
      "noseLen": 0.3,
      "browAngle": 0.5,
@@ -2421,7 +2487,10 @@
     "pose": "weightL haughty R:staff L:hip",
     "battlePose": "staff-cast",
     "frame": "masculine",
-    "concealed": true
+    "concealed": true,
+    "body": {
+     "neckBuild": "slender"
+    }
    },
    "importance": 2.4
   },
@@ -2515,8 +2584,8 @@
     "earrings": "#c8c0d0",
     "face": {
      "headL": 0.2,
-     "jaw": -0.3,
-     "chinPoint": 0.5,
+     "jawShape": "soft",
+     "chinPoint": 0.3,
      "cheekbones": 0.7,
      "gaunt": 0.3,
      "noseLen": 0.2,
@@ -2535,7 +2604,10 @@
     "pose": "weightL sway R:hip L:hang look:tilt",
     "battlePose": "feral",
     "frame": "masculine",
-    "build": "broad"
+    "build": "broad",
+    "body": {
+     "neckBuild": "slender"
+    }
    }
   },
   {
@@ -2569,7 +2641,7 @@
     "eyes": "#c8202a",
     "face": {
      "headL": 0.2,
-     "jaw": -0.2,
+     "jawShape": "heart",
      "cheekbones": 0.7,
      "gaunt": 0.3,
      "noseLen": 0.3,
@@ -2587,7 +2659,10 @@
     "pose": "weightR haughty R:chest L:skirt",
     "battlePose": "ready intent R:cast L:claw spell",
     "frame": "feminine",
-    "build": "curvy"
+    "build": "curvy",
+    "body": {
+     "neckBuild": "swan"
+    }
    }
   },
   {
@@ -2623,8 +2698,7 @@
     },
     "eyes": "#c8202a",
     "face": {
-     "jaw": -0.3,
-     "chinPoint": 0.2,
+     "jawShape": "soft",
      "cheekbones": 0.8,
      "noseLen": 0.1,
      "noseW": -0.2,
@@ -2642,7 +2716,10 @@
     "pose": "weightL sway R:skirt L:hip",
     "battlePose": "ready intent R:claw L:claw",
     "frame": "feminine",
-    "build": "curvy"
+    "build": "curvy",
+    "body": {
+     "neckBuild": "swan"
+    }
    }
   },
   {
@@ -2677,7 +2754,7 @@
     "eyes": "#c8202a",
     "face": {
      "headW": 0.1,
-     "jaw": -0.5,
+     "jawShape": "heart",
      "chinPoint": 0.6,
      "cheekbones": 0.4,
      "noseLen": -0.3,
@@ -2698,7 +2775,10 @@
     "pose": "stride intent R:claw L:hang look:tilt",
     "battlePose": "ready low R:claw L:claw look:tilt",
     "frame": "feminine",
-    "build": "curvy"
+    "build": "curvy",
+    "body": {
+     "neckBuild": "slender"
+    }
    }
   },
   {
@@ -2777,8 +2857,7 @@
     "underskirt": "#6a4a9a",
     "gownTrim": "#c8a040",
     "face": {
-     "jaw": -0.4,
-     "chinPoint": 0.2,
+     "jawShape": "soft",
      "cheekbones": 0.5,
      "noseLen": -0.1,
      "noseW": -0.4,
@@ -2792,7 +2871,10 @@
     "pose": "demure bowed R:chest L:skirt",
     "battlePose": "retreat recoil R:ward L:chest",
     "frame": "feminine",
-    "build": "curvy"
+    "build": "curvy",
+    "body": {
+     "neckBuild": "swan"
+    }
    },
    "importance": 10.6
   },
@@ -2837,19 +2919,18 @@
      "hips": 0.76,
      "arms": 0.78,
      "legs": 0.8,
-     "neck": 0.82,
-     "neckLen": 0.88
+     "neck": 0.95,
+     "neckLen": 0.85
     },
     "cloth": "#6a5470",
     "trim": "#d9d0bf",
     "skirt": "#6a5470",
     "boots": "#3a2a24",
     "face": {
+     "jawShape": "child",
      "noseLen": -0.7,
      "noseW": -0.5,
      "noseTip": -0.3,
-     "jaw": -0.7,
-     "chin": -0.5,
      "cheekbones": -0.4,
      "faceLen": -0.7,
      "headL": -0.15,
@@ -2858,7 +2939,6 @@
      "lashes": false,
      "blush": "#e0a4a4",
      "eyeSize": 0.75,
-     "chinPoint": 0.1,
      "headW": 0.15,
      "lipFull": 0.1,
      "smile": -0.2,
@@ -2910,18 +2990,17 @@
      "hips": 0.86,
      "arms": 0.76,
      "legs": 0.8,
-     "neck": 0.78,
+     "neck": 0.95,
      "neckLen": 0.82
     },
     "cloth": "#5a6a7a",
     "trim": "#4a3a2c",
     "boots": "#3a2a24",
     "face": {
+     "jawShape": "child",
      "noseLen": -0.8,
      "noseW": -0.5,
      "noseTip": -0.2,
-     "jaw": -0.7,
-     "chin": -0.6,
      "cheekbones": -0.5,
      "faceLen": -0.8,
      "headL": -0.2,
@@ -2982,14 +3061,13 @@
     "boots": "#1e1a1a",
     "tattered": true,
     "face": {
+     "jawShape": "square",
      "gaunt": 0.85,
      "sunken": 0.8,
      "teeth": true,
      "veins": "#4a5640",
      "blush": false,
      "cheekbones": 0.9,
-     "jaw": 0.3,
-     "chin": 0.4,
      "noseLen": 0.3,
      "noseHook": 0.4,
      "browRidge": 0.6,
@@ -3041,14 +3119,13 @@
     "tattered": true,
     "pendant": "#8a7a4a",
     "face": {
+     "jawShape": "long",
      "gaunt": 0.8,
      "sunken": 0.75,
      "teeth": true,
      "veins": "#4a5640",
      "blush": false,
      "cheekbones": 1,
-     "jaw": -0.2,
-     "chinPoint": 0.4,
      "noseLen": 0.1,
      "browAngle": 0.8,
      "mouthW": 0.4,
@@ -3059,6 +3136,9 @@
     "battlePose": "lunge intent R:grasp L:claw eyes:glare",
     "battleFace": {
      "gape": 0.55
+    },
+    "body": {
+     "neckBuild": "slender"
     }
    }
   },
@@ -3090,7 +3170,7 @@
     "pendant": "#c8a040",
     "face": {
      "headL": 0.2,
-     "jaw": -0.1,
+     "jawShape": "long",
      "gaunt": 0.7,
      "sunken": 0.6,
      "bags": 0.9,
@@ -3110,7 +3190,10 @@
     "pose": "kneel",
     "battlePose": "cower",
     "frame": "masculine",
-    "concealed": true
+    "concealed": true,
+    "body": {
+     "neckBuild": "scrawny"
+    }
    },
    "importance": 5.7
   },
@@ -3142,7 +3225,7 @@
     "boots": "#1e1a18",
     "eyes": "#c8202a",
     "face": {
-     "jaw": -0.3,
+     "jawShape": "weak",
      "gaunt": 0.6,
      "sunken": 0.5,
      "cheekbones": 0.5,
@@ -3155,7 +3238,10 @@
     },
     "pose": "hunched",
     "battlePose": "feral",
-    "frame": "masculine"
+    "frame": "masculine",
+    "body": {
+     "neckBuild": "slender"
+    }
    },
    "importance": 5.4
   },
@@ -3187,7 +3273,7 @@
     "cloak": "#a89070",
     "hood": true,
     "face": {
-     "jaw": -0.1,
+     "jawShape": "long",
      "gaunt": 0.5,
      "bags": 0.9,
      "sunken": 0.4,
@@ -3199,7 +3285,10 @@
     },
     "pose": "wringing",
     "battlePose": "cower",
-    "frame": "feminine"
+    "frame": "feminine",
+    "body": {
+     "neckBuild": "scrawny"
+    }
    },
    "importance": 3.8
   },
@@ -3235,7 +3324,7 @@
     "eyes": "#6a8aa8",
     "face": {
      "headW": 0.1,
-     "jaw": -0.5,
+     "jawShape": "soft",
      "cheekbones": -0.2,
      "noseLen": -0.4,
      "noseHook": -0.4,
@@ -3250,7 +3339,10 @@
     "pose": "demure easy R:skirt L:skirt look:up",
     "battlePose": "wringing",
     "frame": "feminine",
-    "build": "curvy"
+    "build": "curvy",
+    "body": {
+     "neckBuild": "slender"
+    }
    },
    "importance": 4.4
   },
@@ -3322,7 +3414,7 @@
     "shirt": "#a89a7a",
     "face": {
      "headW": 0.1,
-     "jaw": 0.3,
+     "jawShape": "square",
      "noseW": 0.2,
      "browAngle": 0.5,
      "browThick": 0.3,
@@ -3337,7 +3429,10 @@
     },
     "pose": "weightL bowed R:staff L:hang",
     "battlePose": "windup",
-    "frame": "masculine"
+    "frame": "masculine",
+    "body": {
+     "neckBuild": "thick"
+    }
    },
    "importance": 5.6
   },
@@ -3394,7 +3489,7 @@
     },
     "face": {
      "headW": 0.2,
-     "jaw": 0.6,
+     "jawShape": "square",
      "noseW": 0.4,
      "noseLen": 0.2,
      "browRidge": 0.5,
@@ -3417,7 +3512,10 @@
     "pose": "weightR proud R:hang L:hilt",
     "battlePose": "duelist",
     "frame": "masculine",
-    "build": "broad"
+    "build": "broad",
+    "body": {
+     "neckBuild": "thick"
+    }
    },
    "importance": 10.7
   },
@@ -3445,7 +3543,7 @@
      "trim": "#c8c8d0"
     },
     "face": {
-     "jaw": 0.2,
+     "jawShape": "soft",
      "cheekbones": 0.6,
      "noseW": 0.4,
      "browAngle": 0.3,

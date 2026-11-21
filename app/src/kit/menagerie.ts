@@ -404,7 +404,7 @@ export function folk(base: Folk, size: CreatureSize = 'medium', state: FigState 
   if (dress) r = dress(r);
   if (battle && r.battleFace) r = { ...r, face: { ...r.face, ...r.battleFace } };
   if (r.face) r = { ...r, face: seedFace(key + seed + (li ?? ''), r.face) };
-  if (r.vary && seed) { const k = ((hsh >>> 8) % 7) - 3; r = { ...r, hair: r.face?.bald ? r.hair : (r.face?.age ?? 0) > 0.7 ? r.hair : HAIR[(hsh >>> 4) % HAIR.length], beard: r.beard && HAIR[(hsh >>> 4) % HAIR.length], cloth: shift(r.cloth, k), skirt: shift(r.skirt, k), cloak: shift(r.cloak, -k), hairStyle: r.hairStyle ?? (['short', 'short', 'long', 'curly'] as const)[(hsh >>> 12) % 4], height: (r.height ?? 1) * (0.94 + ((hsh >>> 16) % 13) / 100) }; }
+  if (r.vary && seed) { const k = ((hsh >>> 8) % 7) - 3; r = { ...r, hair: r.face?.bald ? r.hair : (r.face?.age ?? 0) > 0.7 ? r.hair : HAIR[(hsh >>> 4) % HAIR.length], beard: r.beard && HAIR[(hsh >>> 4) % HAIR.length], cloth: shift(r.cloth, k), skirt: shift(r.skirt, k), cloak: shift(r.cloak, -k), hairStyle: r.hairStyle ?? (['short', 'short', 'long', 'curly'] as const)[(hsh >>> 12) % 4], height: (r.height ?? 1) * (0.94 + ((hsh >>> 16) % 13) / 100), body: { neckLen: 0.92 + ((hsh >>> 24) % 7) * 0.025, ...r.body } }; }
   const { extra, size: own, vary: _v, battleFace: _f, byName: _b, stances: _s, ...recipe } = r, sz = own ?? size, s = (SCALE[sz] ?? 1) * (r.height ?? 1), spirit = !!extra?.ghost; void _v; void _f; void _b; void _s;
   // a winged body falls on its face, the wings spread over it (on its back it would lie on them, its arms across them);
   // a skeleton falls flat, as bones do, on its back or its face (no heap propped on an arm, no rump in the air)
@@ -439,7 +439,8 @@ export function folk(base: Folk, size: CreatureSize = 'medium', state: FigState 
 export function seedFace(id: string, base: FaceSpec = {}): FaceSpec {
   let h = 2166136261; for (const c of id) h = Math.imul(h ^ c.charCodeAt(0), 16777619);
   const r = () => { h = Math.imul(h ^ (h >>> 15), 2246822507); h = Math.imul(h ^ (h >>> 13), 3266489909); return (((h ^= h >>> 16) >>> 0) / 4294967295) * 1.2 - 0.6; };
-  return { headW: r() * 0.6, headL: r() * 0.6, jaw: r(), chin: r(), cheekbones: r(), gaunt: r() * 0.6, noseLen: r(), noseW: r(), noseHook: r(), browRidge: r(), browThick: r(), browAngle: r() * 0.7, eyeSize: r() * 0.5, eyeSpace: r() * 0.5, mouthW: r(), lipFull: r(), smile: r() * 0.5, ...base };
+  return { headW: r() * 0.6, headL: r() * 0.6, jaw: r(), chin: r(), cheekbones: r(), gaunt: r() * 0.6, noseLen: r(), noseW: r(), noseHook: r(), browRidge: r(), browThick: r(), browAngle: r() * 0.7, eyeSize: r() * 0.5, eyeSpace: r() * 0.5, mouthW: r(), lipFull: r(), smile: r() * 0.5,
+    jawAngle: r() * 1.4, chinPoint: r() * 0.6, jowls: Math.max(0, r()), ...base };
 }
 
 // ---------------------------------------------------------------------------------------------------- shared looks
