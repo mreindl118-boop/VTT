@@ -92,6 +92,23 @@ wings of the same kind of light rising from the shoulder blades (primaries, seco
 feather fading out at its tip, the wing fading to nothing where it meets the back): wider in a battle stance, rising
 between the back and a weapon slung on it, and gone on a fallen body. They are made for a `transform` (an aasimar's wings).
 
+Finer outfit pieces, each built only when its field is set: `chainShirt` (`{under}`, with mail armour: the mail is cut
+as a chain shirt, fitted, hanging straight to the hips with an uneven hem, short sleeves and a V at the neck that shows
+the shirt in `under`; its links are rows of fine zigzag in the armour's `trim`). `belt` (`{color, buckle}`: a wide belt
+worn round the waist over the cloth, a square buckle in front; it takes the place of the plain `buckle`).
+`satchelKit` (with `satchel`: `{hip, mark, markColor, rolls, vials, herbs, sprig}`): the bag becomes a flapped
+satchel on `hip` (`'R'` or `'L'`), hung from a baldric that runs from the other shoulder across the chest to a ring
+over the bag and on round the hip, with a buckle at the chest; `mark` embroiders the flap (`'leaf'` or `'moon'`, in
+`markColor`), `rolls` (up to three bandage rolls), `vials` (up to three colours) and `herbs` stand out of its top, and
+`sprig` ties a bundle of flowering herbs to the ring. The belt, the baldric and the bag are put on once the body is
+posed, outside whatever cloth is worn under them (mail, a tunic, a skirt, a gown) in every state; a cloak hangs over
+the bag on a standing figure, and an empty-handed arm resting where a strap runs is moved off it. `cloakLaurel` (a
+colour: laurel embroidery down the cloak's front edges, along its hem and round the capelet's edge, in place of
+`cloakTrim`'s bands). `claspMark` (`'tree'`: the `clasps` become round brooches with a tree in relief). `shieldFace`
+(`{band, rivets, wreath}`: a flat wide rim with `rivets` domed rivets, sixteen unless given, a vertical band of
+`band` down the face, and with `wreath` the shield's `mark` drawn as a laurel wreath round two linked rings).
+`pendantShape` (`'rings'`: the pendant is two linked rings on a finer chain).
+
 ### Body, joints and poses
 
 Every figure is sculpted like a miniature (`kit/anatomy.ts`): the torso, pelvis and limbs are lofted through rings, so
