@@ -141,8 +141,13 @@ belt at the left hip, lying on the cloth. `fullSleeves` (with `puffSleeves` and 
 full from below the bare shoulders to just above the elbow, gathered there with a frill. `vines` (a colour) embroiders
 a winding vine with leaves and tendrils along the gown's hem and up the edges of its slit, in place of `gownTrim`'s
 plain lines there, and down the front edges and above the hem of the cloak worn with the gown. `dagged` cuts the gown's
-hem and the edges of its slit in ragged dags, with the underskirt's lace showing between them and along the slit.
-`brooch` (a colour) pins each top corner of the gown's cloak with a round brooch. `bootLaces` (a colour) makes the boots
+hem in uneven tatters (tongues of differing width and length, rounded at the tip) and nicks the edges of its slit, with
+the underskirt's lace showing between them and along the slit, lying on the floor where it reaches it.
+`brooch` (a colour) pins each top corner of the gown's cloak with a round brooch, seated on the cloth where it shows
+beside the arm. `shoulderCloak` wears that cloak on both shoulders instead of from behind the arms: it hangs from the
+shoulders under a short mantle that stands wide open at the front, its corners brought forward over the shoulder caps
+to the collarbones, where the brooches then sit facing forward with a fine cord between them; it lies where long loose
+hair falls, so it suits hair worn short, up or in a braid. `bootLaces` (a colour) makes the boots
 tall, to just below the knee, and laced up the front, in place of the turned cuff and strap; `bracerLaces` (a colour)
 laces the `bracers` up the inside of the forearm.
 

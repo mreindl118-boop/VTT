@@ -1,7 +1,7 @@
 // A gown's finer dress on the hero figures (kit/heroes.ts): a wreath, a leather corset with its belt, full sleeves, vine
-// embroidery, a dagged hem over lace, laced boots, laced bracers and cloak brooches. Each is its own recipe field; a
-// generic figure wearing them all is read in every state against the clip check (kit/clipcheck.ts) and the cloth check
-// (kit/clothcheck.ts), and each part is found on the figure where it belongs.
+// embroidery, a dagged hem over lace, laced boots, laced bracers, cloak brooches and a cloak worn on the shoulders. Each
+// is its own recipe field; a generic figure wearing them all is read in every state against the clip check
+// (kit/clipcheck.ts) and the cloth check (kit/clothcheck.ts), and each part is found on the figure where it belongs.
 import { describe, expect, it } from 'vitest';
 import * as THREE from 'three';
 import { heroFigure, type HeroFigure } from '../app/src/kit/heroes';
@@ -21,6 +21,8 @@ type M = THREE.Mesh;
 const meshes = (g: THREE.Object3D, pick: (m: M) => boolean = () => true): M[] => { const out: M[] = []; g.updateMatrixWorld(true); g.traverse((c) => { const m = c as M; if (m.isMesh && pick(m)) out.push(m); }); return out; };
 const coloured = (g: THREE.Object3D, hex: string): M[] => meshes(g, (m) => '#' + (m.material as THREE.MeshStandardMaterial).color?.getHexString() === hex);
 const boxOf = (ms: M[]): THREE.Box3 => ms.reduce((b, m) => b.union(new THREE.Box3().setFromObject(m)), new THREE.Box3());
+/** The lowest point of some meshes, read from their vertices. */
+const lowest = (ms: M[]): number => { const v = new THREE.Vector3(); let y = Infinity; for (const m of ms) { const p = m.geometry.attributes.position; for (let i = 0; i < p.count; i++) y = Math.min(y, v.fromBufferAttribute(p, i).applyMatrix4(m.matrixWorld).y); } return y; };
 const verts = (g: THREE.Object3D): number => meshes(g).reduce((n, m) => n + m.geometry.attributes.position.count, 0);
 const joint = (g: THREE.Object3D, name: string): THREE.Vector3 => (g.userData.joints as Record<string, THREE.Object3D>)[name].getWorldPosition(new THREE.Vector3());
 const under = (g: THREE.Object3D, name: string): M[] => meshes((g.userData.joints as Record<string, THREE.Object3D>)[name]);
@@ -103,11 +105,85 @@ describe('a gown\'s finer dress', () => {
       expect(b.max.y).toBeLessThan(joint(g, 'elbow' + sd).y); expect(b.min.y).toBeGreaterThan(joint(g, 'wrist' + sd).y - 0.05);
     }
   });
-  it('pins a brooch at each front corner of the gown\'s cloak', () => {
+  it('pins a brooch at each top corner of the gown\'s cloak', () => {
     const g = heroFigure(DRESSED), pins = coloured(g, '#c7a14e'), xs = pins.map((m) => boxOf([m]).getCenter(new THREE.Vector3()).x);
     expect(Math.min(...xs)).toBeLessThan(-0.2); expect(Math.max(...xs)).toBeGreaterThan(0.2);
     expect(boxOf(pins).min.y).toBeGreaterThan(joint(g, 'chest').y);
   });
+  it('rolls the corset\'s top edge clean: level round the back, cut down under the bust, no step from one point of it to the next', () => {
+    const g = heroFigure(DRESSED), chest = (g.userData.joints as Record<string, THREE.Object3D>).chest, shell = coloured(g, '#5b3a24').find((m) => m.userData.skin)!;
+    const p = shell.geometry.attributes.position, top = Array.from({ length: 80 }, (_, j) => new THREE.Vector3().fromBufferAttribute(p, p.count - 80 + j)), ys = top.map((v) => v.y);
+    expect(shell.parent).toBe(chest);
+    for (let j = 0; j < 80; j++) expect(Math.abs(ys[j] - ys[(j + 1) % 80]), `point ${j}`).toBeLessThan(0.04);
+    expect(Math.max(...ys) - ys[40], 'level behind').toBeLessThan(0.005);
+    expect(Math.max(...ys) - Math.min(...ys), 'lower under the bust').toBeGreaterThan(0.05);
+    const front = top.filter((v) => v.z > 0 && Math.abs(v.x) > 0.15 && Math.abs(v.x) < 0.35);
+    expect(Math.max(...front.map((v) => v.y)), 'under each breast').toBeLessThan(Math.max(...ys) - 0.05);
+  });
+  it('lets the corseted skirt fall away from the corset\'s foot all the way round, the belt unbroken across the slit', () => {
+    for (const st of ['rest', 'battle'] as const) {
+      const g = heroFigure(DRESSED, 'medium', st), gown = meshes(g, (m) => m.userData.garment === 'gown')[0], p = gown.geometry.attributes.position;
+      // (the skirt's own way down: from its top row to its seventh, taken over every column)
+      const at = (i: number, j: number) => new THREE.Vector3().fromBufferAttribute(p, i * 65 + j), down = new THREE.Vector3();
+      for (let j = 0; j < 65; j++) down.add(at(6, j)).sub(at(0, j));
+      down.normalize();
+      for (let j = 0; j < 65; j++) for (let i = 1; i < 6; i++) expect(at(i, j).sub(at(i - 1, j)).dot(down), `${st}, row ${i}, column ${j}`).toBeGreaterThan(0.01);
+      const belt = meshes(g, (m) => m.userData.cloth === 'gown' && m.geometry.attributes.position.count === 4 * 66)[0];
+      expect(belt, 'the belt: one loop of 66 points a row').toBeDefined();
+      const b = belt.geometry.attributes.position;
+      for (let r = 0; r < 4; r++) expect(new THREE.Vector3().fromBufferAttribute(b, r * 66).distanceTo(new THREE.Vector3().fromBufferAttribute(b, r * 66 + 65)), `row ${r} closes`).toBeLessThan(1e-6);
+    }
+  }, 60000);
+  it('cuts the dags unevenly: tongues of many lengths and widths, never one pattern repeated every few columns', () => {
+    const g = heroFigure({ ...GOWN, dagged: true }), gown = meshes(g, (m) => m.userData.garment === 'gown')[0], p = gown.geometry.attributes.position;
+    // how far each column's hem is cut: the cloth's length down its last three rows, short of the longest
+    const at = (i: number, j: number) => new THREE.Vector3().fromBufferAttribute(p, i * 65 + j);
+    const len = Array.from({ length: 65 }, (_, j) => at(41, j).distanceTo(at(42, j)) + at(42, j).distanceTo(at(43, j)) + at(43, j).distanceTo(at(44, j)));
+    const cut = len.map((l) => Math.max(...len) - l);
+    for (const period of [2, 3, 4, 5, 6, 8]) {
+      let same = 0, n = 0; for (let j = 2; j + period < 63; j++, n++) if (Math.abs(cut[j] - cut[j + period]) < 0.01) same++;
+      expect(same / n, `repeats every ${period} columns`).toBeLessThan(0.6);
+    }
+    expect(new Set(cut.map((c) => Math.round(c * 50))).size, 'depths').toBeGreaterThanOrEqual(6);
+    // the notches between the tongues stand at uneven distances
+    const notches: number[] = []; for (let j = 2; j < 63; j++) if (cut[j] > cut[j - 1] + 0.005 && cut[j] >= cut[j + 1]) notches.push(j);
+    expect(new Set(notches.slice(1).map((j, k) => j - notches[k])).size, 'widths').toBeGreaterThanOrEqual(3);
+  });
+  it('keeps the lace on the floor, never under it, standing or laid out', () => {
+    for (const st of STATES) expect(lowest(coloured(heroFigure(DRESSED, 'medium', st), '#efe3c8')), st).toBeGreaterThan(-0.001);
+  }, 60000);
+  it('seats each brooch on the cloak clear of the cloth and of the floor', () => {
+    for (const recipe of [DRESSED, { ...DRESSED, shoulderCloak: true }]) for (const st of STATES) {
+      const g = heroFigure(recipe, 'medium', st), discs = coloured(g, '#c7a14e').filter((m) => m.geometry.type === 'CylinderGeometry'), cloth = meshes(g, (m) => m.userData.garment === (recipe.shoulderCloak ? 'mantle' : 'cloak'))[0];
+      expect(discs.length, st).toBe(2);
+      const p = cloth.geometry.attributes.position, v = new THREE.Vector3();
+      for (const d of discs) {
+        expect(lowest([d]), `${st}: off the floor`).toBeGreaterThan(0);
+        // no point of the cloth inside the disc: within its rim and between its two faces
+        const inv = d.matrixWorld.clone().invert();
+        for (let i = 0; i < p.count; i++) { v.fromBufferAttribute(p, i).applyMatrix4(cloth.matrixWorld).applyMatrix4(inv); expect(Math.hypot(v.x, v.z) < 0.07 && Math.abs(v.y) < 0.015, `${st}: cloth point ${i} in a brooch`).toBe(false); }
+      }
+    }
+  }, 60000);
+  it('wears the cloak on both shoulders when asked: a mantle open wide at the front, a brooch on each front corner facing forward, a cord between them', () => {
+    const recipe = { ...DRESSED, shoulderCloak: true }, g = heroFigure(recipe), chest = (g.userData.joints as Record<string, THREE.Object3D>).chest, inv = chest.matrixWorld.clone().invert();
+    const mantle = meshes(g, (m) => m.userData.garment === 'mantle')[0];
+    expect(mantle).toBeDefined(); expect(meshes(heroFigure(DRESSED), (m) => m.userData.garment === 'mantle').length, 'not otherwise').toBe(0);
+    const discs = coloured(g, '#c7a14e').filter((m) => m.geometry.type === 'CylinderGeometry');
+    for (const d of discs) {
+      const at = d.getWorldPosition(new THREE.Vector3()).applyMatrix4(inv), face = new THREE.Vector3(0, 1, 0).transformDirection(d.matrixWorld).transformDirection(inv);
+      expect(at.z, 'in front of the shoulder').toBeGreaterThan(0); expect(Math.abs(at.x), 'out on the shoulder').toBeGreaterThan(0.25);
+      expect(at.y, 'by the collarbone').toBeGreaterThan(1.6); expect(face.z, 'facing forward').toBeGreaterThan(0.3);
+    }
+    expect(Math.sign(discs[0].getWorldPosition(new THREE.Vector3()).applyMatrix4(inv).x)).not.toBe(Math.sign(discs[1].getWorldPosition(new THREE.Vector3()).applyMatrix4(inv).x));
+    // the opening: no cloth of the mantle before the middle of the chest
+    const p = mantle.geometry.attributes.position, v = new THREE.Vector3();
+    for (let i = 0; i < p.count; i++) { v.fromBufferAttribute(p, i).applyMatrix4(mantle.matrixWorld).applyMatrix4(inv); if (v.z > 0) expect(Math.abs(v.x), `point ${i}`).toBeGreaterThan(0.05); }
+    const cords = (f: THREE.Object3D) => meshes(f, (m) => m.userData.cloth === 'mantle' && m.geometry.type === 'TubeGeometry');
+    expect(cords(g).length, 'the cord').toBe(1); expect(cords(heroFigure(recipe, 'medium', 'dead')).length, 'none on a body laid out').toBe(0);
+    const span = boxOf(cords(g)); expect(span.max.x - span.min.x, 'from one brooch to the other').toBeGreaterThan(0.5);
+    for (const st of STATES) { const f = heroFigure(recipe, 'medium', st); expect(describeClips(findClips(f, recipe)), st).toBe(''); expect(describePokes(findPokes(f)), st).toBe(''); }
+  }, 60000);
   it('leaves a figure without the fields as it was', () => {
     const base = heroFigure(GOWN), again = heroFigure({ ...GOWN, wreath: undefined, corset: undefined, fullSleeves: false, vines: undefined, dagged: false, bootLaces: undefined, bracerLaces: undefined, brooch: undefined });
     expect(verts(again)).toBe(verts(base)); expect(meshes(again).length).toBe(meshes(base).length);

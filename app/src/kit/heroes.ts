@@ -313,8 +313,13 @@ export interface HeroFigure {
   bootLaces?: string;
   /** Laces criss-crossing up the inside of the bracers (their colour). */
   bracerLaces?: string;
-  /** On the cloak worn with a gown: a round brooch (its colour) pinning each top corner, behind the arms. */
+  /** On the cloak worn with a gown: a round brooch (its colour) on each top corner, behind the arms where the cloth
+   *  shows beside them; with `shoulderCloak`, on each front corner of the mantle, a fine cord between them. */
   brooch?: string;
+  /** The cloak worn with a gown lies on both shoulders: it hangs from them under a short mantle that stands wide open
+   *  at the front, its corners brought forward over the shoulder caps to the collarbones. Long hair falls where it
+   *  lies: it suits hair worn short, up or in a braid. */
+  shoulderCloak?: boolean;
   /** A glowing spell wisp above the off hand. */
   wisp?: string;
   /** Feet above the floor (a flier hovering). */
@@ -618,8 +623,17 @@ function sheath(prof: [number, number][], c: string, o: { zs: number; slitAt: nu
     if (o.fit && y > top - o.fit.over) { p.lerp(o.fit.at(th), (1 - (top - y) / o.fit.over) ** 2); }
     return p;
   };
-  // the dags: how far up each column's hem is cut (ragged: no two alike, the cloth whole at every fourth), and how far in each row of the slit's edges is nicked
-  const cut = (j: number) => (o.dag ?? 0) * (j % 4 === 0 || j === cols - 1 || j === 1 ? 0 : (j % 4 === 2 ? 0.6 : 0.25) + 0.4 * Math.abs(Math.sin(j * 12.9898))), nick = (i: number) => o.dag && i % 3 === 1 ? 0.004 + 0.006 * Math.abs(Math.sin(i * 7.31)) : 0;
+  // the dags: how far up each column's hem is cut. Uneven tatters: each a tongue of cloth two to six columns wide with a
+  // rounded tip, its width, how far its tip stops short of the hem and how deep the cut beside it goes all drawn from
+  // a hash of the column it starts at (whole by both edges of the slit); and how far in each row of the slit's edges is nicked
+  const hash = (j: number, k: number) => { const x = Math.sin(j * 127.1 + k * 311.7) * 43758.5453; return x - Math.floor(x); };
+  const cuts = new Array<number>(cols + 1).fill(0);
+  for (let j = 2; o.dag && j < cols - 2;) {
+    const w = Math.min(cols - 2 - j, 2 + Math.floor(hash(j, 1) ** 1.5 * 5)), short = 0.3 * hash(j, 2) ** 2, deep = 0.3 + 0.7 * hash(j, 3);
+    for (let k = 0; k <= w; k++) cuts[j + k] = Math.max(cuts[j + k], o.dag * (short + Math.max(0, deep - short) * Math.abs(2 * k / w - 1) ** 3));
+    j += Math.max(1, w);
+  }
+  const cut = (j: number) => cuts[j], nick = (i: number) => o.dag && i % 3 === 1 ? 0.004 + 0.006 * Math.abs(Math.sin(i * 7.31)) : 0;
   const pos: number[] = [], idx: number[] = [];
   for (let i = 0; i <= rows; i++) {
     const y = top + (hem - top) * i / rows, slit = y < o.slitTop ? nick(i) : 0;
@@ -638,16 +652,17 @@ function gridGeometry(pos: number[], cols: number, rows: number): THREE.BufferGe
 }
 /** A capelet over the shoulders: its neckline low on the shoulders round the base of the neck (so the neck shows) and
  *  dipping to a V where it opens down the front, the cloth running out over the shoulders and down over the tops of the
- *  arms. CAPE_ROWS + 1 rows of DRAPE_COLS, the neckline first; angles from the front round through +x. */
+ *  arms. CAPE_ROWS + 1 rows of DRAPE_COLS, the neckline first; angles from the front round through +x. `gap` is how
+ *  wide it stands open at the front (radians). */
 const CAPE_ROWS = 14, CAPE_GAP = 0.34;
-function capelet(tr: Ring[], fr: Frame, s: number, c: string): M {
+function capelet(tr: Ring[], fr: Frame, s: number, c: string, gap = CAPE_GAP): M {
   const pos: number[] = [], yN = 2.15, yH = 1.45;
   const half = fr.shoulderX + 0.3 * fr.arm + 0.08;
   const front = Math.max(ringAt(tr, 1.6).f, ringAt(tr, 1.75).f) + fr.bust * 0.95 + 0.1, back = Math.max(ringAt(tr, 1.6).b, ringAt(tr, 1.85).b) + 0.12;
   for (let i = 0; i <= CAPE_ROWS; i++) {
     const t = i / CAPE_ROWS, out = Math.sin(t * Math.PI / 2), drop = 1 - Math.cos(t * Math.PI / 2);
     for (let j = 0; j < DRAPE_COLS; j++) {
-      const th = CAPE_GAP / 2 + (Math.PI * 2 - CAPE_GAP) * j / (DRAPE_COLS - 1), cs = Math.cos(th), y0 = yN + 0.02 - 0.2 * Math.max(0, cs) ** 6;
+      const th = gap / 2 + (Math.PI * 2 - gap) * j / (DRAPE_COLS - 1), cs = Math.cos(th), y0 = yN + 0.02 - 0.2 * Math.max(0, cs) ** 6;
       const [nx, nz] = ringPoint(ringAt(tr, y0), th, 1.1);
       const fold = 1 + 0.05 * t * t * Math.sin(9 * th + 0.9), hx = Math.sin(th) * half * fold, hz = cs * (cs > 0 ? front : back) * fold;
       pos.push((nx + (hx - nx) * out) * s, (y0 - (y0 - yH) * drop) * s, (nz + (hz - nz) * out) * s);
@@ -774,13 +789,14 @@ function clothFace(G: Garment, up?: THREE.Vector3): ClothFace {
 }
 /** The underskirt's lace under a dagged gown: it hangs inside the cloth to the full hem and a scalloped edge beyond, so
  *  it shows between the dags (`cut(u)`: how far up the hem is cut at u), and peeps out along each edge of the slit
- *  from `slitT` down, turned out from the leg. */
-function lace(on: ClothFace, c: string, s: number, slitT: number, cut: (u: number) => number): M {
+ *  from `slitT` down, turned out from the leg. Where the cloth meets the floor the lace lies on it (`offFloor` lifts a
+ *  point that would pass under it). */
+function lace(on: ClothFace, c: string, s: number, slitT: number, cut: (u: number) => number, offFloor: (p: THREE.Vector3) => THREE.Vector3): M {
   const N = 128, pos: number[] = [], inside = -0.014 * s;
-  for (const t of [0.9, 0.94]) for (let i = 0; i <= N; i++) { const p = on(i / N, t, inside); pos.push(p.x, p.y, p.z); }
+  for (const t of [0.9, 0.94]) for (let i = 0; i <= N; i++) { const p = offFloor(on(i / N, t, inside)); pos.push(p.x, p.y, p.z); }
   for (const [ext, wave] of [[0, 0], [0.035, 0.5], [0.08, 1]]) for (let i = 0; i <= N; i++) {
     const u = i / N, h = on(u, 1, inside), along = on(u, 1).sub(on(u, 0.94)).normalize(), out = on(u, 1, 1).sub(on(u, 1)), ph = 24 * u * Math.PI * 2;
-    h.addScaledVector(along, cut(u) + (ext - wave * 0.03 * Math.abs(Math.sin(ph * 1.5))) * s).addScaledVector(out, wave * 0.035 * s * Math.sin(ph));
+    offFloor(h.addScaledVector(along, cut(u) + (ext - wave * 0.03 * Math.abs(Math.sin(ph * 1.5))) * s).addScaledVector(out, wave * 0.035 * s * Math.sin(ph)));
     pos.push(h.x, h.y, h.z);
   }
   const hem = sm(gridGeometry(pos, N + 1, 4), c, true);
@@ -788,7 +804,7 @@ function lace(on: ClothFace, c: string, s: number, slitT: number, cut: (u: numbe
     const rows = 40, sp: number[] = [], inU = u ? 0.975 : 0.025;
     for (const [k, lift] of [[0, 0], [1, 0], [1.9, 0.5], [2.6, 1]]) for (let i = 0; i <= rows; i++) {
       const t = slitT + (1 - slitT) * i / rows, a = on(inU, t, inside), e = on(u, t, inside), across = e.clone().sub(a).normalize(), out = on(u, t, 1).sub(on(u, t)), fade = Math.min(1, i / 4);
-      const p = a.lerp(e, Math.min(1, k)).addScaledVector(across, Math.max(0, k - 1) * 0.045 * s * fade).addScaledVector(out, lift * (0.035 + 0.012 * Math.sin(i * 2.1)) * s * fade);
+      const p = offFloor(a.lerp(e, Math.min(1, k)).addScaledVector(across, Math.max(0, k - 1) * 0.045 * s * fade).addScaledVector(out, lift * (0.035 + 0.012 * Math.sin(i * 2.1)) * s * fade));
       sp.push(p.x, p.y, p.z);
     }
     hem.add(sm(gridGeometry(sp, rows + 1, 3), c, true));
@@ -835,12 +851,26 @@ function vine(E: ReturnType<typeof embroider>, a: [number, number], b: [number, 
     E.stem(curl, 0.013 * s);
   }
 }
+/** A skirt hung from a corset's foot leaves it downward all the way round: where a hip thrown out to the side has
+ *  turned its first rows up past the foot (a flange standing beside the corset), they are brought down to fall away
+ *  from it, each row at least a little below the one above along the skirt's own way down. */
+function settleTop(G: Garment): void {
+  const p = G.mesh.geometry.attributes.position as THREE.BufferAttribute, a = new THREE.Vector3(), b = new THREE.Vector3(), down = new THREE.Vector3(), ROWS = 6;
+  for (let j = 0; j < G.cols; j++) { down.add(a.fromBufferAttribute(p, ROWS * G.cols + j)).sub(b.fromBufferAttribute(p, j)); }
+  down.normalize();
+  for (let j = 0; j < G.cols; j++) for (let i = 1; i < ROWS; i++) {
+    const k = i * G.cols + j, d = a.fromBufferAttribute(p, k).sub(b.fromBufferAttribute(p, k - G.cols)).dot(down);
+    if (d < 0.012) { a.fromBufferAttribute(p, k).addScaledVector(down, 0.012 - d); p.setXYZ(k, a.x, a.y, a.z); }
+  }
+  p.needsUpdate = true; G.mesh.geometry.computeVertexNormals();
+}
 /** The belt a corseted gown's skirt hangs from: leather along the top of the hung cloth, its buckle at the front (`uFront`
  *  on the cloth) with the strap's end hanging from it, and the corset's vials on thongs at the left hip. */
 function corsetBelt(on: ClothFace, parent: THREE.Object3D, s: number, o: NonNullable<HeroFigure['corset']>, uFront: number): void {
   const dark = tone(o.color, '#000000', 0.32), bc = o.buckle ?? '#9a9ea6', N = 64, pos: number[] = [], Z = new THREE.Vector3(0, 0, 1);
-  for (const [t, off] of [[0, 0.004], [0.004, 0.03], [0.03, 0.034], [0.034, 0.008]]) for (let i = 0; i <= N; i++) { const p = on(i / N, t, off * s); pos.push(p.x, p.y, p.z); }
-  parent.add(sm(gridGeometry(pos, N + 1, 3), dark, true));
+  // (it is one loop: it runs on from the cloth's last column to its first, across where the skirt's two edges part below it)
+  for (const [t, off] of [[0, 0.004], [0.004, 0.03], [0.03, 0.034], [0.034, 0.008]]) for (let i = 0; i <= N + 1; i++) { const p = on((i % (N + 1)) / N, t, off * s); pos.push(p.x, p.y, p.z); }
+  parent.add(sm(gridGeometry(pos, N + 2, 3), dark, true));
   // (a piece set on the cloth at [u, t]: its face along the cloth's normal there)
   const set = (u: number, t: number, off: number) => { const g = new THREE.Group(); g.position.copy(on(u, t, off * s)); g.quaternion.setFromUnitVectors(Z, on(u, t, 1).sub(on(u, t))); parent.add(g); return g; };
   set(uFront, 0.017, 0.045).add(box(0.15 * s, 0.14 * s, 0.022 * s, bc), box(0.095 * s, 0.09 * s, 0.026 * s, dark), at(box(0.1 * s, 0.018 * s, 0.03 * s, bc), -0.015 * s, 0, 0.004 * s));
@@ -1193,18 +1223,24 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
   };
   if (f.corset && gown) {
     const C = f.corset.color, dark = tone(C, '#000000', 0.32), bc = f.corset.buckle ?? '#9a9ea6', thick = 0.022, lo = 0.5, hi = fr.bust ? Math.min(1.3, 1.53 - 0.85 * fr.bust) : 1.3, under = fr.bust ? 1.53 - 1.22 * fr.bust : hi;
-    // a band of leather round the torso between two heights, `out` proud of the bodice (it swings with the bust where the bodice does)
-    const leather = (y0: number, y1: number, rows: number, out: number, c: string) => {
-      const seg = 80, pos: number[] = [], idx: number[] = [], jig: number[] = [];
-      for (let i = 0; i <= rows; i++) for (let j = 0; j < seg; j++) { const th = (j / seg) * Math.PI * 2, y = y0 + (y1 - y0) * i / rows, q = offBodice(th, y, out), [x, z] = ringPoint(ringAt(tr, y), th); pos.push(q.x, q.y, q.z); if (bustJig) jig.push(bustJig([x, y, z]) * s); }
-      for (let i = 0; i < rows; i++) for (let j = 0; j < seg; j++) { const a = i * seg + j, b = i * seg + (j + 1) % seg; idx.push(a, b, a + seg, b, b + seg, a + seg); }
+    // its top edge: level at `hi` round the ribs and the back, and under each breast cut down to just below where the
+    // bust leaves the ribs, so the leather lies on the plain of the ribs all the way up and its edge runs clean under
+    // the bust (the edge's height at each of SEG angles round the torso, eased up to the level over EASE of them)
+    const SEG = 80, onBust = (th: number, y: number) => { const [x, z] = ringPoint(ringAt(tr, y), th); return bustWarp([x, y, z])[2] > z + 1e-6; };
+    let tops: number[] = []; const EASE = 8; for (let j = 0; j < SEG; j++) { let y = hi; while (y > under - 0.02 && [-0.1, -0.05, 0, 0.05, 0.1].some((d) => onBust((j / SEG) * Math.PI * 2 + d, y))) y -= 0.01; tops.push(y < hi ? y - 0.025 : y); }
+    tops = tops.map((y, j) => { for (let d = -EASE; d <= EASE; d++) { const low = tops[(j + d + SEG) % SEG], k = Math.abs(d) / EASE; if (low < hi) y = Math.min(y, low + (hi - low) * k * k * (3 - 2 * k)); } return y; });
+    const topAt = (th: number) => { const a = ((th / (Math.PI * 2)) % 1 + 1) % 1 * SEG, j = Math.floor(a); return tops[j % SEG] + (tops[(j + 1) % SEG] - tops[j % SEG]) * (a - j); };
+    // a band of leather round the torso from a height up to its top edge, `out` proud of the bodice
+    const leather = (y0: number, y1: (th: number) => number, rows: number, out: number, c: string) => {
+      const pos: number[] = [], idx: number[] = [];
+      for (let i = 0; i <= rows; i++) for (let j = 0; j < SEG; j++) { const th = (j / SEG) * Math.PI * 2, q = offBodice(th, y0 + (y1(th) - y0) * i / rows, out); pos.push(q.x, q.y, q.z); }
+      for (let i = 0; i < rows; i++) for (let j = 0; j < SEG; j++) { const a = i * SEG + j, b = i * SEG + (j + 1) % SEG; idx.push(a, b, a + SEG, b, b + SEG, a + SEG); }
       const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setIndex(idx); g.computeVertexNormals();
-      if (bustJig) g.setAttribute('jig', new THREE.Float32BufferAttribute(jig, 1));
       return sm(g, c);
     };
-    const shell = leather(lo, hi, 32, thick, C); shell.userData.skin = true; up.add(shell);
-    up.add(leather(hi - 0.04, hi, 2, thick + 0.012, dark), leather(hi, hi + 0.004, 1, thick * 0.5 + 0.006, dark)); // its top edge, rolled
-    for (const th of [-2.6, -1.9, -1.2, 1.2, 1.9, 2.6]) { const pts: THREE.Vector3[] = []; for (let i = 0; i <= 6; i++) pts.push(offBodice(th, lo + 0.02 + (hi - lo - 0.07) * i / 6, thick + 0.004)); up.add(cord(pts, 0.012 * s, dark)); } // boning
+    const shell = leather(lo, topAt, 32, thick, C); shell.userData.skin = true; up.add(shell);
+    { const roll: THREE.Vector3[] = []; for (let j = 0; j < SEG; j++) { const th = (j / SEG) * Math.PI * 2; roll.push(offBodice(th, topAt(th), thick * 0.6)); } up.add(sm(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(roll, true), 96, 0.02 * s, 5, true), dark)); } // its top edge, rolled
+    for (const th of [-2.6, -1.9, -1.2, 1.2, 1.9, 2.6]) { const pts: THREE.Vector3[] = []; for (let i = 0; i <= 6; i++) pts.push(offBodice(th, lo + 0.02 + (topAt(th) - lo - 0.07) * i / 6, thick + 0.004)); up.add(cord(pts, 0.012 * s, dark)); } // boning
     const n = 7, y0 = CORSET_FOOT + 0.03, step = (under - 0.03 - y0) / n;
     up.add(...lacing((sd, i) => offBodice(sd * 0.22, y0 + i * step, thick + 0.006), (i) => offBodice(0, y0 + (i + 0.5) * step, thick + 0.008), n, 0.012 * s, f.corset.lacing ?? '#b08a4a'));
     for (const y of [CORSET_FOOT + 0.1, CORSET_FOOT + 0.25]) { // the straps, round the back from one side of the lacing to the other, each with its buckle
@@ -1355,6 +1391,14 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
     const k = bodyCut(tr, pelvisRings(fr), s, f.skirt, { top: 0.3, hem: -2.4, rows: 20, ease: [1.03, 1.06], flare: 0.42, flareFrom: -0.15, folds: 7, amp: 0.08, jag: 0.05, seed: 0.4, seat: seatBump });
     wear('skirt', k, pel, DRAPE_COLS, 21, { closed: true, covers: ['torso', 'pelvis', ...LEGS, ...FEET], outside: LOWER_ARMS, layer: 0, clear: 0.04 * s, spread: 6, hang: 0.85 });
   }
+  // the floor under the figure as it is when its cloth has hung (under the soles of one standing, and where one laid
+  // out will lie), for trims made on the hung cloth: the way up off it in `parent`'s frame, and how high over it a
+  // point of that frame stands
+  const floorUnder = (parent: THREE.Object3D) => {
+    const n = laid?.n ?? Y_AXIS, w3 = new THREE.Vector3();
+    let level = laid ? laid.low - laid.lift : Infinity; if (!laid) for (const m of soles) level = Math.min(level, new THREE.Box3().setFromObject(m).min.y);
+    return { n, rise: n.clone().transformDirection(parent.matrixWorld.clone().invert()), height: (q: THREE.Vector3) => w3.copy(q).applyMatrix4(parent.matrixWorld).dot(n) - level };
+  };
   if (gown) {
     // cut on the hips (it turns with them), hung on the posed legs: a step forward flares the hem over the knee, and the
     // leg in the slit shows through it; the trims and the underskirt's froth are laid on the hung cloth
@@ -1366,9 +1410,11 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
     const g = sheath(line.map(([y, r]) => [y * s, r * s] as [number, number]), f.skirt!, { zs: 0.68, slitAt: LX * 0.42, slitTop: 2.85 * GK * s, slitW: 1.0, flareFrom: 1.3 * GK * s, folds: 9, amp: 0.1, train: 0.35, fit: f.corset ? { at: fitAt, over: 0.4 * s } : undefined, dag: f.dagged ? 0.2 * s : undefined });
     g.mesh.position.y = -HIP * s;
     // (cut to the corset's foot, the top stays on it: it does not ride out over the waist as a loose waistband does)
-    wear('gown', g.mesh, pel, 65, 45, { closed: false, covers: ['torso', 'pelvis', ...LEGS, ...FEET], outside: LOWER_ARMS, layer: 0, clear: 0.03 * s, spread: 5, hang: 0.55, anchored: f.corset ? 0.01 * s : undefined, after: (G) => {
+    wear('gown', g.mesh, pel, 65, 45, { closed: false, covers: ['torso', 'pelvis', ...LEGS, ...FEET], outside: LOWER_ARMS, layer: 0, clear: 0.03 * s, spread: 5, hang: 0.55, anchored: f.corset ? 0.01 * s : undefined, cutTop: !!f.corset, after: (G) => {
+      if (f.corset) settleTop(G);
       const on = clothFace(G, laid?.n.clone().transformDirection(pel.matrixWorld.clone().invert()));
-      pel.add(f.dagged ? lace(on, f.underskirt!, s, tAt(2.75 * GK), g.cut) : frill(G, f.underskirt!, s));
+      const F = floorUnder(pel), offFloor = (q: THREE.Vector3) => { const h = F.height(q) - 0.012 * s; return h < 0 ? q.addScaledVector(F.rise, -h) : q; };
+      pel.add(f.dagged ? lace(on, f.underskirt!, s, tAt(2.75 * GK), g.cut, offFloor) : frill(G, f.underskirt!, s));
       if (f.corset) corsetBelt(on, pel, s, f.corset, (2 * Math.PI - LX * 0.42) / (2 * Math.PI));
       if (f.vines) {
         const E = embroider(on, 0.008 * s), hemT = f.dagged ? 0.9 : 0.955;
@@ -1390,7 +1436,7 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
       const belt: THREE.Vector3[] = []; for (let i = 0; i <= 32; i++) belt.push(clothPoint(G, i / 32, tAt(3.72 * GK), 0.015 * s));
       pel.add(tube(belt, 0.022 * s, f.gownTrim, false));
     } });
-    if (f.gownTrim) { const r = ringAt(tr, 1.57); up.add(sm(loftGeometry([{ ...r, y: 1.55 }, { ...r, y: 1.585 }], s, { seg: 80, k: 1.015, rows: 1, warp: bustWarp, jig: bustJig }), f.gownTrim)); } // the neckline's edge
+    if (f.gownTrim) { const r = ringAt(tr, 1.57); up.add(sm(loftGeometry([{ ...r, y: 1.55 }, { ...r, y: 1.585 }], s, { seg: 80, k: 1.015, rows: 1, warp: bustWarp, jig: bustJig, bump: f.vines ? chestBump : undefined }), f.gownTrim)); } // the neckline's edge (on the finer dress it stands off the shoulder blades as it does off the rest of the skin)
   }
 
 
@@ -1797,31 +1843,67 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
       up.add(tube(hemLine, 0.03 * s, f.cloakTrim));
       for (const u of [0, 1]) { const pts: THREE.Vector3[] = []; for (let i = 0; i <= 16; i++) pts.push(clothPoint(G, u, 0.03 + 0.95 * i / 16, 0.012 * s)); up.add(tube(pts, 0.035 * s, f.cloakTrim)); }
     };
-    // (between full sleeves it is cut narrower at the top, to hang behind them and not through their frills)
-    if (gown) { const c = drape(1.0 * s, 1.35 * s, 3.9 * s, f.cloak, { folds: 7, amp: 0.12, jag, seed: 0.3, gap: Math.PI * (f.fullSleeves ? 1.4 : 1.25), rows: 24 }); c.scale.z = 0.5; c.position.set(0, -0.55 * s, -0.2 * s);
+    // the embroidery of a gown's cloak: a vine down each front edge and along above the hem
+    const cloakVines = (G: Garment) => {
+      if (!f.vines) return;
+      const E = embroider(clothFace(G, laid?.n.clone().transformDirection(up.matrixWorld.clone().invert())), 0.008 * s);
+      for (const u of [0.035, 0.965]) vine(E, [u, 0.05], [u, 0.86], s);
+      vine(E, [0.07, 0.9], [0.93, 0.9], s);
+      up.add(E.mesh(f.vines));
+    };
+    // a round brooch pinned on hung cloth at [u, t], its face along the cloth's: it stands clear of all the cloth under
+    // it (the cloth's own curve there, and any fold of it lying over the place on a body laid out), and clear of the floor
+    const pin = (G: Garment, on: ClothFace, u: number, t: number) => {
+      const b = new THREE.Group(), c0 = on(u, t), n = on(u, t, 1).sub(c0), P = G.mesh.geometry.getAttribute('position') as THREE.BufferAttribute, d = new THREE.Vector3(); let proud = 0;
+      for (let i = 0; i < P.count; i++) { const h = d.fromBufferAttribute(P, i).sub(c0).dot(n); if (h > proud && h < 0.12 * s && d.lengthSq() - h * h < (0.16 * s) ** 2) proud = h; }
+      b.position.copy(c0).addScaledVector(n, proud + 0.03 * s); b.quaternion.setFromUnitVectors(Y_AXIS, n);
+      if (laid) { const F = floorUnder(up), k = n.clone().transformDirection(up.matrixWorld).dot(F.n), h = F.height(b.position) - (0.085 * Math.sqrt(1 - k * k) + 0.03 * Math.abs(k) + 0.01) * s; if (h < 0) b.position.addScaledVector(F.rise, -h); }
+      b.add(cyl(0.07 * s, 0.07 * s, 0.03 * s, f.brooch!, 12), at(sph(0.038 * s, tone(f.brooch!, '#ffffff', 0.3), 8, 6), 0, 0.015 * s, 0), sm(new THREE.TorusGeometry(0.07 * s, 0.013 * s, 5, 14).rotateX(Math.PI / 2), tone(f.brooch!, '#000000', 0.25))); up.add(b);
+      return b.position;
+    };
+    // (on a gown it hangs from the back below the bare shoulders, a brooch on each top corner where the cloth shows
+    // beside the arm; between full sleeves it is cut narrower at the top, to hang behind them and not through their
+    // frills)
+    if (gown && !f.shoulderCloak) { const c = drape(1.0 * s, 1.35 * s, 3.9 * s, f.cloak, { folds: 7, amp: 0.12, jag, seed: 0.3, gap: Math.PI * (f.fullSleeves ? 1.4 : 1.25), rows: 24 }); c.scale.z = 0.5; c.position.set(0, -0.55 * s, -0.2 * s);
       wear('cloak', c, up, DRAPE_COLS, 25, { closed: false, axis: [0, -0.2 * s], covers: [...under, 'gown', 'culet', 'tassetR', 'tassetL'], outside: ['shield'], layer: 2, anchored: 0.15 * s, clear: 0.05 * s, spread: 6, hang: 0.9, after: (G) => {
-        // (a brooch pinning each top corner, its face along the cloth's; and the embroidery: a vine down each front edge
-        // and along above the hem)
-        const on = clothFace(G, laid?.n.clone().transformDirection(up.matrixWorld.clone().invert()));
-        if (f.brooch) for (const u of [0.035, 0.965]) {
-          const b = new THREE.Group(); b.position.copy(on(u, 0.04, 0.02 * s)); b.quaternion.setFromUnitVectors(Y_AXIS, on(u, 0.04, 1).sub(on(u, 0.04)));
-          b.add(cyl(0.07 * s, 0.07 * s, 0.03 * s, f.brooch, 12), at(sph(0.038 * s, tone(f.brooch, '#ffffff', 0.3), 8, 6), 0, 0.015 * s, 0), sm(new THREE.TorusGeometry(0.07 * s, 0.013 * s, 5, 14).rotateX(Math.PI / 2), tone(f.brooch, '#000000', 0.25))); up.add(b);
-        }
-        if (!f.vines) return;
-        const E = embroider(on, 0.008 * s);
-        for (const u of [0.035, 0.965]) vine(E, [u, 0.05], [u, 0.86], s);
-        vine(E, [0.07, 0.9], [0.93, 0.9], s);
-        up.add(E.mesh(f.vines));
+        if (f.brooch) { const on = clothFace(G, laid?.n.clone().transformDirection(up.matrixWorld.clone().invert())); for (const u of [0.07, 0.93]) pin(G, on, u, 0.09); }
+        cloakVines(G);
       } }); }
-    else {
+    // a gown's cloak worn on the shoulders: the brooches on the front corners of its mantle, and the cord between them
+    const GOWN_CAPE_GAP = 1.5;
+    const pinned = (G: Garment) => {
+      const on = clothFace(G, laid?.n.clone().transformDirection(up.matrixWorld.clone().invert()));
+      if (f.vines) { const E = embroider(on, 0.008 * s); vine(E, [0.05, 0.86], [0.95, 0.86], s); up.add(E.mesh(f.vines)); }
+      if (!f.brooch) return;
+      // (on the front of each shoulder, facing forward; on a body laid out up by the neckline, where the cloth stays on
+      // the body)
+      const pinT = laid ? 0.25 : 0.45, [bR, bL] = [0.97, 0.03].map((u) => pin(G, on, u, pinT));
+      // (the cord: from each brooch over the cloth's edge beside it, and from one edge to the other sagging a little,
+      // lying on the chest where the chest stands forward of it; on a body laid out the cloth has fallen open off the
+      // shoulders, and no cord is drawn across it)
+      if (laid) return;
+      const eR = on(1, pinT, 0.03 * s), eL = on(0, pinT, 0.03 * s), line: THREE.Vector3[] = [bR];
+      for (let i = 0; i <= 16; i++) {
+        const k = i / 16, q = eR.clone().lerp(eL, k); q.y -= 0.07 * s * Math.sin(Math.PI * k);
+        const x = q.x / s, y = q.y / s, r = ringAt(tr, y), z = (bustWarp([x, y, r.f * Math.sqrt(Math.max(0, 1 - (x / r.w) ** 2))])[2] + 0.055) * s;
+        if (Math.abs(x) < r.w) q.z = Math.max(q.z, z); line.push(q);
+      }
+      line.push(bL);
+      up.add(tube(line, 0.008 * s, tone(f.brooch, '#000000', 0.15)));
+    };
+    if (!gown || f.shoulderCloak) {
       const rt = ringAt(tr, 2.0), rTop = rt.w * 1.05 + 0.06, dz = -0.05, top = 2.02, hem = -2.45;
       const c = drape(rTop * s, rTop * 1.6 * s, (top - hem) * s, f.cloak, { folds: 6, amp: 0.12, jag, seed: 0.3, gap: Math.PI * 1.15, rows: 26, zs: [(rt.b + 0.06 + dz) / rTop, 0.55] });
       c.position.set(0, (top + hem) / 2 * s, dz * s);
       // (over the plates hung from the waist too, the culet and the tassets: on a body fallen face down they lie on the seat
       // and on the floor beside the hips, where the cloak falls over them)
-      wear('cloak', c, up, DRAPE_COLS, 27, { closed: false, axis: [0, dz * s], covers: [...under, 'hem', 'mail', 'tails', 'skirt', 'culet', 'tassetR', 'tassetL'], outside: ['shield'], layer: 2, anchored: 0.15 * s, clear: 0.05 * s, spread: 6, hang: 0.9, after: edges });
+      wear('cloak', c, up, DRAPE_COLS, 27, { closed: false, axis: [0, dz * s], covers: [...under, 'hem', 'mail', 'tails', 'skirt', ...(gown ? ['gown'] : []), 'culet', 'tassetR', 'tassetL'], outside: ['shield'], layer: 2, anchored: 0.15 * s, clear: 0.05 * s, spread: 6, hang: 0.9, after: gown ? cloakVines : edges });
       // the capelet over it: clasped at the top of its opening, a folded hood resting on it behind
-      wear('mantle', capelet(tr, fr, s, f.cloak), up, DRAPE_COLS, CAPE_ROWS + 1, { closed: false, covers: ['torso', 'upperArmR', 'upperArmL', 'cloak', 'mail', 'stowed'], outside: [...LOWER_ARMS, 'shield'], holds: ['upperArmR', 'upperArmL'], layer: 3, anchored: 0, clear: 0.04 * s, spread: 6, hang: 0.5, after: (G) => {
+      // (a gown's is pinned on the shoulders and stands wide open at the front, over the bare collarbones and the
+      // bust: its top corners come forward over the shoulder caps, a round brooch on each facing forward, a fine cord
+      // from one to the other across the chest)
+      wear('mantle', capelet(tr, fr, s, f.cloak, gown ? GOWN_CAPE_GAP : undefined), up, DRAPE_COLS, CAPE_ROWS + 1, { closed: false, covers: ['torso', 'upperArmR', 'upperArmL', 'cloak', 'mail', 'stowed'], outside: [...LOWER_ARMS, 'shield'], holds: ['upperArmR', 'upperArmL'], layer: 3, anchored: 0, clear: 0.04 * s, spread: 6, hang: 0.5, after: (G) => {
+        if (gown) { pinned(G); return; }
         if (f.cloakLaurel) laurel(G, (k) => [0.05 + 0.9 * k, 0.9], [0, -0.03], 38, f.cloakLaurel);
         if (f.clasps && f.claspMark === 'tree') for (const u of [0.05, 0.95]) {
           // a round brooch on the front of each shoulder, where the cloak is pinned: a disc lying on the cloth with a raised

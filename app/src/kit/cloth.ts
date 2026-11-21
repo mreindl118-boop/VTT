@@ -34,6 +34,9 @@ export interface Garment {
    *  where it hangs from eases out over what comes up against it there, where a waistband rides out freely over a belly
    *  bent down onto it. */
   anchored?: number;
+  /** Cut off at its top where something fitted over the trunk ends (a skirt hung from a corset's foot): the trunk
+   *  just above where it hangs from is none of its business, and never turns the cloth below it outward. */
+  cutTop?: boolean;
   /** Limbs among those it covers that it hangs on from its top (a capelet on the tops of the arms): on a body laid out
    *  it still goes over them where they are flung up past where it hangs from, as other limbs leave it. */
   holds?: string[];
@@ -283,9 +286,9 @@ function hangOne(g: Garment, w: DrapeWorld, hung: Map<string, THREE.Vector3[]>, 
         // skirt has passed over), and what lies outside it is out of the way of the cloth below
         if (dy > clear * 0.25) {
           if (keep[j + 2] < 0) continue;
-          // (and the trunk just above where the strip hangs from, no further out than its top, is under no cloth of
-          // this strip's at all: it never turns the cloth far below it out)
-          let inside = keep[j + 2] === 2 && keep[j + 1] > PY[0] && keep[j] < PX[0] + clear * 0.5;
+          // (and under a garment cut off at its top, the trunk just above where the strip hangs from, no further out
+          // than its top, is under no cloth of this strip's at all: it never turns the cloth far below it out)
+          let inside = !!g.cutTop && keep[j + 2] === 2 && keep[j + 1] > PY[0] && keep[j] < PX[0] + clear * 0.5;
           for (let m = i; m >= 1; m--) { const y0 = PY[m - 1], y1 = PY[m]; if ((keep[j + 1] - y0) * (keep[j + 1] - y1) <= 0) { const t = Math.abs(y1 - y0) > 1e-9 ? (keep[j + 1] - y0) / (y1 - y0) : 0; inside = keep[j] < PX[m - 1] + (PX[m] - PX[m - 1]) * t + clear * 0.5; break; } }
           if (inside) continue;
         }
