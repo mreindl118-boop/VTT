@@ -3,10 +3,12 @@
 // it was, the harness stays as clean as plain plate in every frame it is shown in (each stance, each named pose, each
 // at-ease variant, at rest), a fist rested on the hip lies on the girdle and not in it, and the light is see-through,
 // faint, never flat to the eye, clear of the body and of a weapon slung on the back, and gone on a fallen body; the halo
-// is one ring set on the head.
+// is one ring set on the head. Close up in an easy stance: the coat skirt gives way to a slung weapon in one dent and
+// is vented with a clean slit, the knee cops lie on the thighs, the cuffs stand clear of the hands, and the wings stand
+// squarer to the figure than the chest.
 import { describe, expect, it } from 'vitest';
 import * as THREE from 'three';
-import { AT_EASE, heroFigure, POSES, type HeroFigure } from '../app/src/kit/heroes';
+import { AT_EASE, giveWay, heroFigure, POSES, type HeroFigure } from '../app/src/kit/heroes';
 import { describeClips, findClips } from '../app/src/kit/clipcheck';
 import { describePokes, findPokes } from '../app/src/kit/clothcheck';
 
@@ -17,6 +19,7 @@ const garments = (g: THREE.Object3D) => meshes(g).map((m) => m.userData.garment 
 /** The meshes of light: they brighten what lies behind them and never darken it, and many of them over one another never burn out to white. */
 const lights = (g: THREE.Object3D) => meshes(g).filter((m) => { const mt = m.material as THREE.Material; return mt.blending === THREE.CustomBlending && mt.blendSrc === THREE.OneFactor && mt.blendDst === THREE.OneMinusSrcColorFactor && !!m.geometry.getAttribute('color'); });
 const wingsOf = (g: THREE.Object3D) => lights(g).filter((m) => m.name === 'spiritWing');
+const a0 = (g: THREE.Object3D) => wingsOf(g)[0];
 /** The vertices of a mesh of light that lie on a lit strip (its middle line glows), in a joint's frame. */
 function litPoints(m: THREE.Mesh, frame: THREE.Object3D): THREE.Vector3[] {
   const col = m.geometry.getAttribute('color'), lit = (i: number) => { const j = 3 * Math.floor(i / 3) + 1; return col.getX(j) + col.getY(j) + col.getZ(j) > 0.02; };
@@ -43,6 +46,13 @@ function lightCrossings(g: THREE.Object3D): number {
     const lb = new THREE.Box3().setFromPoints(lt);
     for (const sd of solid) if (sd.box.intersectsBox(lb)) for (const { t, box } of sd.tris) if (box.intersectsBox(lb) && [0, 1, 2].some((k) => crosses(lt[k], lt[(k + 1) % 3], t) || crosses(t[k], t[(k + 1) % 3], lt))) n++;
   }
+  return n;
+}
+/** How many pairs of triangles, one of each set of meshes, pass through each other (an edge of either through the other). */
+function crossings(as: THREE.Mesh[], bs: THREE.Mesh[]): number {
+  const tb = bs.flatMap(triangles).map((t) => ({ t, box: new THREE.Box3().setFromPoints(t) }));
+  let n = 0;
+  for (const ta of as.flatMap(triangles)) { const ba = new THREE.Box3().setFromPoints(ta); for (const { t, box } of tb) if (box.intersectsBox(ba) && [0, 1, 2].some((k) => crosses(ta[k], ta[(k + 1) % 3], t) || crosses(t[k], t[(k + 1) % 3], ta))) n++; }
   return n;
 }
 const joint = (g: THREE.Object3D, name: string) => g.getObjectByName(name)!;
@@ -188,6 +198,87 @@ describe('the harness\'s finer cut', () => {
   });
 });
 
+describe('the harness in an easy stance, close up', () => {
+  // (a hip-shot stance turns the hips under a weapon slung across the back: its haft lies on the coat skirt)
+  const SHOT = { pelvis: [0, 0.1, -0.15], spine: [0, -0.3, 0.2], hipR: [-0.15, 0.3, 0.3], kneeR: 0.4 } as HeroFigure['pose'];
+  const C = 57, mid = (C - 1) / 2;
+
+  it('lets the coat skirt give way to a two-handed weapon slung on the back, and vents it with a clean slit', { timeout: 240000 }, () => {
+    for (const frame of ['feminine', 'masculine'] as const) for (const weapon of ['axe', 'spear', 'sword'] as const) for (const height of [1, 1.1]) {
+      const g = heroFigure({ ...HARNESS, frame, weapon, pose: SHOT, height }, 'medium', 'rest'), all = meshes(g), tag = `${frame} ${weapon} ${height}`;
+      const coat = all.filter((m) => m.userData.garment === 'coat'), welts = all.filter((m) => m.userData.cloth === 'coat'), slung = meshes(g.getObjectByName('stowed')!);
+      expect(coat.length, tag).toBe(1); expect(welts.length, tag).toBeGreaterThan(3); expect(slung.length, tag).toBeGreaterThan(0);
+      // no triangle of the weapon passes through one of the coat or of its welts, nor the other way about
+      expect(crossings(slung, [...coat, ...welts]), tag).toBe(0);
+      const pos = coat[0].geometry.getAttribute('position'), ix = coat[0].geometry.getIndex()!, R = pos.count / C, P = (i: number, j: number) => new THREE.Vector3().fromBufferAttribute(pos, i * C + j);
+      // across the back the hem runs level from each column to the next, the vent's two edges too: no torn teeth beside it
+      for (let j = mid - 14; j < mid + 14; j++) expect(Math.abs(P(R - 1, j).y - P(R - 1, j + 1).y), `${tag} hem ${j}`).toBeLessThan(0.12);
+      // the vent: whole above the middle of the skirt, cut from there to the hem, its two edges close by each other
+      const joined = (i: number, j: number) => { const a = i * C + j, b = i * C + j + 1; for (let k = 0; k < ix.count; k += 3) { const t = [ix.getX(k), ix.getX(k + 1), ix.getX(k + 2)]; if (t.includes(a) && t.includes(b)) return true; } return false; };
+      for (const j of [mid - 1, mid]) { expect(joined(1, j), tag).toBe(true); expect(joined(R - 2, j), tag).toBe(false); expect(joined(R - 1, j), tag).toBe(false); }
+      expect(joined(R - 1, mid - 2), tag).toBe(true); expect(joined(R - 1, mid + 1), tag).toBe(true);
+      const slit = P(R - 1, mid - 1).distanceTo(P(R - 1, mid + 1));
+      expect(slit, tag).toBeGreaterThan(0.01); expect(slit, tag).toBeLessThan(0.15); // (a slit, not a gap)
+    }
+  });
+
+  it('cloth gives way to gear in one smooth dent: inward only, eased off about it, and never crossed', () => {
+    // a tube of cloth about its axis, and a bar laid slantwise through its wall
+    const rows = 24, tube = () => {
+      const pts: number[] = [], index: number[] = [];
+      for (let i = 0; i < rows; i++) for (let j = 0; j < C; j++) { const a = 2 * Math.PI * j / C; pts.push(Math.sin(a), -i * 0.06, Math.cos(a)); }
+      for (let i = 0; i < rows - 1; i++) for (let j = 0; j < C - 1; j++) { const a = i * C + j; index.push(a, a + C, a + 1, a + 1, a + C, a + C + 1); }
+      const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3)); geo.setIndex(index);
+      return new THREE.Mesh(geo, new THREE.MeshBasicMaterial());
+    };
+    const cloth = tube(), before = tube(), bar = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 2.4, 8), new THREE.MeshBasicMaterial());
+    bar.position.set(0.1, -0.7, 0.97); bar.rotation.set(0.12, 0, 0.5);
+    for (const m of [cloth, before, bar]) m.updateMatrixWorld(true);
+    expect(crossings([bar], [before])).toBeGreaterThan(10);
+    const clear = 0.02, reach = 0.3;
+    giveWay(cloth, C, bar, clear, reach);
+    expect(crossings([bar], [cloth])).toBe(0);
+    const pos = cloth.geometry.getAttribute('position'), was = before.geometry.getAttribute('position'), P = (a: THREE.BufferAttribute | THREE.InterleavedBufferAttribute, i: number) => new THREE.Vector3().fromBufferAttribute(a, i);
+    const dent = [...Array(pos.count).keys()].map((i) => 1 - Math.hypot(pos.getX(i), pos.getZ(i))), deepest = Math.max(...dent);
+    expect(deepest).toBeGreaterThan(0.03); expect(deepest).toBeLessThan(0.3);
+    const bt = triangles(bar).map((t) => new THREE.Triangle(t[0], t[1], t[2])), off = (p: THREE.Vector3) => Math.min(...bt.map((t) => t.closestPointToPoint(p, new THREE.Vector3()).distanceTo(p)));
+    for (let i = 0; i < pos.count; i++) {
+      // straight in toward the axis, never out, never up or down
+      expect(dent[i]).toBeGreaterThan(-1e-6); expect(pos.getY(i)).toBeCloseTo(was.getY(i), 6);
+      expect(Math.atan2(pos.getX(i), pos.getZ(i))).toBeCloseTo(Math.atan2(was.getX(i), was.getZ(i)), 5);
+      // clear of the bar, and left alone far from it
+      expect(off(P(pos, i)), `vertex ${i}`).toBeGreaterThan(0.9 * clear);
+      if (off(P(was, i)) > 2.5 * reach) expect(dent[i]).toBeLessThan(1e-6);
+      // one dent: no vertex stands far from its neighbours along the row or down the column
+      const r = Math.floor(i / C), c = i % C;
+      if (c < C - 1) expect(Math.abs(dent[i] - dent[i + 1]), `row ${r} col ${c}`).toBeLessThan(0.45 * deepest);
+      if (r < rows - 1) expect(Math.abs(dent[i] - dent[i + C]), `row ${r} col ${c}`).toBeLessThan(0.45 * deepest);
+    }
+    // cloth with no gear near it is left as it was
+    const apart = tube(); bar.position.set(3, 0, 3); bar.updateMatrixWorld(true); apart.updateMatrixWorld(true);
+    giveWay(apart, C, bar, clear, reach);
+    expect([...apart.geometry.getAttribute('position').array]).toEqual([...was.array]);
+  });
+
+  it('sets each knee cop on the thigh and each cuff clear of the hand, on both frames, at rest and in a fight', { timeout: 120000 }, () => {
+    for (const frame of ['feminine', 'masculine'] as const) for (const st of ['rest', 'battle'] as const) {
+      const g = heroFigure({ ...HARNESS, frame, weapon: 'axe' }, 'medium', st), all = meshes(g);
+      for (const side of ['L', 'R']) {
+        const knee = joint(g, 'knee' + side), hip = joint(g, 'hip' + side), wrist = joint(g, 'wrist' + side), elbow = joint(g, 'elbow' + side), tag = `${frame} ${st} ${side}`;
+        // the cop (the shell, its rim and its line, in a group of their own on the knee) lies on the thigh, not in it
+        const cop = all.filter((m) => m.parent !== knee && m.parent?.parent === knee && !m.parent!.name), thigh = hip.children.filter((c) => (c as THREE.Mesh).isMesh) as THREE.Mesh[];
+        expect(cop.length, tag).toBe(3); expect(thigh.length, tag).toBeGreaterThan(0);
+        expect(crossings(cop, thigh), tag).toBeLessThan(4);
+        // the hand (not what it holds) never passes through a line of the vambrace or of its cuff
+        const held = (m: THREE.Object3D) => { for (let p = m.parent; p; p = p.parent) if (p.name === 'hand' + side || p.name === 'stowed') return true; return false; };
+        const hand = meshes(wrist).filter((m) => !held(m)), lines = (elbow.children.filter((c) => (c as THREE.Mesh).isMesh) as THREE.Mesh[]).filter((m) => (m.material as THREE.MeshLambertMaterial).color.getHexString() === '9a9ea6');
+        expect(hand.length, tag).toBeGreaterThan(5); expect(lines.length, tag).toBe(3);
+        expect(crossings(hand, lines), tag).toBe(0);
+      }
+    }
+  });
+});
+
 describe('a halo and spectral wings of light', () => {
   const ANGEL: HeroFigure = { ...HARNESS, weapon: 'axe', halo: '#f3d98a', spiritWings: { color: '#ffe7a6' } };
 
@@ -260,7 +351,10 @@ describe('a halo and spectral wings of light', () => {
 
   it('the wings are alike on both sides, faint, and cupped: neither is one flat plane', () => {
     for (const st of ['rest', 'battle'] as const) {
-      const g = heroFigure(ANGEL, 'medium', st), chest = joint(g, 'chest'), [a, b] = wingsOf(g), pa = points([a], chest), pb = points([b], chest);
+      // (in the frame they are borne in, at their root between the shoulder blades: the chest's own in a fight)
+      const g = heroFigure(ANGEL, 'medium', st), root = joint(g, 'chest'), chest = a0(g).parent!, [a, b] = wingsOf(g), pa = points([a], chest), pb = points([b], chest);
+      expect(chest.parent).toBe(root); expect(chest.position.x).toBe(0);
+      if (st === 'battle') expect(chest.quaternion.angleTo(new THREE.Quaternion())).toBe(0);
       expect(pa.length).toBe(pb.length);
       for (const [i, p] of pa.entries()) expect(p.distanceTo(new THREE.Vector3(-pb[i].x, pb[i].y, pb[i].z)), st).toBeLessThan(1e-6);
       const col = a.geometry.getAttribute('color');
@@ -270,6 +364,23 @@ describe('a halo and spectral wings of light', () => {
       const plane = new THREE.Plane().setFromCoplanarPoints(far((p) => -p.y), far((p) => p.y), far((p) => Math.abs(p.x)));
       expect(Math.max(...lit.map((p) => Math.abs(plane.distanceToPoint(p)))), st).toBeGreaterThan(0.15);
     }
+  });
+
+  it('stand squarer to the figure than the chest out of a fight: they undo part of the trunk\'s turn, in any easy stance', () => {
+    const rear = (g: THREE.Object3D) => wingsOf(g).map((m) => Math.min(...litPoints(m, g).map((p) => p.z)));
+    for (const pose of [undefined, { spine: [0, 0.35, 0.12] }, { pelvis: [0, 0.1, -0.15], spine: [0, -0.3, 0.2] }] as HeroFigure['pose'][]) {
+      const g = heroFigure({ ...ANGEL, pose }, 'medium', 'rest'), chest = joint(g, 'chest'), pair = a0(g).parent!, tag = JSON.stringify(pose);
+      g.updateMatrixWorld(true);
+      const inv = g.getWorldQuaternion(new THREE.Quaternion()).invert(), turn = (o: THREE.Object3D) => inv.clone().multiply(o.getWorldQuaternion(new THREE.Quaternion())).angleTo(new THREE.Quaternion());
+      expect(turn(chest), tag).toBeGreaterThan(0.1);
+      expect(turn(pair), tag).toBeLessThan(0.75 * turn(chest));
+      // (so the one is swept back behind the other less than it would be borne stiffly on the chest)
+      const [a, b] = rear(g); pair.quaternion.identity(); const [a1, b1] = rear(g);
+      expect(Math.abs(a - b), tag).toBeLessThan(Math.abs(a1 - b1) - 0.2);
+    }
+    for (const pose of [undefined, { spine: [0, 0.35, 0.12] }] as HeroFigure['pose'][]) expect(lightCrossings(heroFigure({ ...ANGEL, pose }, 'medium', 'rest'))).toBe(0);
+    // in a fight they are spread with the chest, as they were
+    const f = heroFigure(ANGEL, 'medium', 'battle'); expect(a0(f).parent!.quaternion.angleTo(new THREE.Quaternion())).toBe(0);
   });
 
   it('pass through nothing solid: not the body, the armour, the hair or a weapon slung on the back', () => {
