@@ -252,6 +252,25 @@ export interface HeroFigure {
   weapon?: HeroWeapon;
   offhand?: { kind: HeroOffhand; color?: string; rim?: string; mark?: string };
   wings?: { color: string; opacity?: number; count?: 2 | 4 };
+  /** The wings' sheen: colours the clear membrane shifts through across each wing (an iridescence), over its own. */
+  wingSheen?: string[];
+  /** Wide-leg trousers (their colour): cut full from the hip and hanging straight, with a pressed crease down the front
+   *  and the back of each leg, flaring a little to a hem that falls over the boots; the seat in the same cloth. */
+  trousers?: string;
+  /** The coat's cut. 'frock': a tailored coat in place of the plain tails and lapels: its fronts fastened by one button at
+   *  the waist and cut away below it, skirts fitted on the hips and hanging close to mid-thigh, open at the front, with
+   *  flap pockets and a back vent; peaked lapels (in the coat's `lapel` colour) and a collar; turned-back cuffs. */
+  coatCut?: 'frock';
+  /** Embroidery on a frock coat (its thread's colour): a border and a vine on each lapel, a line round each cuff. */
+  coatEmbroidery?: string;
+  /** A crescent-moon pin on a frock coat's left lapel (its colour). */
+  lapelPin?: string;
+  /** A waistcoat under the coat, buttoned down the front to two points below the waist; `chain` a watch chain in two
+   *  swags across it, from its middle to the pocket on the left, and `fob` a crystal hanging from the chain's ring. */
+  waistcoat?: { color: string; buttons?: string; chain?: string; fob?: string };
+  /** 'stand': the shirt (see `shirt`) fitted on the chest with its buttons down the front, and a high stand collar open
+   *  at the throat, its points standing up, in place of the plain collar and placket. */
+  shirtCollar?: 'stand';
   halo?: string;
   /** Two spectral wings of soft light rising from the shoulder blades, feathered (an aasimar's transformation): their
    *  colour, the tint of the feathers' tips (default the colour), and how strongly they glow (default 0.5). Wider in a
@@ -947,7 +966,7 @@ function rig(f: HeroFigure, s: number, gown: boolean) {
     ankle.add(at(box(0.2 * fl * s, 0.1 * s, 0.16 * fl * s, tone(boot, '#000000', 0.45)), 0, -0.42 * s, -0.1 * fl * s)); // the heel (flush with the sole's tread)
     leg.push({ root: hip, mid: knee, end: ankle, upper: thigh, lower: shin, hand: foot });
   }
-  return { body, pel, up, neck, head, arm, leg, soles, fr, tr, bustWarp, bustJig, hem, seatBump };
+  return { body, pel, up, neck, head, arm, leg, soles, fr, tr, bustWarp, bustJig, hem, seatBump, chestBump };
 }
 
 /** A hero's miniature: origin at the floor centre, feet in world units, facing +z. `battle` puts it in its stance. */
@@ -955,7 +974,7 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
   const battle = state === true || state === 'battle', dead = state === 'dead';
   const s = (SIZE_SCALE[size] ?? 1) * (f.height ?? 1);
   const gown = !!(f.skirt && f.underskirt);
-  const { body, pel, up, neck, head, arm, leg, soles, fr, tr, bustWarp, bustJig, hem, seatBump } = rig(f, s, gown);
+  const { body, pel, up, neck, head, arm, leg, soles, fr, tr, bustWarp, bustJig, hem, seatBump, chestBump } = rig(f, s, gown);
   const hy = 2.82 * s; // the head's centre, in the upper body's frame
   const skin = f.skin ?? '#d9b899';
   const headAt = neck.position.y + head.position.y; // the head joint, in the upper body's frame
@@ -990,8 +1009,73 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
   if (f.earrings) for (const sx of [-1, 1]) { const e = sph(0.05 * s, f.earrings, 8, 6); e.scale.y = 1.8; up.add(at(e, sx * 0.36 * s, hy - 0.2 * s, 0.02 * s)); up.add(at(sph(0.025 * s, '#c9c2b0', 6, 4), sx * 0.36 * s, hy - 0.1 * s, 0.02 * s)); }
   if (f.markings) for (const [x, y, rz] of [[0.17, -0.1, 0.6], [0.2, 0.03, -0.3], [-0.18, -0.11, -0.5], [0.1, -0.2, 0.9]]) { const m = cap(0.011 * s, 0.11 * s, f.markings); m.rotation.z = rz; m.rotation.y = Math.sign(x) * 0.5; head.add(at(m, x * s, (hy - headAt + y) * s, (surf(x, y) + 0.004) * s)); }
 
+  // tailoring made on the chest (a shirt front, a waistcoat, a coat's fronts and lapels): `chestAt` is a point of the
+  // chest's own surface, its muscle and bust and all, at an angle round it and a height, stood off it by `lift`; `thAt` the angle of the
+  // point `x` across the chest at a height; `panel` a piece of cloth cut on it, row by row (each from angle `a` to `b`,
+  // stood off by `la` to `lb`, falling off faster near `a` with `fall` under 1, its far end at the height `yb`), which is
+  // the trunk's own to what is worn over it
+  const chestRaw = (th: number, y: number): [number, number, number] => { const [x, z] = ringPoint(ringAt(tr, y), th, 1 + chestBump((th + 2 * Math.PI) % (2 * Math.PI), y)); return [x, y, z]; };
+  const chestAt = (th: number, y: number, lift = 0): THREE.Vector3 => {
+    const on = (t: number, h: number) => new THREE.Vector3(...bustWarp(chestRaw(t, h))), q = on(th, y);
+    if (lift) {
+      // (stood off half way between the surface's own normal, which on the slope of a bust is far from the way out from
+      // the middle, and that way out, which keeps it from crossing the cleft from one slope into the other)
+      const n = on(th + 0.02, y).sub(on(th - 0.02, y)).cross(on(th, y + 0.02).sub(on(th, y - 0.02))).normalize(), out = new THREE.Vector3(q.x, 0, q.z).normalize();
+      q.addScaledVector(n.add(out).normalize(), lift);
+    }
+    return q.multiplyScalar(s);
+  };
+  const thAt = (y: number, x: number) => { const r = ringAt(tr, y); return Math.sign(x) * Math.asin(Math.min(1, Math.abs(x) / r.w) ** ((r.n ?? 2) / 2)); };
+  type PanelRow = { y: number; a: number; b: number; la: number; lb: number; yb?: number; fall?: number };
+  const panelPoint = (r: PanelRow, t: number) => chestAt(r.a + (r.b - r.a) * t, r.y + ((r.yb ?? r.y) - r.y) * t, r.la + (r.lb - r.la) * t ** (r.fall ?? 1));
+  /** Draws a row of points across the chest's front taut: each is brought forward to the line between the two that
+   *  stand proudest either side of it, as cloth spans the valley between a bust's mounds and does not lie down in it. */
+  const tauten = (row: THREE.Vector3[]) => {
+    const hull: THREE.Vector3[] = [];
+    for (const q of [...row].sort((a, b) => a.x - b.x)) {
+      while (hull.length > 1) { const a = hull[hull.length - 2], b = hull[hull.length - 1]; if ((b.x - a.x) * (q.z - a.z) - (b.z - a.z) * (q.x - a.x) < 0) break; hull.pop(); }
+      hull.push(q);
+    }
+    const front = hull.map((q) => [q.x, q.z]);
+    for (const q of row) { const i = front.findIndex((h, k) => k > 0 && h[0] >= q.x); if (i > 0) { const [ax, az] = front[i - 1], [bx, bz] = front[i]; if (bx > ax) q.z = Math.max(q.z, az + (bz - az) * (q.x - ax) / (bx - ax)); } }
+  };
+  const panel = (rows: PanelRow[], cols: number, c: string, taut = false): M => {
+    const pos: number[] = [], jig: number[] = [], idx: number[] = [];
+    for (const r of rows) {
+      const row = Array.from({ length: cols }, (_, j) => panelPoint(r, j / (cols - 1)));
+      if (taut) tauten(row);
+      for (const q of row) pos.push(q.x, q.y, q.z);
+      if (bustJig) for (let j = 0; j < cols; j++) { const t = j / (cols - 1); jig.push(bustJig(chestRaw(r.a + (r.b - r.a) * t, r.y + ((r.yb ?? r.y) - r.y) * t)) * s); }
+    }
+    // (faced outward whichever way its rows and columns run)
+    const mid = rows[rows.length >> 1], out = (rows[1].y - rows[0].y) * (mid.b - mid.a) > 0;
+    for (let i = 0; i + 1 < rows.length; i++) for (let j = 0; j + 1 < cols; j++) { const a = i * cols + j, b = a + cols; if (out) idx.push(a, a + 1, b, a + 1, b + 1, b); else idx.push(a, b, a + 1, a + 1, b, b + 1); }
+    const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setIndex(idx); g.computeVertexNormals();
+    if (bustJig) g.setAttribute('jig', new THREE.Float32BufferAttribute(jig, 1));
+    const m = sm(g, c); m.userData.skin = true; up.add(m); return m;
+  };
+  // (every piece is cut on the same heights, so that one lies evenly over another where the chest's line turns sharply,
+  // under the bust; widths are shares of the chest's half width at each height, so the cut fits any build)
+  const tailorRows = (lo: number, hi: number) => Array.from({ length: 43 }, (_, i) => 0.46 + 0.04 * i).filter((y) => y > lo - 1e-6 && y < hi + 1e-6);
+  const across = (y: number, share: number) => thAt(y, share * ringAt(tr, y).w);
+  // (a frock coat's front edge: how far from the middle it runs at each height, meeting at the waist's button, cut away
+  // below it and opening above it to the collar)
+  const FROCK_EDGE: [number, number][] = [[0.44, 0.6], [0.75, 0.56], [1.05, 0.1], [1.4, 0.33], [1.8, 0.36], [2.1, 0.5], [2.2, 0.6]];
+
   // collar, pendant, buckle
-  if (f.shirt) { const c = cyl(0.24 * s, 0.32 * s, 0.32 * s, f.shirt, 7); up.add(at(c, 0, 2.2 * s, 0.08 * s)); up.add(at(box(0.3 * s, 0.5 * s, 0.06 * s, f.shirt), 0, 1.85 * s, 0.4 * s)); for (let i = 0; i < 3; i++) up.add(at(sph(0.025 * s, '#c9c2b0', 6, 4), 0, (1.95 - i * 0.15) * s, 0.44 * s)); }
+  if (f.shirt && f.shirtCollar === 'stand') {
+    // the shirt's front, lying on the chest under whatever is worn open over it, its buttons down the middle; and a high
+    // stand collar round the neck, open at the throat, its two points standing up either side of the chin
+    const front = panel(tailorRows(1.26, 2.3).map((y) => { const t = Math.min(1, Math.max(0, (y - 1.98) / 0.12)), k = Math.min(0.62, 0.25 + Math.max(0, y - 1.3) * 0.6) + 0.1 * t, l = 0.02 + 0.014 * t; return { y, a: across(y, -k), b: across(y, k), la: l, lb: l }; }), 17, f.shirt, true).geometry.attributes.position; // (over the neckband, up to the collar)
+    for (const i of [4, 8, 13, 17]) up.add(at(sph(0.02 * s, '#c9c2b0', 6, 4), 0, front.getY(i * 17 + 8), front.getZ(i * 17 + 8) + 0.007 * s)); // (on the middle of every few rows)
+    const pos: number[] = [], ROWS = 4, COLS = 25;
+    for (let i = 0; i <= ROWS; i++) for (let j = 0; j < COLS; j++) {
+      const t = i / ROWS, gap = 0.3 + 0.22 * t, th = gap + (2 * Math.PI - 2 * gap) * j / (COLS - 1), tip = t * Math.max(0, 1 - Math.min(j, COLS - 1 - j) / 3) ** 2;
+      const w = 0.31 - 0.085 * t + 0.03 * tip, d = Math.cos(th) > 0 ? 0.235 - 0.03 * t + 0.04 * tip : 0.25 - 0.04 * t;
+      pos.push(Math.sin(th) * w * s, (2.1 + 0.24 * t + 0.015 * tip) * s, (-0.01 + Math.cos(th) * d) * s);
+    }
+    up.add(sm(gridGeometry(pos, COLS, ROWS), f.shirt, true));
+  } else if (f.shirt) { const c = cyl(0.24 * s, 0.32 * s, 0.32 * s, f.shirt, 7); up.add(at(c, 0, 2.2 * s, 0.08 * s)); up.add(at(box(0.3 * s, 0.5 * s, 0.06 * s, f.shirt), 0, 1.85 * s, 0.4 * s)); for (let i = 0; i < 3; i++) up.add(at(sph(0.025 * s, '#c9c2b0', 6, 4), 0, (1.95 - i * 0.15) * s, 0.44 * s)); }
   // fine work laid on a surface (embroidery, rows of mail rings): flat ribbons, each between two lines of points; and
   // leaves, each a flat diamond `w` wide from its foot to its tip, lying across `n`
   const ribbons = (strips: [THREE.Vector3[], THREE.Vector3[]][], c: string): M => {
@@ -1071,8 +1155,124 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
     }
   }
 
-  // a coat: tails behind, lapels in front
-  if (f.coat) {
+  // wide-leg trousers: the legs and the seat take their colour, and over each leg goes a full tube of cloth from the hip,
+  // as wide all the way down as the thigh is at its middle and never closer on the leg than `ease` (wider over the boot's
+  // cuff and strap, which it hides), flaring to the hem at the ankle; a pressed crease stands down its front and its
+  // back. Made on the thigh and on the shin, so they bend at the knee as the leg does (bendLimb), and are the body's own
+  // where it lies on the floor
+  if (f.trousers) {
+    const sr = shinRings(fr), tr2 = thighRings(fr), mid = ringAt(tr2, -0.5 * THIGH), crease = (th: number) => 0.06 * Math.exp(-(Math.sin(th) ** 2) / 0.012), cloth = soft(f.trousers);
+    const cut = (rings: Ring[], lo: number, hi: number, ease: (y: number) => number, flare: (y: number) => number): Ring[] => Array.from({ length: 13 }, (_, i) => {
+      const y = lo + (hi - lo) * i / 12, r = ringAt(rings, y), e = ease(y), fl = 0.98 * flare(y);
+      return { ...r, w: Math.max(r.w * e, mid.w * fl), f: Math.max(r.f * e, mid.f * fl), b: Math.max(r.b * e, mid.b * fl) };
+    });
+    // (the two halves of a leg are one tube: open where they meet at the knee, the end of the loft there, about its
+    // middle point `c`, left out, so no rim shades the join; at the hip it runs into the thigh's own top)
+    const open = (g: THREE.BufferGeometry, c: number) => { const ix = Array.from(g.index!.array), keep: number[] = []; for (let i = 0; i < ix.length; i += 3) if (ix[i] !== c && ix[i + 1] !== c && ix[i + 2] !== c) keep.push(ix[i], ix[i + 1], ix[i + 2]); g.setIndex(keep); g.computeVertexNormals(); return g; };
+    const top = tr2[tr2.length - 1].y, thighCut = cut(tr2, -THIGH, top, (y) => 1.01 + 0.07 * Math.min(1, (top - y) / 0.5), (y) => Math.min(1, (top - y) / 0.5));
+    const shinCut = cut(sr, -SHIN - 0.04, 0, (y) => y < -0.35 ? 1.5 : 1.1, (y) => 1 + 0.32 * Math.max(0, -y / SHIN) ** 1.6);
+    for (const l of leg) {
+      const th = sm(open(loftGeometry(thighCut, s, { seg: 28, rows: 20, bump: crease }), 21 * 28), f.trousers), sh = sm(open(loftGeometry(shinCut, s, { seg: 28, rows: 22, bump: crease }), 23 * 28 + 1), f.trousers);
+      l.root.add(th); l.mid.add(sh); own.add(th); own.add(sh); l.upper.material = cloth; l.lower.material = cloth;
+    }
+    for (const c of pel.children) if ((c as M).isMesh && c.userData.skin) (c as M).material = cloth; // the seat
+    const band = (y: number, k: number) => { const r = ringAt(tr, y); return { ...r, w: r.w * k, f: r.f * k, b: r.b * k }; };
+    const rise = sm(loftGeometry([band(0.12, 0.94), band(0.24, 1.02), band(0.36, 1.025)], s, { seg: 32, rows: 4 }), f.trousers); rise.userData.skin = true; up.add(rise); own.add(rise); // (up to the belt)
+  }
+
+  // a waistcoat under the coat: two fronts on the chest, buttoned down the middle to a point each below the waist and
+  // open in a V over the shirt above; a watch chain across it in two swags from its ring at the middle to the pocket on
+  // the left, a crystal fob hanging from the ring
+  if (f.waistcoat) {
+    const wc = f.waistcoat, edge = (y: number) => Math.min(0.95, radiusAt(FROCK_EDGE, y) + 0.2), open = (y: number) => Math.max(0, y - 1.3) * 0.6;
+    for (const sx of [-1, 1]) panel([{ y: 0.37, a: sx * across(0.37, 0.12), b: sx * across(0.37, 0.34), la: 0.036, lb: 0.036 }, ...tailorRows(0.46, 1.9).map((y) => ({ y, a: sx * across(y, open(y)), b: sx * across(y, Math.max(edge(y), open(y) + 0.2)), la: 0.036, lb: 0.036 }))], 13, wc.color);
+    for (const y of [0.56, 0.74, 0.92, 1.1, 1.26]) { const q = chestAt(0, y, 0.044); up.add(at(sph(0.028 * s, wc.buttons ?? '#c9c2b0', 8, 6), q.x, q.y, q.z)); }
+    const on = (x: number, y: number, lift = 0.051) => chestAt(thAt(y, x), y, lift);
+    if (wc.chain) {
+      const ax = -0.02, ay = 0.83, bx = LX * 0.2, by = 0.8;
+      for (const sag of [0.07, 0.15]) up.add(tube(Array.from({ length: 9 }, (_, i) => { const t = i / 8; return on(ax + (bx - ax) * t, ay + (by - ay) * t - sag * Math.sin(Math.PI * t)); }), 0.011 * s, wc.chain));
+      const ring = on(ax, ay, 0.058); up.add(at(sph(0.026 * s, wc.chain, 8, 6), ring.x, ring.y, ring.z));
+      const bar = on(bx, by, 0.054); up.add(at(sph(0.02 * s, wc.chain, 6, 4), bar.x, bar.y, bar.z));
+      if (wc.fob) {
+        up.add(tube([on(ax, ay), on(ax, ay - 0.06), on(ax, ay - 0.12)], 0.009 * s, wc.chain));
+        const q = on(ax, ay - 0.19, 0.066), g = sm(new THREE.OctahedronGeometry(0.045 * s), wc.fob); g.scale.y = 1.7; up.add(at(g, q.x, q.y, q.z));
+      }
+    }
+  }
+
+  // a coat: tails behind, lapels in front; or, cut as a frock coat, tailored: its fronts on the chest, standing proud of
+  // the waistcoat at their edges and running into the coat's body at the sides, fastened by one button at the waist; the
+  // skirts cut on the hips from the waist seam and hung to mid-thigh, open at the front; peaked lapels and a collar
+  if (f.coat && f.coatCut === 'frock') {
+    const cc = f.coat.tails, lc = f.coat.lapel ?? tone(cc, '#000000', 0.25), dark = tone(cc, '#000000', 0.3), em = f.coatEmbroidery, edge = (y: number) => radiusAt(FROCK_EDGE, y);
+    // the skirts: close on the waist and the hips, hanging straight from the widest of them with a few soft folds, each
+    // front edge falling from where the fronts are cut away to at the waist seam (DRAPE_COLS columns, the edges first and last)
+    const TOP = 0.5, HEM = -0.95, ROWS = 14, gap = 2 * across(TOP, edge(TOP)), pr = pelvisRings(fr), pos: number[] = [], widest = new Float64Array(DRAPE_COLS * 2), seated = new Float64Array(DRAPE_COLS);
+    for (let i = 0; i <= ROWS; i++) {
+      const y = TOP + (HEM - TOP) * i / ROWS, t = i / ROWS;
+      for (let j = 0; j < DRAPE_COLS; j++) {
+        const th = gap / 2 + (2 * Math.PI - gap) * j / (DRAPE_COLS - 1);
+        let [bx, bz] = y >= tr[0].y ? ringPoint(ringAt(tr, y), th, 1.09) : [0, 0];
+        let over = 0;
+        if (y >= pr[0].y) { const sb = seatBump(th, y), [x, z] = ringPoint(ringAt(pr, y), th, 1.14 * (1 + sb)); if (Math.hypot(x, z) > Math.hypot(bx, bz)) { bx = x; bz = z; over = sb; } }
+        if (Math.hypot(bx, bz) < Math.hypot(widest[j * 2], widest[j * 2 + 1])) { bx = widest[j * 2]; bz = widest[j * 2 + 1]; } else { widest[j * 2] = bx; widest[j * 2 + 1] = bz; seated[j] = over; }
+        // (below the seat it falls in again, half way back to the line of the hips by the hem)
+        const fl = (1 + 0.04 * t ** 1.5 + 0.03 * t * Math.sin(4 * th + 0.6)) * (1 - 0.5 * seated[j] / (1 + seated[j]) * Math.max(0, (-0.1 - y) / (-0.1 - HEM)));
+        pos.push(bx * fl * s, y * s, bz * fl * s);
+      }
+    }
+    wear('tails', sm(gridGeometry(pos, DRAPE_COLS, ROWS), cc, true), up, DRAPE_COLS, ROWS + 1, { closed: false, covers: ['pelvis', ...LEGS, ...FEET, 'hem', 'stowed', 'culet', 'tassetR', 'tassetL'], outside: LOWER_ARMS, layer: 1, clear: 0.04 * s, spread: 5, hang: 0.9, after: (G) => {
+      // made on the hung skirts: each front edge piped, a flap pocket on each hip under its welt, and the vent up the
+      // back from the hem with the two buttons at its head on the waist seam
+      const patch = (u0: number, u1: number, t0: number, t1: number, c: string, off: number) => { const q: number[] = [], NU = 6, NT = 3; for (let i = 0; i <= NT; i++) for (let j = 0; j <= NU; j++) { const v = clothPoint(G, u0 + (u1 - u0) * j / NU, t0 + (t1 - t0) * i / NT, off); q.push(v.x, v.y, v.z); } up.add(sm(gridGeometry(q, NU + 1, NT), c, true)); };
+      for (const u of [0, 1]) up.add(tube(Array.from({ length: 15 }, (_, i) => clothPoint(G, u, i / 14, 0.002 * s)), 0.012 * s, dark));
+      for (const u of [0.15, 0.85]) { patch(u - 0.05, u + 0.05, 0.31, 0.45, tone(cc, '#000000', 0.12), 0.012 * s); up.add(tube(Array.from({ length: 7 }, (_, i) => clothPoint(G, u - 0.052 + 0.104 * i / 6, 0.3, 0.012 * s)), 0.011 * s, dark)); }
+      up.add(tube(Array.from({ length: 8 }, (_, i) => clothPoint(G, 0.5, 0.3 + 0.7 * i / 7, 0.004 * s)), 0.009 * s, dark));
+      for (const u of [0.47, 0.53]) { const q = clothPoint(G, u, 0.04, 0.004 * s); up.add(at(sph(0.024 * s, em ?? dark, 8, 6), q.x, q.y, q.z)); }
+    } });
+    for (const sx of [-1, 1]) {
+      // the front: proud of the waistcoat at its edge, soon closer and running into the coat's body at the side (an arm
+      // resting at the waist lies on it there)
+      panel(tailorRows(0.46, 2.18).map((y) => ({ y, a: sx * across(y, edge(y)), b: sx * 1.45, la: 0.062, lb: 0.008, fall: 0.4 })), 16, cc);
+      // the lapel, rolled back from the button at the waist: widening to its peak, which points up and out toward the
+      // shoulder, then cut in at the gorge to the collar's end, which runs on up to the neck
+      const lapel: PanelRow[] = tailorRows(1.02, 1.98).map((y) => {
+        const low = y < 1.75, xo = low ? edge(y) + (0.8 - edge(y)) * Math.min(1, (y - 1.02) / 0.5) ** 0.8 : 0.6 + 0.4 * (y - 1.76), yb = low ? y + 0.13 * Math.max(0, (y - 1.4) / 0.34) ** 2 : y;
+        return { y, a: sx * across(y, edge(y)), b: sx * across(yb, xo), la: 0.096, lb: 0.056, yb };
+      });
+      panel(lapel, 11, lc);
+      if (em) {
+        // embroidery: a line of thread just inside the lapel's outer edge, and a vine winding up it with leaves
+        const lift = (r: PanelRow, t: number) => panelPoint({ ...r, la: r.la + 0.014, lb: r.lb + 0.014 }, t), low = lapel.filter((r) => r.y < 1.75);
+        up.add(tube(low.map((r) => lift(r, 0.9)), 0.011 * s, em));
+        const vine = low.filter((r) => r.y > 1.2 && (sx !== LX || !f.lapelPin || r.y < 1.52));
+        up.add(tube(vine.map((r, i) => lift(r, 0.42 + 0.16 * Math.sin(i * 1.7))), 0.01 * s, em));
+        vine.forEach((r, i) => { if (i % 2) { const q = lift(r, 0.42 + 0.3 * Math.sin(i * 1.7)); up.add(at(sph(0.022 * s, em, 6, 4), q.x, q.y, q.z)); } });
+      }
+      if (f.lapelPin && sx === LX) {
+        // the pin: a crescent moon lying on the lapel below its peak, its horns turned up and out
+        const r = lapel.find((x) => x.y > 1.6)!, q = panelPoint({ ...r, la: r.la + 0.022, lb: r.lb + 0.022 }, 0.5), nrm = panelPoint({ ...r, la: r.la + 0.1, lb: r.lb + 0.1 }, 0.5).sub(q).normalize();
+        const arc = (cx: number, rad: number, a0: number, a1: number) => Array.from({ length: 13 }, (_, i) => { const a = a0 + (a1 - a0) * i / 12; return new THREE.Vector2(cx + rad * Math.cos(a), rad * Math.sin(a)); });
+        const moon = sm(new THREE.ShapeGeometry(new THREE.Shape([...arc(0, 1, 0.81, 2 * Math.PI - 0.81), ...arc(0.4, 0.78, 2 * Math.PI - 1.19, 1.19)])), f.lapelPin, true);
+        moon.scale.setScalar(0.075 * s); moon.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), nrm); moon.rotateZ(-0.6); up.add(at(moon, q.x, q.y, q.z));
+      }
+      // the button at the waist, on the left front
+      if (sx === LX) { const q = chestAt(across(1.05, 0.16), 1.05, 0.068); up.add(at(sph(0.035 * s, em ?? dark, 8, 6), q.x, q.y, q.z)); }
+    }
+    // the collar, standing round the back and the sides of the neck outside the shirt's, its ends sloping down toward the lapels (faced
+    // outward only: a body on its back rests on it)
+    { const q: number[] = []; for (let i = 0; i <= 3; i++) for (let j = 0; j <= 20; j++) { const t = i / 3, th = 2 * Math.PI - 0.95 - (2 * Math.PI - 1.9) * j / 20; q.push(Math.sin(th) * (0.37 - 0.03 * t) * s, (2.1 + 0.17 * t * Math.min(1, (Math.min(j, 20 - j) + 0.5) / 4)) * s, (-0.02 + Math.cos(th) * (Math.cos(th) > 0 ? 0.25 : 0.275 - 0.03 * t)) * s); } up.add(sm(gridGeometry(q, 21, 3), lc)); }
+    // the cuffs: turned back wide over the end of each sleeve, the shirt's cuff showing at the wrist, a line of
+    // embroidery round the top and two buttons on the outside
+    const fa = forearmRings(fr), ring = (y: number, k: number) => { const r = ringAt(fa, y); return { ...r, w: r.w * k, f: r.f * k, b: r.b * k }; };
+    arm.forEach((l, k) => {
+      const sx = k === 0 ? RX : LX;
+      l.mid.add(sm(loftGeometry([ring(-0.95, 1.24), ring(-0.85, 1.3), ring(-0.7, 1.36)], s, { seg: 14, rows: 3 }), lc));
+      if (f.shirt) l.mid.add(sm(loftGeometry([ring(-0.995, 1.12), ring(-0.94, 1.12)], s, { seg: 14, rows: 1 }), f.shirt));
+      if (em) { const r = ring(-0.72, 1.375); l.mid.add(tube(Array.from({ length: 12 }, (_, i) => { const [x, z] = ringPoint(r, i / 12 * 2 * Math.PI); return new THREE.Vector3(x * s, -0.72 * s, z * s); }), 0.011 * s, em, true)); }
+      for (const y of [-0.78, -0.88]) { const [x, z] = ringPoint(ring(y, y < -0.85 ? 1.3 : 1.34), sx * 1.9); l.mid.add(at(sph(0.022 * s, em ?? dark, 6, 4), x * s, y * s, z * s)); }
+    });
+  } else if (f.coat) {
     const tails = drape(0.62 * s, 0.75 * s, 1.6 * s, f.coat.tails, { folds: 5, amp: 0.08, jag: 0.25 * s, gap: Math.PI * 1.2, rows: 16 }); tails.position.y = -0.55 * s;
     // (over plates hung from the waist as well, the culet and the tassets, which hang first on their layer)
     wear('tails', tails, up, DRAPE_COLS, 17, { closed: false, covers: ['pelvis', ...LEGS, ...FEET, 'hem', 'stowed', 'culet', 'tassetR', 'tassetL'], outside: LOWER_ARMS, layer: 1, clear: 0.04 * s, spread: 5, hang: 0.9 });
@@ -1607,16 +1807,57 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
 
   // wings, halo, crown
   if (f.wings) {
-    const n = f.wings.count ?? 4, op = f.wings.opacity ?? 0.42, rimC = f.wingRim ?? f.wings.color;
-    const pairs = n === 4 ? [{ w: 2.3, h: 2.6, y: 2.1, tilt: 0.5 }, { w: 1.7, h: 1.8, y: 0.8, tilt: -0.35 }] : [{ w: 2.6, h: 3.0, y: 1.8, tilt: 0.35 }];
-    for (const p of pairs) for (const sx of [-1, 1]) {
-      const g = new THREE.Group(); g.position.set(sx * 0.18 * s, p.y * s, -0.42 * s); g.rotation.y = sx * 0.45; g.rotation.z = -sx * p.tilt; g.userData.wing = sx;
-      const wing = glassy(new THREE.Mesh(new THREE.CircleGeometry(1, 24), mat(f.wings.color)), f.wings.color, op);
-      wing.scale.set(p.w * s / 2, p.h * s / 2, 1); wing.position.x = sx * p.w * s / 2; g.add(wing);
-      for (const ang of [-0.5, -0.2, 0.1, 0.4]) { const vein = box(p.w * s * 0.95, 0.03 * s, 0.02 * s, rimC); vein.geometry.translate(sx * p.w * s * 0.475, 0, 0); vein.rotation.z = ang * (p.h / p.w); g.add(vein); }
-      const edge = glassy(new THREE.Mesh(new THREE.RingGeometry(0.94, 1, 32), mat(rimC)), rimC, Math.min(1, op + 0.4)); edge.scale.copy(wing.scale); edge.position.copy(wing.position); g.add(edge);
+    // an insect's wings, a dragonfly's: each a long clear membrane, narrow at its root between the shoulder blades, widest
+    // past the middle and drawn to a point, the upper pair tall and the lower pair shorter and swept down; a net of fine
+    // veins fanning from the root, forking past the middle, with cross veins closing cells between them; a glowing rim
+    const n = f.wings.count ?? 4, op = f.wings.opacity ?? 0.42, rimC = f.wingRim ?? f.wings.color, base = new THREE.Color(f.wings.color), sheen = (f.wingSheen ?? []).map((c) => new THREE.Color(c));
+    const pairs = n === 4 ? [{ len: 3.3, w: 0.74, y: 1.82, tilt: 0.62, curl: 0.08 }, { len: 2.4, w: 0.6, y: 1.5, tilt: -0.5, curl: -0.1 }] : [{ len: 3.2, w: 0.9, y: 1.7, tilt: 0.45, curl: 0.07 }];
+    pairs.forEach((p, k) => { for (const sx of [-1, 1]) {
+      const g = new THREE.Group(); g.position.set(sx * 0.13 * s, p.y * s, -(ringAt(tr, p.y).b + 0.03) * s); g.rotation.y = sx * 0.45; g.rotation.z = sx * p.tilt; g.userData.wing = sx; g.userData.span = p.len * s;
+      // a point of the wing: `u` from the root to the tip, `v` across it from the trailing edge (-1) to the leading edge (1)
+      const half = (u: number) => p.w * u ** 1.2 * (1 - u) ** 0.9 / 0.2386;
+      const P = (u: number, v: number) => new THREE.Vector3(sx * u * p.len * s, (p.curl * p.len * u * u + (v > 0 ? 0.7 : 1.3) * v * half(u)) * s, 0);
+      // the membrane, its colour shifting across it where the recipe gives it a sheen
+      const NU = 18, NV = 6, pos: number[] = [], col: number[] = [], c = new THREE.Color();
+      for (let i = 0; i <= NU; i++) for (let j = 0; j <= NV; j++) {
+        const u = i / NU, v = -1 + 2 * j / NV, q = P(u, v); pos.push(q.x, q.y, q.z);
+        c.copy(base); sheen.forEach((sc, m) => c.lerp(sc, 0.85 * (0.5 + 0.5 * Math.sin((5 + 1.7 * m) * u + (2.2 - 2.6 * m) * v + 1.3 * m + 2 * k)) ** 1.5));
+        col.push(c.r, c.g, c.b);
+      }
+      const web = glassy(new THREE.Mesh(gridGeometry(pos, NV + 1, NU), mat(f.wings!.color)), f.wings!.color, op);
+      if (sheen.length) { web.geometry.setAttribute('color', new THREE.Float32BufferAttribute(col, 3)); const wm = web.material as THREE.MeshLambertMaterial; wm.vertexColors = true; wm.color.set('#ffffff'); }
+      g.add(web);
+      // the veins and the rim, flat ribbons in the wing's plane: one mesh, lit from within
+      const vp: number[] = [], vi: number[] = [];
+      const line = (pts: [number, number][], wd: number) => {
+        const q = pts.map(([u, v]) => P(u, v));
+        for (let i = 0; i + 1 < q.length; i++) {
+          const d = q[i + 1].clone().sub(q[i]), nrm = new THREE.Vector3(-d.y, d.x, 0).setLength(wd * s / 2), o = vp.length / 3;
+          for (const [e, sg] of [[q[i], 1], [q[i], -1], [q[i + 1], 1], [q[i + 1], -1]] as const) vp.push(e.x + sg * nrm.x, e.y + sg * nrm.y, 0);
+          vi.push(o, o + 1, o + 2, o + 2, o + 1, o + 3);
+        }
+      };
+      const run = (v: (u: number) => number, u0: number, u1: number, wd: number, seg = 14) => line(Array.from({ length: seg + 1 }, (_, i) => { const u = u0 + (u1 - u0) * i / seg; return [u, v(u)] as [number, number]; }), wd);
+      // (the long veins from the root, each wandering a little; the lanes between them, the rim's two edges the outermost)
+      const VEINS = [-1, -0.62, -0.22, 0.2, 0.62, 1].map((v0, i) => (u: number) => i % 5 ? v0 + 0.07 * Math.sin(5 * u + 1.9 * i) * Math.sin(Math.PI * u) : v0);
+      run(VEINS[5], 0, 1, 0.04, 18); run(VEINS[0], 0, 1, 0.04, 18);                        // the rim: the leading and the trailing edge
+      for (const v of VEINS.slice(1, -1)) run(v, 0.02, 0.985, 0.018);
+      for (let i = 0; i + 1 < VEINS.length; i++) {
+        // each lane: a vein forking off the lower one past the middle to run between the two, and cross veins closing the
+        // cells, unevenly spaced and slanted this way and that (two short ones to each side of the fork, out of step)
+        const lo = VEINS[i], hi = VEINS[i + 1], u0 = 0.34 + 0.07 * (i % 3), fork = (u: number) => lo(u) + (hi(u) - lo(u)) * (0.5 + 0.08 * Math.sin(7 * u + i)) * Math.min(1, (u - u0) / 0.16) ** 0.7;
+        run(fork, u0, 0.96, 0.014, 10);
+        for (let u = 0.1 + 0.05 * (i % 2), j = 0; u < 0.9; j++, u += 0.085 + 0.06 * Math.abs(Math.sin(3.7 * j + 2.3 * i))) {
+          const lean = 0.035 * Math.sin(2.9 * j + 1.3 * i);
+          if (u < u0 + 0.08) line([[u, lo(u)], [u + lean, hi(u + lean)]], 0.012);
+          else { line([[u, lo(u)], [u + lean, fork(u + lean)]], 0.012); line([[u + 0.05, fork(u + 0.05)], [u + 0.05 - lean, hi(u + 0.05 - lean)]], 0.012); }
+        }
+      }
+      const vg = new THREE.BufferGeometry(); vg.setAttribute('position', new THREE.Float32BufferAttribute(vp, 3)); vg.setIndex(vi); vg.computeVertexNormals();
+      const net = glassy(new THREE.Mesh(vg, mat(rimC)), rimC, Math.min(1, op + 0.4)), nm = net.material as THREE.MeshLambertMaterial; nm.emissive = new THREE.Color(rimC); nm.emissiveIntensity = 0.45;
+      g.add(net);
       up.add(g);
-    }
+    } });
   }
   // light, not matter (a halo, spectral wings): strips that add their glow to what lies behind them, each brightest along
   // its middle and fading to nothing at its edges, so no part of it has a hard edge
@@ -3113,8 +3354,8 @@ function settleLay(lie: 'back' | 'front' | 'side', s: number, j: { body: THREE.G
  *  spread (`sx` the side it spreads to, in its own frame), each pair (`i`) a hair above the one before. */
 function layWing(g: THREE.Object3D, sx: number, s: number, i: number): void {
   g.updateMatrixWorld(true);
-  const root = g.getWorldPosition(new THREE.Vector3()), web = g.children.find((c) => (c as M).geometry?.type === 'CircleGeometry');
-  const span = web ? 2 * Math.abs(web.scale.x) : 2 * s, d = new THREE.Vector3(sx, 0, 0).transformDirection(g.matrixWorld).setY(0);
+  const root = g.getWorldPosition(new THREE.Vector3());
+  const span = (g.userData.span as number | undefined) ?? 2 * s, d = new THREE.Vector3(sx, 0, 0).transformDirection(g.matrixWorld).setY(0);
   if (d.lengthSq() < 0.09) d.set(root.x, 0, root.z).applyAxisAngle(new THREE.Vector3(0, 1, 0), 0.35 * sx); // (spread straight up or down: out from the body's middle)
   if (d.lengthSq() < 1e-8) d.set(sx, 0, 0);
   d.normalize();
