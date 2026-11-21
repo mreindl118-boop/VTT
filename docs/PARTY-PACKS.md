@@ -62,6 +62,8 @@ Detail: `eyes` (a bright colour reads as a glow), `shirt` (collar and placket), 
 `buckle`, `earrings`, `markings` (marks on the face), `cloakTrim` (hem band and front edges), `tattered` (a ragged
 cloak hem), `satchel` (bag on a strap), `coat` (`{tails, lapel}`), `vials` (up to four colours at the belt), `sparkles`
 (motes drifting around the figure), `rolled` (shirt sleeves rolled to the elbow: bare forearms below a rolled cuff).
+With `rolled`, `rolledLow: true` brings the sleeve down over the elbow and seats one soft roll on the forearm just
+below the bend, so the roll follows a bent arm.
 Plate armour also gets layered pauldrons (a domed cap and two lames shaped to the upper arm, riding the shoulder joint
 so they lift and swing with the arm), a gorget, tassets, knee guards and greaves; mail is a shirt with short sleeves
 over the deltoid. A satchel's strap runs over the left shoulder down to the bag on the right hip; an orb is held out on
@@ -116,11 +118,16 @@ worn round the waist over the cloth, a square buckle in front; it takes the plac
 satchel on `hip` (`'R'` or `'L'`), hung from a baldric that runs from the other shoulder across the chest to a ring
 over the bag and on round the hip, with a buckle at the chest; `mark` embroiders the flap (`'leaf'` or `'moon'`, in
 `markColor`), `rolls` (up to three bandage rolls), `vials` (up to three colours) and `herbs` stand out of its top, and
-`sprig` ties a bundle of flowering herbs to the ring. The belt, the baldric and the bag are put on once the body is
+`sprig` ties a bundle of flowering herbs to the ring. With `strap: 'belt'` in the `satchelKit` there is no baldric:
+the bag hangs from the waist belt (or a corset's lowest strap) by two short straps on small rings. The satchel's and
+the baldric's metal is the belt's `buckle`, else the corset's, else the plain `buckle`, else silver. On a fallen body
+the bag lies face up on the hip or the thigh. Under a cloak's capelet the baldric crosses the shoulder outside the
+capelet's collar, wholly under it. The belt, the baldric and the bag are put on once the body is
 posed, outside whatever cloth is worn under them (mail, a tunic, a skirt, a gown) in every state; a cloak hangs over
 the bag on a standing figure, and an empty-handed arm resting where a strap runs is moved off it. `cloakLaurel` (a
 colour: laurel embroidery down the cloak's front edges, along its hem and round the capelet's edge, in place of
-`cloakTrim`'s bands). `claspMark` (`'tree'`: the `clasps` become round brooches with a tree in relief). `shieldFace`
+`cloakTrim`'s bands). `claspMark` (`'tree'`: the `clasps` become round brooches with a tree in relief, one pinned on the front of each
+shoulder and lying on the cloth). `shieldFace`
 (`{band, rivets, wreath}`: a flat wide rim with `rivets` domed rivets, sixteen unless given, a vertical band of
 `band` down the face, and with `wreath` the shield's `mark` drawn as a laurel wreath round two linked rings).
 `pendantShape` (`'rings'`: the pendant is two linked rings on a finer chain).

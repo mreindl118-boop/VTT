@@ -300,7 +300,7 @@ describe('heroFigure', () => {
     expect(x('handR')).toBeLessThan(0); expect(x('handL')).toBeGreaterThan(0);
     let up: THREE.Object3D | null = J.handR; while (up && up !== J.shoulderR) up = up.parent; expect(up).toBe(J.shoulderR);
     const holds = (h: THREE.Object3D, test: (m: THREE.Mesh) => boolean) => { let n = 0; h.traverse((c) => { if ((c as THREE.Mesh).isMesh && test(c as THREE.Mesh)) n++; }); return n > 0; };
-    expect(holds(J.handR, (m) => (m.geometry as THREE.SphereGeometry).parameters?.radius === 0.26)).toBe(true);      // the mace's head
+    expect(holds(J.handR, (m) => m.name === 'maceHead')).toBe(true);                                                        // the mace's head
     expect(holds(J.handL, (m) => (m.geometry as THREE.CylinderGeometry).parameters?.radiusTop === 1)).toBe(true);    // the shield's face
     // a pose's turns follow the sides: the head and the chest turned to the figure's right look toward -x
     const facing = (pose: Parameters<typeof heroFigure>[0]['pose'], n: string) => { const h = heroFigure({ pose }); h.updateMatrixWorld(true); return new THREE.Vector3(0, 0, 1).transformDirection((h.userData.joints as Record<string, THREE.Object3D>)[n].matrixWorld).x; };
@@ -383,7 +383,7 @@ describe('heroFigure', () => {
       const sg = J.handL.children.find((c) => (c as THREE.Group).isGroup)!, n = new THREE.Vector3(0, 0, 1).transformDirection(sg.matrixWorld);
       expect(Math.abs(n.y)).toBeLessThan(0.3); expect(n.x).toBeGreaterThan(0.3);                                         // upright, the face to the left side
       // the stowed mace's head hangs clear of the right thigh
-      let head: THREE.Mesh | undefined; J.stowed.traverse((c) => { const m = c as THREE.Mesh; if (m.isMesh && (m.geometry as THREE.SphereGeometry).parameters?.radius === 0.26) head = m; });
+      let head: THREE.Mesh | undefined; J.stowed.traverse((c) => { const m = c as THREE.Mesh; if (m.isMesh && m.name === 'maceHead') head = m; });
       const h = head!.getWorldPosition(new THREE.Vector3()), a = J.hipR.getWorldPosition(new THREE.Vector3()), b = J.kneeR.getWorldPosition(new THREE.Vector3());
       const t = Math.max(0, Math.min(1, h.clone().sub(a).dot(b.clone().sub(a)) / b.distanceToSquared(a)));
       expect(h.distanceTo(a.clone().lerp(b, t))).toBeGreaterThan(0.45);
