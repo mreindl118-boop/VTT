@@ -99,7 +99,6 @@ describe('the harness\'s finer cut', () => {
       const top = (m: THREE.Mesh) => Math.max(...points([m], foot).map((p) => p.y));
       lames.sort((a, b) => top(b) - top(a));
       expect(lames.length, st).toBe(3);
-      for (const m of lames) (m.material as THREE.Material).side = THREE.DoubleSide;
       const axis = new THREE.Vector3(0, 1, 0).transformDirection(foot.matrixWorld), o = foot.getWorldPosition(new THREE.Vector3());
       for (let k = 1; k < 3; k++) {
         let tucked = 0;
@@ -132,7 +131,6 @@ describe('the harness\'s finer cut', () => {
     const g = heroFigure(HARNESS, 'medium', 'rest'), chest = joint(g, 'chest'), rc = new THREE.Raycaster();
     const relief = meshes(g).filter((m) => m.geometry.type === 'ExtrudeGeometry'), plate = meshes(chest).filter((m) => m.userData.skin);
     expect(relief.length).toBe(3); // the gauntlet, the eye and its pupil
-    for (const m of plate) (m.material as THREE.Material).side = THREE.DoubleSide;
     const back = new THREE.Vector3(0, 0, -1).transformDirection(chest.matrixWorld); rc.far = 0.3;
     for (const p of points(relief, g)) { rc.set(g.localToWorld(p.clone()), back); const hit = rc.intersectObjects(plate, false)[0]; expect(hit && hit.distance).toBeLessThan(0.02); }
   });
