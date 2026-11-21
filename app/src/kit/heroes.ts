@@ -1148,7 +1148,7 @@ function rig(f: HeroFigure, s: number, gown: boolean) {
     const cuffR = ringAt(shinRings(fr), -0.55); if (!f.bootLaces) knee.add(sm(loftGeometry([{ ...cuffR, y: -0.65 }, { ...cuffR, y: -0.47 }], s, { seg: 14, k: 1.28, rows: 2 }), tone(boot, '#ffffff', 0.08)));
     for (const y of f.bootLaces ? [] : [-SHIN + 0.4]) { // a boot strap, buckled on the outside
       knee.add(band(shinRings(fr), y, 0.05, 1.2, tone(boot, '#000000', 0.4), 14));
-      knee.add(at(box(0.03 * s, 0.07 * s, 0.07 * s, '#a9adb6'), sx * ringAt(shinRings(fr), y).w * 1.22 * s, y * s, 0.02 * s));
+      knee.add(at(box(0.03 * s, 0.07 * s, 0.07 * s, f.armor?.knotwork ? tone(f.armor.trim ?? '#a9adb6', f.armor.color, 0.35) : '#a9adb6'), sx * ringAt(shinRings(fr), y).w * 1.22 * s, y * s, 0.02 * s)); // (on an engraved harness in its trim's tone, a little darker, not a bright square on the greave)
     }
     if (f.bootLaces) { // tall boots: the shaft on up to just below the knee under a rolled top, laced up the shin from the instep
       const sr = shinRings(fr), top = -0.24, y0 = -SHIN + 0.16, n = 8, dy = (top - 0.07 - y0) / n, on = (th: number, y: number, k: number) => { const [x, z] = ringPoint(ringAt(sr, y), th, k); return new THREE.Vector3(x * s, y * s, z * s); };
@@ -1701,7 +1701,7 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
       // the vambrace: one plate round the forearm from the wrist to the elbow, cut low in the crook of the arm and rising
       // to cover the point of the elbow behind, a cuff flaring out over the gauntlet and on past the wrist, its edges
       // finely lined, knotwork round it
-      const fa = forearmRings(fr), v1 = -0.88, c1 = -1.068, vk = 1.15, ck = 1.75, vTop = (th: number) => 0.005 - 0.05 * Math.cos(th), onV = onShell(fa, 0, v1, vk, vk), onC = onShell(fa, v1, c1, vk, ck);
+      const fa = forearmRings(fr), v1 = -0.88, c1 = -1.068, vk = 1.15, ck = 1.6, vTop = (th: number) => 0.005 - 0.05 * Math.cos(th), onV = onShell(fa, 0, v1, vk, vk), onC = onShell(fa, v1, c1, vk, ck);
       l.mid.add(sm(patch(fa, (u, v) => [u * Math.PI * 2, vTop(u * Math.PI * 2) + (v1 - vTop(u * Math.PI * 2)) * v, vk], 16, 8), steel, true), sm(shellGeometry(fa, v1, c1, 0, Math.PI * 2, vk, ck, s, 16, 2), steel, true));
       l.mid.add(wire(span(16, (u) => onV(u * Math.PI * 2, vTop(u * Math.PI * 2), 0.004)).slice(1), t, 0.009 * s, true));
       for (const [on, y] of [[onV, v1 + 0.01], [onC, c1]] as const) l.mid.add(wire(span(16, (u) => on(u * Math.PI * 2, y, 0.004)).slice(1), t, 0.009 * s, true));
@@ -1849,7 +1849,7 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
       }
       // (the last lame's foot is turned in a little below its rim, down over the top of the coat skirt hung inside it,
       // so nothing shows between the two from any side)
-      lip = hoop([[GB + 0.004, lameAt(2, GB) - 0.003], [GB - 0.05, lameAt(2, GB) - 0.012]], cor.color); lames[3].add(lip);
+      lip = hoop([[GB - 0.003, lameAt(2, GB) - GIRDLE.rim - 0.003], [GB - 0.05, lameAt(2, GB) - GIRDLE.rim - 0.011]], cor.color); lames[3].add(lip); // (from the lame's inner face, inside its rolled rim)
       // the belts: two straps round the girdle, one at the waist and one low on the hips, each a band of its own lying on
       // the face of one lame, clear of it, buckled at the front to either side of the lacing, its tongue run on through
       // a keeper
@@ -2496,6 +2496,9 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
     const quill = (t: number): [number, number] => { const q = t < 0.6 ? Math.max(0, 0.56 - t) / 0.44 : (1 - t) / 0.4; return t < 0.6 ? [-1.4 - 0.3 * q, 1.55 - 0.5 * q] : [fan[0] + (fan[1] - fan[0]) * q, 1.95 - 0.35 * q]; };
     // (the pair is borne at its root between the shoulder blades; out of a fight it is squared up there: see below)
     const pair = new THREE.Group(); pair.name = 'spiritWings'; pair.position.set(0, 1.8 * s, zb * s); up.add(pair);
+    // (the light dies away toward the wings' roots where they lie behind the shoulders and the arms, so that from
+    // behind what is worn there keeps its own colour; above the shoulders it runs in to the root, along the wing's arm)
+    const ease = (x: number) => { const q = Math.min(1, Math.max(0, x)); return q * q * (3 - 2 * q); }, clearOf = (u: number, v: number) => Math.max(ease((u - 1.1) / 0.8), ease((v - 0.5) / 0.45));
     for (const sx of [RX, LX]) {
       const L = lightStrips();
       // the sheet: `u` out from the wing's root beside the spine and `v` up, `lift` off it toward the body; it falls away
@@ -2506,7 +2509,7 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
         // (its half width: narrow at the root, full from a third of its length, rounded off at the tip; never reaching in past the wing's root)
         const wide = (x: number) => Math.min(0.9 * (u0 + du * len * x), w * (x < 0.78 ? 0.5 + 0.5 * Math.min(1, x / 0.3) : Math.sqrt(Math.max(0, 1 - ((x - 0.78) / 0.22) ** 2))));
         L.strip(8, (i) => P3(u0 + du * len * x(i), v0 + dv * len * x(i), lift), (i) => P3(u0 + du * len * x(i) - dv * wide(x(i)), v0 + dv * len * x(i) + du * wide(x(i)), lift).sub(P3(u0 + du * len * x(i), v0 + dv * len * x(i), lift)),
-          (i) => c.clone().lerp(rim, 0.7 * x(i) ** 2).multiplyScalar(op * k * Math.min(1, 0.1 + x(i) / 0.4) * (1 - Math.max(0, (x(i) - 0.45) / 0.55) ** 2) * near(x(i))));
+          (i) => c.clone().lerp(rim, 0.7 * x(i) ** 2).multiplyScalar(op * k * Math.min(1, 0.1 + x(i) / 0.4) * (1 - Math.max(0, (x(i) - 0.45) / 0.55) ** 2) * near(x(i)) * clearOf(u0 + du * len * x(i), v0 + dv * len * x(i))));
       };
       for (let i = 0; i < 9; i++) { const t = 1 - 0.4 * i / 8; feather(t, ...quill(t), 0.3, 0.5, 0); }                                                      // primaries
       for (let i = 0; i < 7; i++) { const t = 0.56 - 0.44 * i / 6; feather(t, ...quill(t), 0.3, 0.45, 0); }                                                 // secondaries
@@ -2514,7 +2517,7 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
       for (let i = 0; i < 7; i++) { const q = i / 6; feather(0.92 - 0.78 * q, fan[0] - 0.7 + (fan[1] - 0.2 - fan[0] + 0.7) * Math.min(1, q * 1.5), 0.5, 0.17, 0.22, 0.06); }           // the lesser coverts
       // the glow under the feathers, from the arm to their tips, brightest halfway
       const reach = (t: number, x: number) => { const [u0, v0] = arm(t), [ang, len] = quill(t); return P3(u0 + Math.cos(ang) * len * x, v0 + Math.sin(ang) * len * x, -0.04); };
-      L.strip(16, (t) => reach(0.1 + 0.9 * t, 0.5), (t) => reach(0.1 + 0.9 * t, 0.98).sub(reach(0.1 + 0.9 * t, 0.5)), (t) => c.clone().multiplyScalar(op * 0.45 * Math.min(1, t * 2.5)));
+      L.strip(16, (t) => reach(0.1 + 0.9 * t, 0.5), (t) => reach(0.1 + 0.9 * t, 0.98).sub(reach(0.1 + 0.9 * t, 0.5)), (t) => { const [u0, v0] = arm(0.1 + 0.9 * t), [ang, len] = quill(0.1 + 0.9 * t); return c.clone().multiplyScalar(op * 0.45 * Math.min(1, t * 2.5) * clearOf(u0 + Math.cos(ang) * len * 0.74, v0 + Math.sin(ang) * len * 0.74)); });
       L.strip(12, (t) => P3(...arm(0.12 + 0.88 * t), 0.06), (t) => new THREE.Vector3(0, 0.08 * e * s * fadeEnds(Math.min(1, t + 0.2)), 0), (t) => c.clone().multiplyScalar(op * 0.35 * Math.min(1, t * 3) * (1 - t ** 4))); // the wing's arm
       const wing = L.mesh(); wing.name = 'spiritWing'; wing.position.copy(pair.position).negate(); pair.add(wing);
     }
