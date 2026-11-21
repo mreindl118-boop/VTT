@@ -44,7 +44,9 @@ describe('hero outfit pieces', () => {
   it('builds none of them on a recipe that sets none', () => {
     const g = build({ ...MAIL, cloak: '#2a3a6a', clasps: '#d8c070', satchel: '#5a3a20', pendant: '#c0c0c0', buckle: '#c0c0c0', offhand: { kind: 'shield', mark: '#dddddd' } });
     expect(Object.keys(parts(g))).toEqual([]);
-    expect(meshes(g).filter((m) => m.geometry.type === 'TorusGeometry' && (m.geometry as THREE.TorusGeometry).parameters.radius < 0.1).length).toBe(0);
+    // (no little rings: a pendant's are built only for pendantShape 'rings'; rings on the head are the face's own ears)
+    const head = new Set<THREE.Object3D>(); (g.userData.joints as Record<string, THREE.Object3D>).head.traverse((o) => head.add(o));
+    expect(meshes(g).filter((m) => !head.has(m) && m.geometry.type === 'TorusGeometry' && (m.geometry as THREE.TorusGeometry).parameters.radius < 0.1).length).toBe(0);
   }, 60000);
 
   it('cuts a chain shirt to the hips, where plain mail hangs to the knee, and shows the shirt under it at the neck', () => {
