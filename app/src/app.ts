@@ -12,6 +12,7 @@ import { classOpacity, fogCurve, hiddenCurve, labelCurve } from './core/slider';
 import { baseRingFt, CELL_FT } from './core/units';
 import { baseRing } from './kit/pieces';
 import { adventurer } from './kit/creatures';
+import { heroFigure, heroLook, heroOptions, portraitDisc } from './kit/heroes';
 import { PALETTE } from './kit/palette';
 import { buildLevel, buildLevelSteps, hitObjectId, mergeByMaterial, type BuiltLevel, type LabelSpec } from './render/build';
 import { gridUniforms } from './render/gridOverlay';
@@ -52,6 +53,8 @@ const wholeExtent = (s: SceneFile): Bounds => {
 };
 /** Where the DM came in: the room of the parent map whose Enter opened the child. */
 export interface EnteredFrom { parent: string; level: string; key: string; child: string }
+import { Jiggle } from './render/jiggle';
+import { figureKey, tokenLook } from './render/tokenpiece';
 import { creatureById, figureFor, aliasFor, seenAs, statsOf, speedFtOf, colorOf } from './bestiary';
 import { playerFacing } from './core/identity';
 import { sightBlockers } from './core/light';
@@ -138,6 +141,13 @@ export class App {
   follow = true;
   /** Entering a room reveals and remembers it for the players. */
   autoReveal = true;
+  /** How player characters with a party pack's picture stand: their miniature on a portrait base, or a flat round token. */
+  pieceStyle: 'mini' | 'token' = (() => { try { return localStorage.getItem('mistlab.pieceStyle') === 'token' ? 'token' : 'mini'; } catch { return 'mini'; } })();
+  /** Jiggle: the soft parts of a miniature bounce when it is picked up or moved (a table joke; off spares the work). */
+  jiggleOn = (() => { let on = true; try { on = localStorage.getItem('mistlab.jiggle') !== '0'; } catch { /* no storage */ } heroOptions.jiggle = on; return on; })();
+  private jiggle = new Jiggle(() => this.world.invalidate());
+  setJiggle(on: boolean): void { this.jiggleOn = heroOptions.jiggle = on; try { localStorage.setItem('mistlab.jiggle', on ? '1' : '0'); } catch { /* no storage */ } if (this.cur) { this.syncTokens(); this.world.invalidate(); } }
+  setPieceStyle(v: 'mini' | 'token'): void { this.pieceStyle = v; try { localStorage.setItem('mistlab.pieceStyle', v); } catch { /* no storage */ } if (this.cur) { this.syncTokens(); this.world.invalidate(); } }
   /** One-screen play: 'players' hides every DM affordance and pins t = 0. */
   view: 'dm' | 'players' = 'dm';
   lowWalls = true;
@@ -1203,7 +1213,11 @@ export class App {
   }
 
   /** The party token for the loaded location. */
-  get party(): Token | undefined { const here = this.state.tokens.filter((t) => t.location === this.cur?.scene.location); return here.find((t) => t.role !== 'member') ?? here[0]; }
+  get party(): Token | undefined {
+    // the party marker; else the first character standing in their own token (a party pack's placement); else as before
+    const here = this.state.tokens.filter((t) => t.location === this.cur?.scene.location);
+    return here.find((t) => t.role === 'party' || !t.role) ?? here.find((t) => t.role === 'pc') ?? here.find((t) => t.role !== 'member') ?? here[0];
+  }
 
   // ------------------------------------------------------------------ encounters: initiative, turns, ranges
 
@@ -1232,11 +1246,14 @@ export class App {
     entries.slice().sort((a, b) => b.init - a.init).forEach((en, i) => {
       const sh = this.state.roster.find((x) => x.id === en.sheetId); if (!sh) return;
       if (en.tokenId) { const t = this.state.tokens.find((x) => x.id === en.tokenId); if (!t) return; t.sheetId = sh.id; order.push({ sheetId: sh.id, tokenId: t.id, init: en.init }); return; }
+      // a character already standing here in their own token fights from where they stand
+      const own = this.state.tokens.find((x) => x.role === 'pc' && x.sheetId === sh.id && x.location === loc);
+      if (own) { order.push({ sheetId: sh.id, tokenId: own.id, init: en.init }); return; }
       const id = `tok-${loc}-${sh.id}`;
       this.state.tokens.push({ id, name: sh.name, location: loc, level, pos: free[i] ?? at, size: sh.size, darkvisionFt: sh.darkvisionFt, color: sh.color, role: 'member', sheetId: sh.id, light: sh.kind === 'pc' && i === 0 ? { bright: 20, dim: 40 } : undefined });
       order.push({ sheetId: sh.id, tokenId: id, init: en.init });
     });
-    if (party) this.state.tokens = this.state.tokens.filter((t) => t !== party);
+    if (party && party.role !== 'pc') this.state.tokens = this.state.tokens.filter((t) => t !== party);
     this.state.encounter = { location: loc, level, round: 1, order, turn: 0, movedFt: 0, partyPos: party?.pos ?? at };
     this.select(null);
     if (level !== this.levelId) this.setLevel(level); else this.syncTokens();
@@ -1398,45 +1415,65 @@ export class App {
     if (this.follow) this.findParty(true);
   }
 
+  /** Redraw the tokens and what they see (after the roster or the tokens changed outside a move). */
+  refreshTokens(): void { if (!this.cur) return; this.syncTokens(); this.recompute(); this.world.invalidate(); }
+
   tokensHere(): Token[] { return this.state.tokens.filter((t) => t.location === this.cur?.scene.location && t.level === this.levelId); }
 
   private syncTokens(): void {
     const b = this.built;
-    // the old figures are freed (their geometry and materials are their own); the selection ring rides on and comes back
+    // The old pieces are freed (their geometry and materials are their own), each token's miniature first taken out of
+    // its piece: while what it is built from is unchanged it stands in the new one, as building one can take a large part
+    // of a second and the players' display passes over every token on each change the DM makes. The selection ring rides
+    // on and comes back.
     const ringOn = this.selRing?.parent?.userData.tokenId as string | undefined;
     this.selRing?.removeFromParent();
-    for (const [id, g] of this.cur!.tokens) { disposeTree(g); this.cur!.tokens.delete(id); }
+    const kept = new Map<string, { fig: THREE.Object3D; key: string }>(), sprung = new Set<string>();
+    for (const [id, g] of this.cur!.tokens) {
+      const k = g.userData.fig as { fig: THREE.Object3D; key: string } | undefined;
+      if (k) { k.fig.removeFromParent(); kept.set(id, k); }
+      disposeTree(g); this.cur!.tokens.delete(id);
+    }
     for (const t of this.tokensHere()) {
       if (t.role === 'creature' && t.hidden && this.restricted) continue; // not yet shown to the players
       const base = baseRingFt(t.size);
       const g = new THREE.Group();
       const entry = t.creatureId ? creatureById(t.creatureId) : undefined;
-      const fig = mergeByMaterial(entry ? figureFor(entry) : adventurer(t.role === 'member' ? { cloth: t.color } : undefined)); fig.position.y = 0.3;
-      g.add(baseRing(base, t.role === 'party' ? PARTY_RED : t.color), fig);
+      // a party pack's character: their own miniature, standing on their portrait (or the portrait alone, flat)
+      const sheet = t.sheetId && t.role !== 'creature' ? this.state.roster.find((x) => x.id === t.sheetId) : undefined;
+      const flat = !!sheet?.portrait && this.pieceStyle === 'token';
+      const ghostly = t.role === 'creature' && !!t.hidden; // the DM sees an unrevealed creature faintly
+      if (!flat) {
+        const figState = t.down || (t.hp && t.hp.cur <= 0) ? 'dead' as const : !!this.state.encounter?.order.some((c) => c.tokenId === t.id);
+        const look = sheet?.figure && heroLook(sheet.figure, t.transformed); // the character's miniature as it is now: transformed or not
+        const key = figureKey(t, { figure: look, entry: entry?.id, state: figState, jiggle: heroOptions.jiggle, ghostly });
+        let k = kept.get(t.id);
+        if (k?.key === key) kept.delete(t.id);
+        else { const fig = mergeByMaterial(look ? heroFigure(look, t.size, figState) : entry ? figureFor(entry) : adventurer(t.role === 'member' ? { cloth: t.color } : undefined)); fig.position.y = 0.3; k = { fig, key }; }
+        g.add(k.fig); g.userData.fig = k;
+        if (this.jiggleOn) { this.jiggle.track(t.id, k.fig); sprung.add(t.id); }
+      }
+      if (sheet?.portrait) g.add(portraitDisc(sheet.portrait, t.color, flat ? base * 0.48 : (base * 0.62) / 2 + 0.25, () => this.world.invalidate(), 0.3));
+      else g.add(baseRing(base, t.role === 'party' ? PARTY_RED : t.color));
       if (t.role === 'party') { const amp = this.world.label('&', undefined, 'token party-amp'); amp.position.set(0, 7.6, 0); g.add(amp); }
-      if (t.role === 'member' || t.role === 'creature') {
+      if (t.role === 'member' || t.role === 'creature' || t.role === 'pc') {
         // The name goes through the players' projection (core/identity.ts): a hidden creature has no tag on the players'
         // side, a revealed one its own alias, never its real or sheet name.
         const f = playerFacing(t, { restricted: this.playersSide });
         if (f.visible) {
           const lb = this.world.label(f.name ?? t.name, undefined, `token${t.role === 'creature' ? ' creature' : ''}${t.hidden ? ' hidden' : ''}`);
-          lb.position.set(0, 7.2, 0); lb.element.style.setProperty('--tok', t.color); g.add(lb);
+          lb.position.set(0, flat ? 2.2 : 7.2, 0); lb.element.style.setProperty('--tok', t.color); g.add(lb);
         }
       }
-      const ghostly = t.role === 'creature' && !!t.hidden; // the DM sees an unrevealed creature faintly
-      g.traverse((c) => {
-        const m = c as THREE.Mesh;
-        if (!m.isMesh) return;
-        const src = m.material as THREE.MeshLambertMaterial;
-        m.material = new THREE.MeshLambertMaterial({ color: src.color, flatShading: true, transparent: ghostly, opacity: ghostly ? 0.45 : 1 }); // tokens are never fogged
-        m.userData.role = 'token';
-        m.userData.tokenId = t.id;
-      });
+      tokenLook(g, t.id, ghostly); // tokens are never fogged
       g.position.set(t.pos[0], this.level.elevationFt, t.pos[1]);
       g.userData.tokenId = t.id;
       b.root.add(g);
       this.cur!.tokens.set(t.id, g);
     }
+    // (the miniatures not taken back: their tokens gone, or built anew)
+    for (const { fig } of kept.values()) disposeTree(fig);
+    this.jiggle.keepOnly(sprung);
     const back = ringOn && this.selected === ringOn ? this.cur!.tokens.get(ringOn) : undefined;
     if (back && this.selRing) back.add(this.selRing);
   }
@@ -1772,6 +1809,10 @@ export class App {
   }
   setTokenHidden(id: string, hidden: boolean): void { const t = this.state.tokens.find((x) => x.id === id); if (!t) return; t.hidden = hidden; this.syncTokens(); this.recompute(); this.commit(); this.onChange?.(); }
   setPlayerName(id: string, name: string): void { const t = this.state.tokens.find((x) => x.id === id); if (!t) return; t.playerName = name.trim() || t.playerName; this.syncTokens(); this.commit(); }
+  /** Mark a token down (dead or dying) or back up: a character's miniature lies in its dead pose. */
+  setDown(id: string, down: boolean): void { const t = this.state.tokens.find((x) => x.id === id); if (!t) return; if (down) t.down = true; else delete t.down; this.commit(); this.refreshTokens(); this.onChange?.(); }
+  /** Turn a token's transformation on or off: a character's miniature wears its figure's transformed look. */
+  setTransformed(id: string, on: boolean): void { const t = this.state.tokens.find((x) => x.id === id); if (!t) return; if (on) t.transformed = true; else delete t.transformed; this.commit(); this.refreshTokens(); this.onChange?.(); }
   adjustHp(id: string, delta: number): void { const t = this.state.tokens.find((x) => x.id === id); if (!t?.hp) return; t.hp.cur = Math.max(0, Math.min(t.hp.max, t.hp.cur + delta)); this.commit(); this.onChange?.(); }
   /** The sheet an initiative needs for a placed creature: one per creature kind, shared by every copy. */
   creatureSheet(t: Token): Sheet | undefined {
@@ -1958,6 +1999,7 @@ export class App {
     const t = id ? this.state.tokens.find((x) => x.id === id) : undefined;
     const obj = id ? this.cur?.tokens.get(id) : undefined;
     if (t && obj) {
+      this.jiggle.kick(t.id, 5, 1.5);
       const r = baseRingFt(t.size) * 0.31 + 0.6; ring.scale.setScalar(r); ghost.scale.setScalar(r);
       obj.add(ring);
       this.setStatus(this.restricted ? 'Tap where the party goes' : 'Tap where it goes · tap the token again to cancel');
@@ -2045,8 +2087,9 @@ export class App {
     } else if (!this.canWalkTo(t.pos, to)) { this.flashStatus('No way through: walls block the party. Open a door first.'); return false; }
     t.pos = to;
     this.cur!.tokens.get(id)?.position.set(to[0], this.level.elevationFt, to[1]);
+    this.jiggle.kick(id, 8, 3);
     if (id === this.party?.id) this.afterPartyMove();
-    else if (this.encounter) this.afterMemberMove(t);
+    else if (this.encounter || t.role === 'pc') this.afterMemberMove(t);
     else if (this.rangeHelper) this.refreshRange();
     this.commit();
     return true;
