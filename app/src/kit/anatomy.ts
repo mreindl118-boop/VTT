@@ -51,13 +51,26 @@ export function loftGeometry(rings: Ring[], s: number, o: { seg?: number; rows?:
 export const THIGH = 1.38, SHIN = 1.26, HIP = THIGH + SHIN + 0.47;
 
 /** A body's measures: a feminine or masculine frame, in a lean, broad or curvy build. */
-export interface Frame { fem: boolean; build: Build; shoulderX: number; hipX: number; arm: number; leg: number; hand: number; bust: number; m: Required<Measures> }
+export interface Frame { fem: boolean; build: Build; shoulderX: number; hipX: number; arm: number; leg: number; hand: number; bust: number; m: Required<Omit<Measures, 'neckBuild'>> }
 /** A character's own measures over its frame, each a multiplier (1 = the frame's): the width of the shoulders, the
  *  chest, the waist and the hips, the bust, the girth of the arms and the legs, and the neck. Taken from the
  *  character's art: a brawny fighter is wide in the shoulders, waist and arms; a slight one narrow everywhere. */
-export interface Measures { shoulders?: number; chest?: number; waist?: number; hips?: number; bust?: number; arms?: number; legs?: number; neck?: number }
+export interface Measures { shoulders?: number; chest?: number; waist?: number; hips?: number; bust?: number; arms?: number; legs?: number; neck?: number;
+  /** The neck's length (1 = the frame's; `neck` is its thickness): a longer neck carries the head higher. */
+  neckLen?: number;
+  /** How plainly the neck's long muscles and cords show (1 = as its thickness gives; 0 = smooth). */
+  cords?: number;
+  /** A characteristic neck, setting its thickness, length and cords at once (the measures given still win). */
+  neckBuild?: NeckBuild }
+/** Characteristic necks. A bull neck is thick and short and runs out into the shoulders; a swan's is long, slim and
+ *  smooth; a scrawny one thin, its cords and throat standing out. */
+export type NeckBuild = 'bull' | 'thick' | 'short' | 'slender' | 'swan' | 'scrawny';
+export const NECK_BUILDS: Record<NeckBuild, { neck: number; neckLen: number; cords: number }> = {
+  bull: { neck: 1.45, neckLen: 0.82, cords: 0.6 }, thick: { neck: 1.2, neckLen: 0.94, cords: 0.8 }, short: { neck: 1.08, neckLen: 0.8, cords: 0.7 },
+  slender: { neck: 0.9, neckLen: 1.08, cords: 0.9 }, swan: { neck: 0.86, neckLen: 1.22, cords: 0.45 }, scrawny: { neck: 0.8, neckLen: 1.1, cords: 1.9 } };
 export function frameOf(fem: boolean, build: Build = 'lean', measures: Measures = {}): Frame {
-  const m = { shoulders: 1, chest: 1, waist: 1, hips: 1, bust: 1, arms: 1, legs: 1, neck: 1, ...measures };
+  const { neckBuild, ...given } = measures, nb = neckBuild ? NECK_BUILDS[neckBuild] : undefined;
+  const m = { shoulders: 1, chest: 1, waist: 1, hips: 1, bust: 1, arms: 1, legs: 1, neck: nb?.neck ?? 1, neckLen: nb?.neckLen ?? 1, cords: nb?.cords ?? 1, ...given };
   const fr = baseFrame(fem, build);
   return { ...fr, m, shoulderX: fr.shoulderX * (0.35 + 0.65 * m.shoulders), hipX: fr.hipX * (0.5 + 0.5 * m.hips), arm: fr.arm * m.arms, leg: fr.leg * m.legs, hand: fr.hand * (0.7 + 0.3 * m.arms), bust: fr.bust * m.bust };
 }
@@ -108,9 +121,54 @@ export function thighRings(fr: Frame): Ring[] {
   return scaleRings([{ y: -1.24, w: 0.19, f: 0.2, b: 0.18 }, { y: -0.9, w: 0.225, f: 0.24, b: 0.21 }, { y: -0.45, w: 0.295 * top, f: 0.31, b: 0.28 * top }, { y: -0.1, w: 0.325 * top, f: 0.29, b: 0.33 * top }, { y: 0.1, w: 0.27 * top, f: 0.23, b: 0.28 }], fr.leg, fr.leg, THIGH / 1.24);
 }
 export const shinRings = (fr: Frame): Ring[] => scaleRings([{ y: -1.14, w: 0.115, f: 0.12, b: 0.13 }, { y: -0.8, w: 0.14, f: 0.14, b: 0.17 }, { y: -0.35, w: 0.2, f: 0.165, b: 0.275 }, { y: -0.05, w: 0.185, f: 0.2, b: 0.19 }, { y: 0.06, w: 0.18, f: 0.2, b: 0.17 }], fr.leg, fr.leg, SHIN / 1.14);
-export const neckRings = (fr: Frame): Ring[] => scaleRings(baseNeck(fr), fr.m.neck);
-const baseNeck = (fr: Frame): Ring[] => fr.fem ? [{ y: -0.08, w: 0.16, f: 0.14, b: 0.16 }, { y: 0.2, w: 0.125, f: 0.125, b: 0.135 }, { y: 0.55, w: 0.125, f: 0.13, b: 0.135 }]
-  : [{ y: -0.08, w: fr.build === 'broad' ? 0.25 : 0.21, f: 0.18, b: 0.21 }, { y: 0.2, w: fr.build === 'broad' ? 0.19 : 0.165, f: 0.165, b: 0.18 }, { y: 0.55, w: 0.16, f: 0.16, b: 0.17 }];
+/** How much higher a longer neck carries the head (feet at scale 1); the rig and the figure's head height both add it. */
+export const neckLift = (fr: Frame): number => 0.25 * (fr.m.neckLen - 1);
+/** The neck, in the neck joint's frame (the head's centre sits at 0.58): a column leaning a little forward, set toward
+ *  the back of the shoulders and under the back half of the skull, so the face carries forward of it and the jaw's
+ *  underside meets its front. Wider at the root where it flares into the shoulders, slimmest at the middle, widening
+ *  again under the ears where its muscles reach up behind the jaw into the skull. `neck` thickens it (the part inside
+ *  the head less, so a bull neck still runs up under the jaw instead of swallowing the head, and its root, sunk in the
+ *  shoulders, less deep, so a thick neck spreads into the trapezius instead of standing out behind it); `neckLen`
+ *  stretches its visible part and lifts the head. */
+export const neckRings = (fr: Frame): Ring[] => {
+  const L = neckLift(fr), k = fr.m.neck;
+  return splineRings(baseNeck(fr).map((r) => {
+    const t = Math.max(0, Math.min(1, (r.y - 0.12) / 0.22)), kk = 1 + (k - 1) * (1 - t * t * (3 - 2 * t));
+    const up = k > 1 ? Math.max(0, Math.min(1, (r.y + 0.1) / 0.3)) : 1, q = scaleRings([r], 1 + (kk - 1) * (0.6 + 0.4 * up), 1 + (kk - 1) * (0.3 + 0.7 * up))[0];
+    return q.y > 0.06 ? { ...q, y: q.y + Math.min(1, (q.y - 0.06) / 0.25) * L } : q;
+  }), 24);
+};
+/** A stack of rings passed through smoothly (a Catmull-Rom spline through each measure), `n` rings in all: ringAt eases
+ *  each step between neighbours on its own, which terraces a column whose rings differ a lot. */
+function splineRings(rs: Ring[], n: number): Ring[] {
+  const m = rs.length - 1, out: Ring[] = [], at = (j: number) => rs[Math.max(0, Math.min(m, j))];
+  for (let i = 0; i <= n; i++) {
+    const u = (i / n) * m, k = Math.min(m - 1, Math.floor(u)), t = u - k;
+    const cr = (g: (r: Ring) => number) => { const p0 = g(at(k - 1)), p1 = g(at(k)), p2 = g(at(k + 1)), p3 = g(at(k + 2)); return 0.5 * (2 * p1 + (p2 - p0) * t + (2 * p0 - 5 * p1 + 4 * p2 - p3) * t * t + (3 * p1 - p0 - 3 * p2 + p3) * t * t * t); };
+    out.push({ y: cr((r) => r.y), w: cr((r) => r.w), f: cr((r) => r.f), b: cr((r) => r.b), z: cr((r) => r.z ?? 0) });
+  }
+  return out;
+}
+const baseNeck = (fr: Frame): Ring[] => {
+  if (fr.fem) return [{ y: -0.1, w: 0.205, f: 0.15, b: 0.195, z: -0.045 }, { y: 0.06, w: 0.18, f: 0.146, b: 0.175, z: -0.042 }, { y: 0.2, w: 0.174, f: 0.148, b: 0.174, z: -0.036 },
+    { y: 0.34, w: 0.178, f: 0.14, b: 0.2, z: -0.03 }, { y: 0.48, w: 0.165, f: 0.125, b: 0.19, z: -0.026 }, { y: 0.62, w: 0.14, f: 0.1, b: 0.15, z: -0.02 }];
+  const k = fr.build === 'broad' ? 1.1 : 1;
+  return [{ y: -0.1, w: 0.27 * k, f: 0.19, b: 0.25 * k, z: -0.055 }, { y: 0.06, w: 0.235 * k, f: 0.186, b: 0.226 * k, z: -0.052 }, { y: 0.2, w: 0.222 * k, f: 0.185, b: 0.222 * k, z: -0.042 },
+    { y: 0.34, w: 0.225 * Math.min(k, 1.04), f: 0.172, b: 0.24 * k, z: -0.032 }, { y: 0.48, w: 0.205 * Math.min(k, 1.04), f: 0.15, b: 0.225 * k, z: -0.028 }, { y: 0.62, w: 0.18, f: 0.12, b: 0.18, z: -0.02 }];
+};
+/** The neck's muscles and throat, as a swelling of its surface (loftGeometry's `bump`, angle 0 at the front): the two
+ *  long muscles running from behind the ears down and forward to meet over the hollow at the top of the breastbone,
+ *  and on a masculine neck the larynx, a soft rise at the front. A thin neck shows them more. */
+export const neckBump = (fr: Frame): ((th: number, y: number) => number) => {
+  const L = neckLift(fr), ly = 0.13 + 0.28 * L, lean = Math.max(0.5, Math.min(1.6, 1 / fr.m.neck)), cord = (fr.fem ? 0.022 : 0.034) * lean * fr.m.cords;
+  return (th, y) => {
+    const t = th > Math.PI ? th - 2 * Math.PI : th, a = Math.abs(t), yy = y - Math.max(0, Math.min(1, (y - 0.06) / 0.25)) * L;
+    const along = Math.max(0, Math.min(1, (yy + 0.02) / 0.42)), c = 0.2 + 1.5 * along * along * (3 - 2 * along);   // the muscle's line: at the breastbone, then back behind the ear
+    const on = Math.max(0, Math.min(1, (yy + 0.06) / 0.1)) * Math.max(0, Math.min(1, (0.46 - yy) / 0.1));
+    return cord * on * Math.exp(-(((a - c) / 0.24) ** 2)) - 0.03 * Math.exp(-((t / 0.2) ** 2) - ((yy - 0.02) / 0.06) ** 2)
+      + (fr.fem ? 0 : 0.06 * Math.exp(-((t / 0.26) ** 2) - ((y - ly) / 0.07) ** 2));
+  };
+};
 
 /** A lock of hair, a ribbon of cloth, a tail: a tapering tube along a path, flattened across `flat` (1 is round). */
 export function lockGeometry(pts: THREE.Vector3[], r0: number, r1: number, flat = 0.55, sides = 6, belly = 0.25): THREE.BufferGeometry {

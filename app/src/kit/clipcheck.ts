@@ -4,10 +4,11 @@
 // forearms, upper arms below the shoulder, thighs below the hip, shins, feet, and whatever the hands hold) are sampled
 // at their mesh vertices. A sample inside a volume it should never enter is a clip; its depth is how far inside it lies.
 // Flesh pressed on flesh (thigh on thigh, calf on thigh, forearm on biceps, thigh on belly) gives a little before it
-// counts: a quarter of the limb's thickness there. Legs inside a gown's sheath are hidden, so they are not checked
-// against each other. Pure geometry: no rendering, so tests can run it on every figure in every pose.
+// counts: a quarter of the limb's thickness there; an upper arm resting on the ribs gives a tenth. Legs inside a gown's
+// sheath are hidden, so they are not checked against each other. A limb made thicker after the build carries the factor
+// in its joint's userData.girth. Pure geometry: no rendering, so tests can run it on every figure in every pose.
 import * as THREE from 'three';
-import { forearmRings, neckRings, pelvisRings, ringAt, shinRings, thighRings, torsoRings, upperArmRings, type Ring } from './anatomy';
+import { forearmRings, neckRings, pelvisRings, ringAt, scaleRings, shinRings, thighRings, torsoRings, upperArmRings, type Ring } from './anatomy';
 import { frameFor, SIDE_X, type HeroFigure } from './heroes';
 
 /** One part passing into another: `depth` is the deepest sample's distance inside (feet), `points` how many samples are
@@ -24,8 +25,10 @@ export interface ClipOptions {
 
 /** A body volume: how deep inside it a point lies (0 outside) and how thick the body is there (both in feet). */
 type Volume = { name: string; inside: (p: THREE.Vector3) => [number, number] };
-/** A moving part's samples, the volumes they may not enter, and those of them that are flesh it may press into. */
-type Part = { name: string; pts: THREE.Vector3[]; into: string[]; soft?: string[] };
+/** A moving part's samples, the volumes they may not enter, and those of them that are flesh it may press into (with
+ *  how much of the full give each allows). */
+type Part = { name: string; pts: THREE.Vector3[]; into: string[]; soft?: Record<string, number> };
+const press = (names: string[], k = 1) => Object.fromEntries(names.map((n) => [n, k]));
 
 /** How far inside a ring stack a point lies, and the stack's half-thickness there (ring units; [0, 0] outside). Rings
  *  run bottom to top in y. */
@@ -61,23 +64,30 @@ const deep = (o: THREE.Object3D | undefined) => { const out: THREE.Mesh[] = []; 
 /** Every clip in a posed figure built by heroFigure from `recipe` (rest, battle or dead), deepest first. */
 export function findClips(figure: THREE.Object3D, recipe: HeroFigure, o: ClipOptions = {}): ClipHit[] {
   figure.updateMatrixWorld(true);
-  const J: Record<string, THREE.Object3D> = {}; figure.traverse((c) => { if (c.name && !J[c.name]) J[c.name] = c; });
+  // a mount carrying its rider (kit/menagerie.ts mounted()): the rider is the figure (the mount's own neck and hips are not its)
+  const fig = (figure.userData.rider as THREE.Object3D | undefined) ?? figure;
+  const J: Record<string, THREE.Object3D> = {}; fig.traverse((c) => { if (c.name && !J[c.name]) J[c.name] = c; });
   const neck = J.neck, head = J.head; if (!J.chest || !neck || !head) return [];
   const s = neck.position.y / 2.24, fr = frameFor(recipe), tol = (o.tolerance ?? 0.04) * s, give = o.give ?? 0.25, skip = new Set(o.ignore ?? []);
   const local = (obj: THREE.Object3D, p: THREE.Vector3) => obj.worldToLocal(p.clone()).divideScalar(s);
   const pts = (m: THREE.Mesh, cap?: number) => samples(m, 0.1 * s, cap);
+  // a limb thickened after the build (a fiend's arm) says by how much in its joint's userData.girth
+  const girth = (rings: Ring[], obj: THREE.Object3D | undefined) => { const k = obj?.userData.girth as number | undefined; return k ? scaleRings(rings, k) : rings; };
   const stack = (name: string, obj: THREE.Object3D | undefined, rings: Ring[]): Volume[] => obj ? [{ name, inside: (p) => { const [d, t] = ringDepth(rings, local(obj, p)); return [d * s, t * s]; } }] : [];
-  // the skull: an ellipsoid round the head's centre (0.37 above the head joint), a little inside the painted surface
+  // the skull: an ellipsoid round the head's centre (0.37 above the head joint), a little inside the painted surface;
+  // and the lower face carried forward of it, the mouth, the jaw and the chin, a smaller one under the nose
   const skull = (p: THREE.Vector3): [number, number] => {
     const q = local(head, p), c = new THREE.Vector3(0, 0.35, 0.0), rx = 0.31, ry = 0.44, rz = q.z > 0 ? 0.36 : 0.39;
     const v = ((q.x - c.x) / rx) ** 2 + ((q.y - c.y) / ry) ** 2 + ((q.z - c.z) / rz) ** 2;
-    return v < 1 ? [(1 - Math.sqrt(v)) * rx * s, rx * s] : [0, 0];
+    const jx = 0.18, jv = (q.x / jx) ** 2 + ((q.y - 0.08) / 0.14) ** 2 + ((q.z - 0.13) / 0.2) ** 2;
+    const d = Math.max(v < 1 ? (1 - Math.sqrt(v)) * rx : 0, jv < 1 ? (1 - Math.sqrt(jv)) * jx : 0);
+    return d > 0 ? [d * s, rx * s] : [0, 0];
   };
   const vols: Volume[] = [
     ...stack('torso', J.chest, torsoRings(fr)), ...stack('pelvis', J.hips, pelvisRings(fr)), ...stack('neck', neck, neckRings(fr)),
     { name: 'head', inside: skull },
-    ...stack('upperArmR', J.shoulderR, upperArmRings(fr, SIDE_X.R)), ...stack('upperArmL', J.shoulderL, upperArmRings(fr, SIDE_X.L)),
-    ...stack('forearmR', J.elbowR, forearmRings(fr)), ...stack('forearmL', J.elbowL, forearmRings(fr)),
+    ...stack('upperArmR', J.shoulderR, girth(upperArmRings(fr, SIDE_X.R), J.shoulderR)), ...stack('upperArmL', J.shoulderL, girth(upperArmRings(fr, SIDE_X.L), J.shoulderL)),
+    ...stack('forearmR', J.elbowR, girth(forearmRings(fr), J.elbowR)), ...stack('forearmL', J.elbowL, girth(forearmRings(fr), J.elbowL)),
     ...stack('thighR', J.hipR, thighRings(fr)), ...stack('thighL', J.hipL, thighRings(fr)),
     ...stack('shinR', J.kneeR, shinRings(fr)), ...stack('shinL', J.kneeL, shinRings(fr)),
   ];
@@ -91,17 +101,19 @@ export function findClips(figure: THREE.Object3D, recipe: HeroFigure, o: ClipOpt
   for (const sd of ['R', 'L'] as const) {
     const ot = sd === 'R' ? 'L' : 'R', otherArm = [`upperArm${ot}`, `forearm${ot}`], legs = ['thighR', 'thighL', 'shinR', 'shinL'], otherLeg = sheathed ? [] : [`thigh${ot}`, `shin${ot}`];
     const hand = direct(J['wrist' + sd]).flatMap((m) => pts(m)), fore = direct(J['elbow' + sd]).flatMap((m) => pts(m));
+    // how far from the elbow, knee and wrist the overlap of the two limbs reaches grows with their thickness
+    const armK = Math.max(1, fr.arm * ((J['elbow' + sd]?.userData.girth as number | undefined) ?? 1) / 1.2), legK = Math.max(1, fr.leg / 1.2), handK = J['wrist' + sd]?.scale.x ?? 1;
     const upper = below(direct(J['shoulder' + sd]).flatMap((m) => pts(m)), J['shoulder' + sd], -0.45);
     parts.push({ name: 'hand' + sd, pts: hand, into: [...body, ...legs, ...otherArm, `upperArm${sd}`] });
-    parts.push({ name: 'hand' + sd, pts: away(hand, J['wrist' + sd], 0.16), into: [`forearm${sd}`] });
+    parts.push({ name: 'hand' + sd, pts: away(hand, J['wrist' + sd], 0.16 * handK), into: [`forearm${sd}`] });
     parts.push({ name: 'forearm' + sd, pts: fore, into: [...body, ...legs, ...otherArm] });
-    parts.push({ name: 'forearm' + sd, pts: away(fore, J['elbow' + sd], 0.3), into: [`upperArm${sd}`], soft: [`upperArm${sd}`] });
-    parts.push({ name: 'upperArm' + sd, pts: upper, into: [...body, ...legs, ...otherArm] });
+    parts.push({ name: 'forearm' + sd, pts: away(fore, J['elbow' + sd], 0.3 * armK), into: [`upperArm${sd}`], soft: press([`upperArm${sd}`]) });
+    parts.push({ name: 'upperArm' + sd, pts: upper, into: [...body, ...legs, ...otherArm], soft: press(['torso'], 0.4) });
     const thigh = below(direct(J['hip' + sd]).flatMap((m) => pts(m)), J['hip' + sd], -0.4), shin = direct(J['knee' + sd]).flatMap((m) => pts(m));
     const foot = [...direct(J['ankle' + sd]), ...deep(J['foot' + sd])].flatMap((m) => pts(m));
-    parts.push({ name: 'thigh' + sd, pts: thigh, into: ['torso', 'head', 'neck', ...otherLeg], soft: ['torso', ...otherLeg] });
-    parts.push({ name: 'shin' + sd, pts: shin, into: ['torso', 'pelvis', 'head', 'neck', ...otherLeg], soft: otherLeg });
-    parts.push({ name: 'shin' + sd, pts: away(shin, J['knee' + sd], 0.32), into: [`thigh${sd}`], soft: [`thigh${sd}`] });
+    parts.push({ name: 'thigh' + sd, pts: thigh, into: ['torso', 'head', 'neck', ...otherLeg], soft: press(['torso', ...otherLeg]) });
+    parts.push({ name: 'shin' + sd, pts: shin, into: ['torso', 'pelvis', 'head', 'neck', ...otherLeg], soft: press(otherLeg) });
+    parts.push({ name: 'shin' + sd, pts: away(shin, J['knee' + sd], 0.32 * legK), into: [`thigh${sd}`], soft: press([`thigh${sd}`]) });
     parts.push({ name: 'foot' + sd, pts: foot, into: ['torso', 'pelvis', 'head', 'neck', ...otherLeg] });
     // what the hand holds: never into the body or a limb, except where the hands close on it
     const held = J['hand' + sd]; let gear = deep(held).flatMap((m) => pts(m, 400));
@@ -117,7 +129,7 @@ export function findClips(figure: THREE.Object3D, recipe: HeroFigure, o: ClipOpt
     if (skip.has(part.name) || !part.pts.length) continue;
     for (const v of vols) {
       if (!part.into.includes(v.name) || skip.has(v.name)) continue;
-      const soft = part.soft?.includes(v.name) ? give : 0;
+      const soft = (part.soft?.[v.name] ?? 0) * give;
       for (const p of part.pts) {
         const [d, t] = v.inside(p); if (d <= tol + soft * t) continue;
         const key = part.name + '>' + v.name, h = hits.get(key);

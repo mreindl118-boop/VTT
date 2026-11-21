@@ -1449,7 +1449,7 @@ export class App {
         const key = figureKey(t, { figure: look, entry: entry?.id, state: figState, jiggle: heroOptions.jiggle, ghostly });
         let k = kept.get(t.id);
         if (k?.key === key) kept.delete(t.id);
-        else { const fig = mergeByMaterial(look ? heroFigure(look, t.size, figState) : entry ? figureFor(entry) : adventurer(t.role === 'member' ? { cloth: t.color } : undefined)); fig.position.y = 0.3; k = { fig, key }; }
+        else { const fig = mergeByMaterial(look ? heroFigure(look, t.size, figState) : entry ? figureFor(entry, figState, t.id, t.playerName) : adventurer(t.role === 'member' ? { cloth: t.color } : undefined)); fig.position.y = 0.3; k = { fig, key }; }
         g.add(k.fig); g.userData.fig = k;
         if (this.jiggleOn) { this.jiggle.track(t.id, k.fig); sprung.add(t.id); }
       }

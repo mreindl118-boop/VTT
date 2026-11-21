@@ -241,7 +241,9 @@ it is down (default `dead`). Each is a name or joint angles:
   `spell` (`right` or `between`); `fist` (`["R"]`, `["L"]` or both: those hands clenched into closed fists, say on a hip;
   only `R` and `L` count); `hipHand` (`["R"]` or `["L"]`: the hand set on the hip, the arm solved to reach the side of
   the waist above the belt, elbow out; a fist there with `fist`); `beltHand` (the open hand laid flat on the front of
-  the belt toward its own side, fingers down; a hand that holds something keeps it instead); `book`
+  the belt toward its own side, fingers down; a hand that holds something keeps it instead); `talon` (likewise: empty hands hooked into claws, the
+  fingers fanned and curled); `hilt` (likewise: a hand laid on the grip of a belted blade, the arm solved to reach it, on
+  its own hip or across the body); `book`
   (`open` to read at rest, `shut` to keep it closed in a fight; otherwise a book is carried shut out of a fight and
   opened in one); `gaze`. On x a negative angle swings forward; a negative elbow bends the forearm up, a
   positive knee bends the shin back. On the limbs y and z are mirrored, so positive turns outward on either side. On
