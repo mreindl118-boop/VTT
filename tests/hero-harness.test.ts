@@ -265,16 +265,63 @@ describe('the harness in an easy stance, close up', () => {
       const g = heroFigure({ ...HARNESS, frame, weapon: 'axe' }, 'medium', st), all = meshes(g);
       for (const side of ['L', 'R']) {
         const knee = joint(g, 'knee' + side), hip = joint(g, 'hip' + side), wrist = joint(g, 'wrist' + side), elbow = joint(g, 'elbow' + side), tag = `${frame} ${st} ${side}`;
-        // the cop (the shell, its rim and its line, in a group of their own on the knee) lies on the thigh, not in it
+        // the cop (the shell, its fan, its line and its turned-in top, in a group of their own on the knee) lies on the
+        // thigh, not in it
         const cop = all.filter((m) => m.parent !== knee && m.parent?.parent === knee && !m.parent!.name), thigh = hip.children.filter((c) => (c as THREE.Mesh).isMesh) as THREE.Mesh[];
-        expect(cop.length, tag).toBe(3); expect(thigh.length, tag).toBeGreaterThan(0);
-        expect(crossings(cop, thigh), tag).toBeLessThan(4);
+        expect(cop.length, tag).toBe(4); expect(thigh.length, tag).toBeGreaterThan(0);
+        expect(crossings(cop, thigh), tag).toBe(0);
         // the hand (not what it holds) never passes through a line of the vambrace or of its cuff
         const held = (m: THREE.Object3D) => { for (let p = m.parent; p; p = p.parent) if (p.name === 'hand' + side || p.name === 'stowed') return true; return false; };
         const hand = meshes(wrist).filter((m) => !held(m)), lines = (elbow.children.filter((c) => (c as THREE.Mesh).isMesh) as THREE.Mesh[]).filter((m) => (m.material as THREE.MeshLambertMaterial).color.getHexString() === '9a9ea6');
         expect(hand.length, tag).toBeGreaterThan(5); expect(lines.length, tag).toBe(3);
         expect(crossings(hand, lines), tag).toBe(0);
       }
+    }
+  });
+});
+
+describe('the harness about the neck, the knees and the boots', () => {
+  const COLS = 97, rowsOf = (m: THREE.Mesh) => m.geometry.getAttribute('position').count / COLS;
+  const row = (m: THREE.Mesh, r: number, frame: THREE.Object3D) => points([m], frame).slice(r * COLS, (r + 1) * COLS);
+
+  it('closes the gorget onto a collar of plate all round, front and back, clear of the pauldrons in every state', { timeout: 240000 }, () => {
+    for (const frame of ['feminine', 'masculine'] as const) for (const st of ['rest', 'battle', 'dead'] as const) {
+      const g = heroFigure({ ...HARNESS, frame, weapon: 'axe' }, 'medium', st), chest = joint(g, 'chest'), tag = `${frame} ${st}`;
+      const gorget = chest.getObjectByName('gorget') as THREE.Mesh, collar = chest.getObjectByName('gorgetCollar') as THREE.Mesh;
+      expect(gorget, tag).toBeTruthy(); expect(collar, tag).toBeTruthy();
+      expect(Number.isInteger(rowsOf(gorget)) && Number.isInteger(rowsOf(collar)), tag).toBe(true);
+      // no slit between the two anywhere round the neck: the collar starts above the gorget's foot at every angle, and
+      // stands just inside it there (the gorget's foot laps over it), so nothing shows between them
+      const foot = row(gorget, rowsOf(gorget) - 1, chest), top = row(collar, 0, chest);
+      for (let j = 0; j < COLS; j++) { expect(top[j].y, `${tag} ${j}`).toBeGreaterThan(foot[j].y); expect(Math.hypot(top[j].x - foot[j].x, top[j].z - foot[j].z), `${tag} ${j}`).toBeLessThan(0.08); }
+      // and it runs all the way round: its foot is lower than the gorget's at the front and at the back
+      const low = row(collar, rowsOf(collar) - 1, chest);
+      for (const j of [0, (COLS - 1) / 2]) expect(low[j].y, `${tag} ${j}`).toBeLessThan(foot[j].y - 0.05);
+      // neither passes through a pauldron, a shoulder piece or an arm
+      const shoulders = ['collarL', 'collarR'].flatMap((n) => meshes(joint(g, n)));
+      expect(shoulders.length, tag).toBeGreaterThan(6);
+      expect(crossings([gorget, collar], shoulders), tag).toBe(0);
+    }
+    // plain plate keeps its gorget and has no such collar
+    const plain = heroFigure({ ...PLAIN, weapon: 'axe' }, 'medium', 'rest');
+    expect(plain.getObjectByName('gorget')).toBeUndefined(); expect(plain.getObjectByName('gorgetCollar')).toBeUndefined();
+  });
+
+  it('tones the boot-strap buckles to the harness\'s trim on an engraved harness only', () => {
+    const fixed = '#a9adb6', toned = (f: HeroFigure) => colours(heroFigure({ ...f, buckle: '#c0a060' }, 'medium', 'rest'));
+    expect(toned(PLAIN).has(fixed)).toBe(true);
+    expect(toned(HARNESS).has(fixed)).toBe(false);
+  });
+
+  it('lets the spectral wings die away toward their roots, behind the shoulders', () => {
+    const W: HeroFigure = { ...HARNESS, weapon: 'axe', spiritWings: { color: '#ffe7a6' } };
+    for (const st of ['rest', 'battle'] as const) {
+      const g = heroFigure(W, 'medium', st), wings = wingsOf(g), pair = wings[0].parent!;
+      // (in the frame the pair is borne in, from its root between the shoulder blades: lit only out past the shoulders
+      // or above them)
+      const lit = wings.flatMap((m) => litPoints(m, pair));
+      expect(lit.length, st).toBeGreaterThan(200);
+      for (const p of lit) expect(Math.abs(p.x) > 1.3 || p.y > 0.45, `${st} ${p.x.toFixed(2)},${p.y.toFixed(2)}`).toBe(true);
     }
   });
 });

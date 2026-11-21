@@ -1701,10 +1701,11 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
       // the vambrace: one plate round the forearm from the wrist to the elbow, cut low in the crook of the arm and rising
       // to cover the point of the elbow behind, a cuff flaring out over the gauntlet and on past the wrist, its edges
       // finely lined, knotwork round it
-      const fa = forearmRings(fr), v1 = -0.88, c1 = -1.068, vk = 1.15, ck = 1.6, vTop = (th: number) => 0.005 - 0.05 * Math.cos(th), onV = onShell(fa, 0, v1, vk, vk), onC = onShell(fa, v1, c1, vk, ck);
+      const fa = forearmRings(fr), v1 = -0.88, c1 = -1.068, vk = 1.15, ck = 1.5, vTop = (th: number) => 0.005 - 0.05 * Math.cos(th), onV = onShell(fa, 0, v1, vk, vk), onC = onShell(fa, v1, c1, vk, ck);
       l.mid.add(sm(patch(fa, (u, v) => [u * Math.PI * 2, vTop(u * Math.PI * 2) + (v1 - vTop(u * Math.PI * 2)) * v, vk], 16, 8), steel, true), sm(shellGeometry(fa, v1, c1, 0, Math.PI * 2, vk, ck, s, 16, 2), steel, true));
       l.mid.add(wire(span(16, (u) => onV(u * Math.PI * 2, vTop(u * Math.PI * 2), 0.004)).slice(1), t, 0.009 * s, true));
-      for (const [on, y] of [[onV, v1 + 0.01], [onC, c1]] as const) l.mid.add(wire(span(16, (u) => on(u * Math.PI * 2, y, 0.004)).slice(1), t, 0.009 * s, true));
+      // (the cuff's own line runs a little up from its foot, where the closing hand never reaches it)
+      for (const [on, y] of [[onV, v1 + 0.01], [onC, c1 + 0.03]] as const) l.mid.add(wire(span(16, (u) => on(u * Math.PI * 2, y, 0.004)).slice(1), t, 0.009 * s, true));
       knotBand((u, v) => onV(u * Math.PI * 2, -0.62 + 0.05 * v), 8, l.mid);
       // the gauntlet's wrist: a sleeve from inside the cuff down over the top of the hand, which bends within it, closed
       // across the wrist so no skin shows up inside it
@@ -1752,7 +1753,7 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
         lined.push(fy < yG - 0.03);
       }
       const turned = (pos: number[], n: number) => { const g: number[] = []; for (let i = 0; i < n; i++) for (let j = 0; j <= seg; j++) g.push(pos[(j * n + i) * 3], pos[(j * n + i) * 3 + 1], pos[(j * n + i) * 3 + 2]); return gridGeometry(g, seg + 1, n - 1); };
-      const gorget = sm(turned(gor, 5), f.armor.color, true), collar = sm(turned(bib, rows + 1), f.armor.color, true); up.add(gorget, collar);
+      const gorget = sm(turned(gor, 5), f.armor.color, true), collar = sm(turned(bib, rows + 1), f.armor.color, true); gorget.name = 'gorget'; collar.name = 'gorgetCollar'; up.add(gorget, collar);
       up.add(wire(span(seg, (u) => new THREE.Vector3(Math.sin(u * Math.PI * 2) * 0.3 * fr.m.neck * s, 2.35 * s, (zc + Math.cos(u * Math.PI * 2) * 0.3 * fr.m.neck) * s)).slice(1), t, 0.01 * s, true)); // (its rim, finely lined)
       // (once the figure stands as it will: where a pauldron, carried in over the shoulder with its arm, would still
       // meet the gorget's foot or the collar, they give way under it into the shoulder; then the fine line along each
@@ -1972,7 +1973,7 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
           for (let j = 0; j <= n; j++) {
             const e = new THREE.Vector3(), [x0, z0] = ringPoint(ringAt(shell, 0.26), -1.75 + 3.5 * j / n, 1); e.set(x0 * s, 0.26 * s, z0 * s);
             cop.localToWorld(P.copy(e)); cop.localToWorld(A.set(0, 0.2 * s, 0)); ray.set(P, A.sub(P).normalize()); ray.far = P.distanceTo(cop.localToWorld(new THREE.Vector3(0, 0.2 * s, 0)));
-            const hit = ray.intersectObject(l.upper, false)[0], d = hit ? hit.distance - 0.022 * s : 0, q = cop.worldToLocal(P.clone().addScaledVector(ray.ray.direction, Math.max(0, d)));
+            const hit = ray.intersectObject(l.upper, false)[0], d = hit && hit.distance < 0.15 * s ? hit.distance - 0.022 * s : 0, q = cop.worldToLocal(P.clone().addScaledVector(ray.ray.direction, Math.max(0, d)));
             pos.push(e.x, e.y, e.z, q.x, q.y, q.z);
           }
           const g = new THREE.BufferGeometry(), idx: number[] = []; for (let j = 0; j < n; j++) idx.push(2 * j, 2 * j + 1, 2 * j + 2, 2 * j + 1, 2 * j + 3, 2 * j + 2);
@@ -2509,7 +2510,7 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
     // (the pair is borne at its root between the shoulder blades; out of a fight it is squared up there: see below)
     const pair = new THREE.Group(); pair.name = 'spiritWings'; pair.position.set(0, 1.8 * s, zb * s); up.add(pair);
     // (the light dies away toward the wings' roots where they lie behind the shoulders and the arms, so that from
-    // behind what is worn there keeps its own colour; above the shoulders it runs in to the root, along the wing's arm)
+    // behind what is worn there keeps its own colour: the wings are lit only out past the shoulders or above them)
     const ease = (x: number) => { const q = Math.min(1, Math.max(0, x)); return q * q * (3 - 2 * q); }, clearOf = (u: number, v: number) => Math.max(ease((u - 1.1) / 0.8), ease((v - 0.5) / 0.45));
     for (const sx of [RX, LX]) {
       const L = lightStrips();
@@ -2530,7 +2531,7 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
       // the glow under the feathers, from the arm to their tips, brightest halfway
       const reach = (t: number, x: number) => { const [u0, v0] = arm(t), [ang, len] = quill(t); return P3(u0 + Math.cos(ang) * len * x, v0 + Math.sin(ang) * len * x, -0.04); };
       L.strip(16, (t) => reach(0.1 + 0.9 * t, 0.5), (t) => reach(0.1 + 0.9 * t, 0.98).sub(reach(0.1 + 0.9 * t, 0.5)), (t) => { const [u0, v0] = arm(0.1 + 0.9 * t), [ang, len] = quill(0.1 + 0.9 * t); return c.clone().multiplyScalar(op * 0.45 * Math.min(1, t * 2.5) * clearOf(u0 + Math.cos(ang) * len * 0.74, v0 + Math.sin(ang) * len * 0.74)); });
-      L.strip(12, (t) => P3(...arm(0.12 + 0.88 * t), 0.06), (t) => new THREE.Vector3(0, 0.08 * e * s * fadeEnds(Math.min(1, t + 0.2)), 0), (t) => c.clone().multiplyScalar(op * 0.35 * Math.min(1, t * 3) * (1 - t ** 4))); // the wing's arm
+      L.strip(12, (t) => P3(...arm(0.12 + 0.88 * t), 0.06), (t) => new THREE.Vector3(0, 0.08 * e * s * fadeEnds(Math.min(1, t + 0.2)), 0), (t) => c.clone().multiplyScalar(op * 0.35 * Math.min(1, t * 3) * (1 - t ** 4) * clearOf(...arm(0.12 + 0.88 * t)))); // the wing's arm
       const wing = L.mesh(); wing.name = 'spiritWing'; wing.position.copy(pair.position).negate(); pair.add(wing);
     }
   }
