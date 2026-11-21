@@ -54,6 +54,34 @@ describe('a gown\'s finer dress', () => {
     const left = flowers.filter((m) => boxOf([m]).getCenter(new THREE.Vector3()).x > head.x).length;
     expect(left).toBeGreaterThan(flowers.length - left);
   });
+  it('hangs each of the corset\'s vials from its own place on the belt: plumb on a figure standing, lying on the cloth of one fallen', () => {
+    const glassOf = (g: THREE.Object3D) => ['#9a3a6a', '#d0a040'].map((c) => coloured(g, c).find((m) => m.geometry.type === 'SphereGeometry')!);
+    for (const st of ['rest', 'battle'] as const) {
+      const g = heroFigure(DRESSED, 'medium', st), vials = glassOf(g);
+      for (const glass of vials) {
+        const cork = glass.parent!.getWorldPosition(new THREE.Vector3()), c = glass.getWorldPosition(new THREE.Vector3());
+        expect(cork.y - c.y, st).toBeGreaterThan(0.07);                                                                    // the cork up, the glass under it
+        expect(Math.hypot(cork.x - c.x, cork.z - c.z), st).toBeLessThan(0.085);                                           // near plumb: it leans no more than the hip under it pushes it
+      }
+      const [a, b] = vials.map((m) => m.getWorldPosition(new THREE.Vector3())); expect(a.distanceTo(b), st).toBeGreaterThan(0.14); // side by side, not in one another
+      // each thong falls straight from the belt: the hip under it may stand it out, but it does not run sideways along the hip
+      const thongs = meshes(g, (m) => m.userData.part === 'thong'); expect(thongs.length, st).toBe(2);
+      for (const m of thongs) {
+        const tp = m.geometry.attributes.position, pts: THREE.Vector3[] = []; for (let i = 0; i < tp.count; i++) pts.push(new THREE.Vector3().fromBufferAttribute(tp, i).applyMatrix4(m.matrixWorld));
+        const top = pts.reduce((x, y) => (y.y > x.y ? y : x)), foot = pts.reduce((x, y) => (y.y < x.y ? y : x));
+        const hips = joint(g, 'hips'), out = new THREE.Vector3(top.x - hips.x, 0, top.z - hips.z).normalize(), along = new THREE.Vector3(-out.z, 0, out.x);
+        expect(top.y - foot.y, st).toBeGreaterThan(0.15); expect(Math.abs(foot.clone().sub(top).dot(along)), st).toBeLessThan(0.1);
+      }
+    }
+    const g = heroFigure(DRESSED, 'medium', 'dead'), cloth = meshes(g, (m) => m.userData.garment === 'gown')[0], pts: THREE.Vector3[] = [], p = cloth.geometry.attributes.position;
+    for (let i = 0; i < p.count; i++) pts.push(new THREE.Vector3().fromBufferAttribute(p, i).applyMatrix4(cloth.matrixWorld));
+    for (const glass of glassOf(g)) {
+      const c = glass.getWorldPosition(new THREE.Vector3());
+      expect(Math.min(...pts.map((q) => q.distanceTo(c))), 'fallen: on the cloth').toBeLessThan(0.2);
+      expect(lowest([glass]), 'fallen: off the floor').toBeGreaterThan(lowest(meshes(g, (m) => m !== glass && !!m.userData.garment)) - 0.005);
+    }
+  }, 120000);
+
   it('laces the corset over the gown\'s waist, the skirt hung from its foot and the belt on it', () => {
     for (const st of STATES) {
       const g = heroFigure(DRESSED, 'medium', st), leather = coloured(g, '#5b3a24'), shell = leather.find((m) => m.userData.skin)!;

@@ -95,6 +95,29 @@ describe('sparkles', () => {
   }, 300000);
 });
 
+describe('sparkles round a winged figure', () => {
+  it('hang clear of the wings too, membrane and rim', () => {
+    const tri = new THREE.Triangle(), near = new THREE.Vector3(); let moved = 0;
+    for (const [state, size, turn] of [['rest', 'small', -0.6], ['rest', 'small', 0.6], ['battle', 'small', 0], ['rest', 'medium', -0.3]] as const) {
+      const f: HeroFigure = { frame: 'feminine', wings: { color: '#cbb4f2', count: 4 }, wingRim: '#f0e8ff', hoverFt: 1, sparkles: '#d9b8ff', pose: { pelvis: [0, turn, 0] } }, { g } = build(f, state, size), bare = build({ ...f, wings: undefined }, state, size).g;
+      const wings: M[] = []; g.traverse((o) => { if (o.userData.wing) o.traverse((c) => { if ((c as M).isMesh) wings.push(c as M); }); }); expect(wings.length).toBeGreaterThan(4);
+      const isSpark = (c: THREE.Object3D) => (c as M).isMesh && (c as M).geometry.type === 'SphereGeometry' && seeThrough(c as M), sparks = g.children.filter(isSpark) as M[], plain = bare.children.filter(isSpark) as M[];
+      expect(sparks).toHaveLength(16);
+      sparks.forEach((sp, i) => {
+        const r = (sp.geometry as THREE.SphereGeometry).parameters.radius; if (sp.position.distanceTo(plain[i].position) > 0.01) moved++;
+        for (const m of wings) {
+          const p = m.geometry.attributes.position, idx = m.geometry.index, n = (idx ? idx.count : p.count) / 3;
+          for (let t = 0; t < n; t++) {
+            tri.a.fromBufferAttribute(p, idx ? idx.getX(3 * t) : 3 * t).applyMatrix4(m.matrixWorld); tri.b.fromBufferAttribute(p, idx ? idx.getX(3 * t + 1) : 3 * t + 1).applyMatrix4(m.matrixWorld); tri.c.fromBufferAttribute(p, idx ? idx.getX(3 * t + 2) : 3 * t + 2).applyMatrix4(m.matrixWorld);
+            expect(tri.closestPointToPoint(sp.position, near).distanceTo(sp.position), `${state} ${size}: sparkle ${i} against a wing`).toBeGreaterThan(r + 0.01);
+          }
+        }
+      });
+    }
+    expect(moved).toBeGreaterThan(0); // (some wing here is where a sparkle would hang)
+  }, 300000);
+});
+
 describe('a frock coat\'s finish', () => {
   const SUIT: HeroFigure = { cloth: '#2f3a4a', sleeves: '#2f3a4a', hem: false, coat: { tails: '#2f3a4a', lapel: '#1c232e' }, coatCut: 'frock', waistcoat: { color: '#7a2a2a' }, shirt: '#e8e2d0', shirtCollar: 'stand', trousers: '#3a3a40', trim: '#5a4a3a' };
   const FRAMES: HeroFigure[] = [{ frame: 'masculine' }, { frame: 'feminine' }, { frame: 'feminine', build: 'curvy' }, { frame: 'feminine', body: { shoulders: 0.95, chest: 0.92, waist: 0.94, hips: 0.86, bust: 0.6 } }];

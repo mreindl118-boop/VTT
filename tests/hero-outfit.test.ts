@@ -227,6 +227,67 @@ describe('hero outfit pieces', () => {
     }
   }, 240000);
 
+  /** How far behind a bag's back face the nearest of the rest of the figure lies, along the back's own normal from 25
+   *  points spread over it: the least, the middle and the greatest. */
+  function airUnder(g: THREE.Object3D, bag: THREE.Object3D): number[] {
+    const inBag = (o: THREE.Object3D) => { for (let n: THREE.Object3D | null = o; n; n = n.parent) if (n === bag) return true; return false; };
+    const T: THREE.Vector3[] = [], v = new THREE.Vector3(), back = new THREE.Vector3(0, 0, -1).transformDirection(bag.matrixWorld), ray = new THREE.Ray();
+    for (const m of meshes(g)) {
+      if (inBag(m) || (m.material as THREE.Material).transparent) continue;
+      const pos = m.geometry.attributes.position, idx = m.geometry.index, n = idx ? idx.count : pos.count;
+      for (let i = 0; i < n; i++) T.push(new THREE.Vector3().fromBufferAttribute(pos, idx ? idx.getX(i) : i).applyMatrix4(m.matrixWorld));
+    }
+    const bb = new THREE.Box3().setFromBufferAttribute((bag.children[0] as M).geometry.attributes.position as THREE.BufferAttribute), gaps: number[] = [];
+    for (let i = 0; i <= 4; i++) for (let j = 0; j <= 4; j++) {
+      const p = new THREE.Vector3(bb.min.x + (bb.max.x - bb.min.x) * (0.1 + 0.2 * i), bb.min.y + (bb.max.y - bb.min.y) * (0.1 + 0.2 * j), bb.min.z).applyMatrix4(bag.matrixWorld);
+      let best = 1; ray.set(p.clone().addScaledVector(back, -0.03), back);
+      for (let k = 0; k < T.length; k += 3) { if (T[k].distanceToSquared(p) > 0.64) continue; if (ray.intersectTriangle(T[k], T[k + 1], T[k + 2], false, v)) best = Math.min(best, v.distanceTo(ray.origin) - 0.03); }
+      gaps.push(best);
+    }
+    gaps.sort((x, y) => x - y); return [gaps[0], gaps[12], gaps[24]];
+  }
+
+  it('rests a fallen satchel on the body: its back lies on what is under it, no air there but what the highest of it holds up', () => {
+    const gown: HeroFigure = { frame: 'feminine', build: 'curvy', skirt: '#5e1f3a', underskirt: '#efe3c8', corset: { color: '#5b3a24', buckle: '#b08a4a' } };
+    const cases: [string, HeroFigure][] = [...Object.entries(UNDER).map(([name, rec]) => [name, { ...rec, satchel: '#5a3a20', satchelKit: { ...KIT, hip: 'L' } }] as [string, HeroFigure]), ['gown, hung from the belt', { ...gown, satchel: '#5a3a20', satchelKit: { hip: 'R', strap: 'belt', mark: 'moon' } }]];
+    for (const [name, rec] of cases) for (const deadPose of [undefined, 'dead-swoon', 'dead-prone'] as const) {
+      const g = build({ ...rec, deadPose }, 'dead'), [least, middle] = airUnder(g, parts(g).bag);
+      expect(least, `${name} ${deadPose}`).toBeLessThan(0.02);
+      expect(middle, `${name} ${deadPose}`).toBeLessThan(deadPose === 'dead-prone' ? 0.09 : 0.06);                         // (face down it lies over the round of the seat)
+    }
+  }, 300000);
+
+  it('seats a fallen cloak\'s brooches on top of the crumpled cloth, and presses its laurel flat with it', () => {
+    const f: HeroFigure = { ...SHIRT, cloak: '#2a3a6a', clasps: '#c0c4cc', claspMark: 'tree', cloakLaurel: '#c0c4cc' }, v = new THREE.Vector3();
+    for (const deadPose of [undefined, 'dead-swoon', 'dead-prone'] as const) {
+      const g = build({ ...f, deadPose }, 'dead'), mantle = garment(g, 'mantle'), pos = mantle.geometry.attributes.position, idx = mantle.geometry.index!;
+      const pins: THREE.Object3D[] = []; g.traverse((o) => { if (o.userData.part === 'brooch') pins.push(o); });
+      expect(pins.length).toBe(2);
+      for (const b of pins) {
+        // no point of the cloth (its corners, and the middles of its faces' edges) inside the disc
+        const inv = b.matrixWorld.clone().invert().multiply(mantle.matrixWorld), q: THREE.Vector3[] = []; for (let i = 0; i < pos.count; i++) q.push(new THREE.Vector3().fromBufferAttribute(pos, i).applyMatrix4(inv));
+        let inside = 0; const test = (p: THREE.Vector3) => { if (Math.hypot(p.x, p.y) < 0.08 && Math.abs(p.z) < 0.01) inside++; };
+        q.forEach(test); for (let i = 0; i < idx.count; i += 3) for (let k = 0; k < 3; k++) test(v.copy(q[idx.getX(i + k)]).lerp(q[idx.getX(i + (k + 1) % 3)], 0.5));
+        expect(inside, `${deadPose}`).toBe(0);
+      }
+      for (const m of meshes(g).filter((x) => x.userData.laurel)) { const lp = m.geometry.attributes.position; for (let i = 0; i < lp.count; i++) expect(v.fromBufferAttribute(lp, i).applyMatrix4(m.matrixWorld).y, `${deadPose}`).toBeGreaterThan(-0.02); }
+      expect(meshes(g).filter((x) => x.userData.laurel).length).toBeGreaterThan(3);
+    }
+  }, 240000);
+
+  it('lays a fallen pendant of rings on the chest: none of its chain standing round the front of the neck', () => {
+    const f: HeroFigure = { ...SHIRT, pendant: '#c0c4cc', pendantShape: 'rings' };
+    const read = (st: (typeof STATES)[number]) => {
+      const g = build(f, st), toChest = (g.userData.joints as Record<string, THREE.Object3D>).chest.matrixWorld.clone().invert(), hung = meshes(g).filter((m) => m.userData.part === 'pendant');
+      const chain = hung.find((m) => m.geometry.type !== 'TorusGeometry')!, pos = chain.geometry.attributes.position, v = new THREE.Vector3(); let front = 0;
+      for (let i = 0; i < pos.count; i++) { v.fromBufferAttribute(pos, i).applyMatrix4(chain.matrixWorld).applyMatrix4(toChest); if (v.y > 2.2 && v.z > 0.12 && Math.abs(v.x) < 0.2) front++; }
+      return { front, ringZ: hung.filter((m) => m.geometry.type === 'TorusGeometry').map((m) => m.getWorldPosition(new THREE.Vector3()).applyMatrix4(toChest).z) };
+    };
+    const up = read('rest'), down = read('dead');
+    expect(up.front).toBeGreaterThan(0); expect(down.front).toBe(0);
+    expect(down.ringZ[0]).toBeLessThan(up.ringZ[0] - 0.01); expect(down.ringZ[1]).toBeLessThan(up.ringZ[1] - 0.01);
+  }, 120000);
+
   it('makes a belt\'s buckle no wider than the belt is deep', () => {
     const P = parts(build({ ...SHIRT, belt: { color: '#3a2a20', buckle: '#c0c4cc' } })), bk = P.buckle, inv = bk.matrixWorld.clone().invert(), b = new THREE.Box3(), v = new THREE.Vector3();
     for (const m of meshes(bk)) { const pos = m.geometry.attributes.position; for (let i = 0; i < pos.count; i++) b.expandByPoint(v.fromBufferAttribute(pos, i).applyMatrix4(m.matrixWorld).applyMatrix4(inv)); }
