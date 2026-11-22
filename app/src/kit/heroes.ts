@@ -946,26 +946,37 @@ function drapeBraids(up: THREE.Object3D, neck: THREE.Object3D, head: THREE.Objec
     for (let i = 0; i <= 28; i++) { const t = i / 28; path.push(new THREE.Vector3(a.x + sx * 0.05 * t * s, a.y - 1.25 * t * s, a.z + 0.3 * Math.sin(Math.min(1, t * 1.6) * Math.PI / 2) * s)); }
     lift(path);
     for (let it = 0; it < 3; it++) { const q = path.map((p) => p.clone()); for (let i = 1; i < path.length - 1; i++) path[i].copy(q[i - 1]).add(q[i + 1]).addScaledVector(q[i], 2).multiplyScalar(0.25); lift(path); }
-    const at2 = (t: number) => { const f = t * (path.length - 1), i = Math.min(path.length - 2, Math.floor(f)); return path[i].clone().lerp(path[i + 1], f - i); };
-    // (each piece marked userData.braid, with the tufts marked 'tuft', for the checks that look for them)
-    const add = (m: M, part: 'strand' | 'band' | 'tuft') => { m.userData.braid = part; up.add(m); };
-    for (let k = 0; k < 2; k++) { const pts: THREE.Vector3[] = []; for (let i = 0; i <= 28; i++) { const t = i / 28, c = path[i], ph = t * 20 + k * Math.PI; pts.push(new THREE.Vector3(c.x + Math.cos(ph) * rr(t), c.y, c.z + Math.sin(ph) * rr(t))); } add(sm(lockGeometry(pts, 0.05 * s, 0.03 * s, 0.9, 7, 0), k ? H : tone(H, '#000000', 0.14), true), 'strand'); }
-    for (const t of [0.42, 0.9]) { const c = at2(t), band = sm(new THREE.TorusGeometry(0.075 * (1 - 0.3 * t) * s, 0.018 * s, 6, 16), '#b8bec8'); band.rotation.x = Math.PI / 2; add(at(band, c.x, c.y, c.z), 'band'); }
-    const e = path[path.length - 1], shade = (i: number) => i % 3 === 0 ? sheen(H, 0.1) : i % 3 === 1 ? H : tone(H, '#000000', 0.14);
-    for (let k = 0; k < 5; k++) {
-      let tuft = [e, new THREE.Vector3(e.x + (k - 2) * 0.02 * s, e.y - 0.1 * s, e.z + 0.01 * s), new THREE.Vector3(e.x + (k - 2) * 0.035 * s, e.y - 0.2 * s, e.z)];
-      // on a body laid on its back the tuft lies on it too, not out in the air past the curve of the chest: on what is under
-      // each of its points, read at the point's own height (read over a span of heights, as the braid is, a tuft below
-      // the bust stood off the body by the bust's own reach), its room grown as the braid's is where the face turns aside,
-      // and taken at twice as many points, so that between them it does not dip into the plate it lies along
-      if (lie === 'back') tuft = [tuft[0], tuft[0].clone().lerp(tuft[1], 0.5), tuft[1], tuft[1].clone().lerp(tuft[2], 0.5), tuft[2]];
-      if (lie === 'back') for (const q of tuft.slice(1)) {
-        const dx = q.x, dz = q.z - back, d = Math.hypot(dx, dz), far = d > 1e-6 ? outermost(q.y, dx / d, dz / d) : 0; if (far <= 0) continue;
-        const want = far + 0.03 * s / Math.max(Math.sqrt(Math.max(0, 1 - aslant * aslant)), 0.35); q.set(dx / d * want, q.y, back + dz / d * want);
-      }
-      add(sm(lockGeometry(tuft, 0.03 * s, 0.006 * s, 0.5, 6), shade(k), true), 'tuft');
-    }
+    // (on a body laid on its back the tuft lies on it too, not out in the air past the curve of the chest: on what is
+    // under each of its points, read at the point's own height (read over a span of heights, as the braid is, a tuft below
+    // the bust stood off the body by the bust's own reach), its room grown as the braid's is where the face turns aside)
+    const lay = lie === 'back' ? (q: THREE.Vector3) => {
+      const dx = q.x, dz = q.z - back, d = Math.hypot(dx, dz), far = d > 1e-6 ? outermost(q.y, dx / d, dz / d) : 0; if (far <= 0) return;
+      const want = far + 0.03 * s / Math.max(Math.sqrt(Math.max(0, 1 - aslant * aslant)), 0.35); q.set(dx / d * want, q.y, back + dz / d * want);
+    } : undefined;
+    // (each piece carries its braid's line, in the chest's frame, and how its tuft is laid, so that what keeps the braid
+    // out of the cloth once it has hung can build it again along a new one: braidsOffCloth)
+    const line: BraidLine = { path: path.flatMap((p) => p.toArray()), color: H, lay };
+    for (const m of braidPieces(path, H, s, lay)) { m.userData.braidLine = line; up.add(m); }
   }
+}
+
+/** A braid's pieces along its line (`path`, root first, in the frame they go in): two strands roped round each other,
+ *  bound twice, ending in a tuft; each piece marked userData.braid ('strand', 'band' or 'tuft'), for the checks that look
+ *  for them. `lay`, if given, sets out each point of the tuft but its first, taken at twice as many points so that
+ *  between them it does not dip into what it lies along (on a body laid on its back: drapeBraids). */
+function braidPieces(path: THREE.Vector3[], H: string, s: number, lay?: (q: THREE.Vector3) => void): M[] {
+  const out: M[] = [], n = path.length - 1, rr = (t: number) => 0.045 * (1 - 0.35 * t) * s;
+  const at2 = (t: number) => { const f = t * n, i = Math.min(n - 1, Math.floor(f)); return path[i].clone().lerp(path[i + 1], f - i); };
+  const add = (m: M, part: 'strand' | 'band' | 'tuft') => { m.userData.braid = part; out.push(m); };
+  for (let k = 0; k < 2; k++) { const pts: THREE.Vector3[] = []; for (let i = 0; i <= n; i++) { const t = i / n, c = path[i], ph = t * 20 + k * Math.PI; pts.push(new THREE.Vector3(c.x + Math.cos(ph) * rr(t), c.y, c.z + Math.sin(ph) * rr(t))); } add(sm(lockGeometry(pts, 0.05 * s, 0.03 * s, 0.9, 7, 0), k ? H : tone(H, '#000000', 0.14), true), 'strand'); }
+  for (const t of [0.42, 0.9]) { const c = at2(t), band = sm(new THREE.TorusGeometry(0.075 * (1 - 0.3 * t) * s, 0.018 * s, 6, 16), '#b8bec8'); band.rotation.x = Math.PI / 2; add(at(band, c.x, c.y, c.z), 'band'); }
+  const e = path[n], shade = (i: number) => i % 3 === 0 ? sheen(H, 0.1) : i % 3 === 1 ? H : tone(H, '#000000', 0.14);
+  for (let k = 0; k < 5; k++) {
+    let tuft = [e, new THREE.Vector3(e.x + (k - 2) * 0.02 * s, e.y - 0.1 * s, e.z + 0.01 * s), new THREE.Vector3(e.x + (k - 2) * 0.035 * s, e.y - 0.2 * s, e.z)];
+    if (lay) { tuft = [tuft[0], tuft[0].clone().lerp(tuft[1], 0.5), tuft[1], tuft[1].clone().lerp(tuft[2], 0.5), tuft[2]]; for (const q of tuft.slice(1)) lay(q); }
+    add(sm(lockGeometry(tuft, 0.03 * s, 0.006 * s, 0.5, 6), shade(k), true), 'tuft');
+  }
+  return out;
 }
 
 /** Long hair waiting for its body to be posed (buildHair hands it on, drapeLong hangs it): each lock's path over the scalp
@@ -4426,7 +4437,7 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
   if (!laid) {
     const cloth: M[] = [], hair: M[] = [];
     body.traverse((o) => { const m = o as M; if (!m.isMesh) return; if (o.userData.hair) hair.push(m); else if ((o.userData.garment || o.userData.cloth) && !(m.material as THREE.Material).transparent) cloth.push(m); });
-    coilsOffCloth(head, cloth, s); body.updateMatrixWorld(true); clearOfCloth(hair, cloth, s, 0.006 * s);
+    coilsOffCloth(head, cloth, s); body.updateMatrixWorld(true); clearOfCloth(hair, cloth, s, 0.006 * s); braidsOffCloth(up, cloth, s);
   }
   const joints: Record<string, THREE.Object3D> = {};
   body.traverse((o) => { if (o.name) joints[o.name] = o; });
@@ -4441,8 +4452,9 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
     {
       const hair: M[] = [], cloth: M[] = [];
       body.traverse((o) => { const m = o as M; if (!m.isMesh) return; if (o.userData.hair || o.userData.braid) hair.push(m); else if ((o.userData.garment || o.userData.cloth) && !(m.material as THREE.Material).transparent) cloth.push(m); });
-      if (P.lie === 'back') { const press = (ms: M[]) => pressUnderCloth(ms, cloth, 0.006 * s, 0.004 * s, 0.3 * s, 0.15 * s, 0.02 * s); press(hair); clearOfCloth(hair, cloth, s, 0.006 * s, press); } else { pressOnFloor(hair, 0.006 * s); clearOfCloth(hair, cloth, s, 0.006 * s); }
-      coilsOffCloth(head, cloth, s);
+      const press = P.lie === 'back' ? (ms: M[]) => pressUnderCloth(ms, cloth, 0.006 * s, 0.004 * s, 0.3 * s, 0.15 * s, 0.02 * s) : (ms: M[]) => pressOnFloor(ms, 0.006 * s);
+      press(hair); clearOfCloth(hair, cloth, s, 0.006 * s, P.lie === 'back' ? press : undefined);
+      coilsOffCloth(head, cloth, s); braidsOffCloth(up, cloth, s, press);
     }
     clearOfWings(head, up, s); // (and off the wings laid on the floor beside it)
     // (a harness's pieces, and the trims of its tassets and coat skirt, laid on them once they hung)
@@ -5876,8 +5888,10 @@ function pressOnFloor(ms: M[], y: number, crease?: number): void {
 /** The cloth's faces (`cloth`) near `box` (world), as numbers binned by the cells they span (0.06 of the figure's scale
  *  across), and what reads them: `T`, each face's three corners, nine numbers; `sides`, the first face a stretch of a
  *  lock's tube passes through, -1 if none (its sides between two rings of 6 points, A[a..] and B[b..], each point three
- *  numbers, as lockGeometry builds a lock). Undefined where no cloth lies near. */
-function clothFaces(cloth: M[], box: THREE.Box3, s: number): { T: number[]; sides: (A: ArrayLike<number>, a: number, B: ArrayLike<number>, b: number) => number } | undefined {
+ *  numbers, as lockGeometry builds a lock); `meets`, the first face a triangle (A[o..o+8]) passes through, -1 if none.
+ *  Undefined where no cloth lies near. */
+type ClothFaces = { T: number[]; sides: (A: ArrayLike<number>, a: number, B: ArrayLike<number>, b: number) => number; meets: (A: ArrayLike<number>, o: number) => number };
+function clothFaces(cloth: M[], box: THREE.Box3, s: number): ClothFaces | undefined {
   const T: number[] = [], cell = 0.06 * s, grid = new Map<number, number[]>(), v = new THREE.Vector3();
   const key = (i: number, j: number, k: number) => ((i + 1024) * 2048 + (j + 1024)) * 2048 + (k + 1024);
   const span = (A: ArrayLike<number>, o: number, f: (k: number) => void) => {
@@ -5923,7 +5937,58 @@ function clothFaces(cloth: M[], box: THREE.Box3, s: number): { T: number[]; side
     }
     return -1;
   };
-  return { T, sides };
+  const meets = (A: ArrayLike<number>, o: number) => { for (let i = 0; i < 9; i++) tri[i] = A[o + i]; return face(); };
+  return { T, sides, meets };
+}
+/** A round ring of 6 points about `c`, square to `d`, of radius `r`, as 18 numbers. */
+function ringAbout(c: THREE.Vector3, d: THREE.Vector3, r: number): Float64Array {
+  const u = new THREE.Vector3(Math.abs(d.x) < 0.9 ? 1 : 0, Math.abs(d.x) < 0.9 ? 0 : 1, 0).cross(d).normalize(), w = new THREE.Vector3().crossVectors(d, u), out = new Float64Array(18);
+  for (let j = 0; j < 6; j++) { const a = (j / 6) * Math.PI * 2; out[j * 3] = c.x + (u.x * Math.cos(a) + w.x * Math.sin(a)) * r; out[j * 3 + 1] = c.y + (u.y * Math.cos(a) + w.y * Math.sin(a)) * r; out[j * 3 + 2] = c.z + (u.z * Math.cos(a) + w.z * Math.sin(a)) * r; }
+  return out;
+}
+/** A line of hair (`O`, world points, its first held where it is) walked out of the cloth (`faces`) as a tube `rad(i)`
+ *  round it at each point: followed from its first point, where the tube would pass through the cloth between one point
+ *  and the next, the next is moved the least way that keeps it on the side it came from (up, back off the cloth square to
+ *  the face it met, the two together, or back toward the point before), or as the point before was moved; it goes back
+ *  onto its own line as soon as that is clear, and where nothing clears it the line ends at the point before. Points stay
+ *  their reach above `floor`. Returned eased (each point taken toward the middle of the two either side of it, three
+ *  times over, where the tube still passes clear from the point before to it and from it to the next: stepped round the
+ *  cloth point by point, the least way each time, hair kinked where it left its line and where it came back onto it),
+ *  then as walked. */
+function walkOut(O: THREE.Vector3[], rad: (i: number) => number, faces: ClothFaces, s: number, floor = -Infinity): [THREE.Vector3[], THREE.Vector3[]] {
+  const { T, sides } = faces, up = new THREE.Vector3(0, 1, 0), v = new THREE.Vector3(), mags = [0.01, 0.02, 0.035, 0.05, 0.075, 0.1, 0.14, 0.2, 0.28, 0.4].map((k) => k * s);
+  const F = O.map((p) => p.clone()), D = new THREE.Vector3(), P = new THREE.Vector3();
+  const clear = (a: THREE.Vector3, ra: number, b: THREE.Vector3, rb: number): number => {
+    if (b.y < floor + rb) return -2; const d = b.clone().sub(a); if (d.lengthSq() < 1e-12) return -1; d.normalize();
+    return sides(ringAbout(a, d, ra), 0, ringAbout(b, d, rb), 0);
+  };
+  for (let i = 1; i < F.length; i++) {
+    const a = F[i - 1], ra = rad(i - 1), rb = rad(i), o = O[i];
+    let t = clear(a, ra, P.copy(o), rb);
+    if (t === -1) { D.set(0, 0, 0); continue; }
+    if (D.lengthSq() > 0 && clear(a, ra, P.copy(o).add(D), rb) === -1) { F[i].copy(P); continue; }
+    // (the face it met, turned to the side the point before is on)
+    if (t < 0) t = clear(a, ra, P.copy(o).add(D), rb);
+    const dirs = [up];
+    if (t >= 0) {
+      const q = t * 9, n = new THREE.Vector3().crossVectors(new THREE.Vector3(T[q + 3] - T[q], T[q + 4] - T[q + 1], T[q + 5] - T[q + 2]), new THREE.Vector3(T[q + 6] - T[q], T[q + 7] - T[q + 1], T[q + 8] - T[q + 2])).normalize();
+      if (v.copy(a).sub(new THREE.Vector3(T[q], T[q + 1], T[q + 2])).dot(n) < 0) n.negate();
+      dirs.push(n, n.clone().add(up).normalize());
+    }
+    dirs.push(a.clone().sub(o).normalize());
+    let found = false;
+    for (const k of mags) { for (const base of [new THREE.Vector3(), D.clone()]) { for (const d of dirs) { P.copy(o).add(base).addScaledVector(d, k); if (clear(a, ra, P, rb) === -1) { found = true; break; } } if (found) break; } if (found) break; }
+    // (where nothing clears it, the line ends at the point before: under a body fallen on its face, a lock framing the
+    // face that lies between the floor and the cloth on it has no room to go on)
+    if (!found) { F.length = i; break; }
+    D.copy(P).sub(o); F[i].copy(P);
+  }
+  const E = F.map((p) => p.clone());
+  for (let it = 0; it < 3; it++) for (let i = 1; i + 1 < E.length; i++) {
+    P.copy(E[i - 1]).add(E[i + 1]).addScaledVector(E[i], 2).multiplyScalar(0.25);
+    if (clear(E[i - 1], rad(i - 1), P, rad(i)) === -1 && clear(P, rad(i), E[i + 1], rad(i + 1)) === -1) E[i].copy(P);
+  }
+  return [E, F];
 }
 /** Locks kept out of the cloth below where they leave the head, on a body standing or fallen. Hung as it would hang
  *  standing, a lock lies over what the body wears (drapeLong), cast level from in front; but cloth that stands up steeply
@@ -5947,14 +6012,7 @@ function clearOfCloth(ms: M[], cloth: M[], s: number, floor: number, press?: (ms
   if (!locks.length || !cloth.length) return;
   const box = new THREE.Box3(); for (const m of locks) box.expandByObject(m); box.expandByScalar(0.5 * s);
   const faces = clothFaces(cloth, box, s); if (!faces) return;
-  const { T, sides } = faces, v = new THREE.Vector3();
-  // (a round ring of 6 points about c, square to `d`, of radius r)
-  const ringAbout = (c: THREE.Vector3, d: THREE.Vector3, r: number) => {
-    const u = new THREE.Vector3(Math.abs(d.x) < 0.9 ? 1 : 0, Math.abs(d.x) < 0.9 ? 0 : 1, 0).cross(d).normalize(), w = new THREE.Vector3().crossVectors(d, u), out = new Float64Array(18);
-    for (let j = 0; j < 6; j++) { const a = (j / 6) * Math.PI * 2; out[j * 3] = c.x + (u.x * Math.cos(a) + w.x * Math.sin(a)) * r; out[j * 3 + 1] = c.y + (u.y * Math.cos(a) + w.y * Math.sin(a)) * r; out[j * 3 + 2] = c.z + (u.z * Math.cos(a) + w.z * Math.sin(a)) * r; }
-    return out;
-  };
-  const gap = 0.004 * s, step = 0.03 * s, up = new THREE.Vector3(0, 1, 0), mags = [0.01, 0.02, 0.035, 0.05, 0.075, 0.1, 0.14, 0.2, 0.28, 0.4].map((k) => k * s);
+  const { sides } = faces, v = new THREE.Vector3(), gap = 0.004 * s, step = 0.03 * s;
   // (how many stretches of a lock's tube pass through the cloth, from ring `from` on)
   const hits = (m: M, g: THREE.BufferGeometry, from: number, first = false) => {
     const p = g.getAttribute('position'), n = (p.count - 2) / 6 - 1, A = new Float64Array(p.count * 3);
@@ -5991,50 +6049,13 @@ function clearOfCloth(ms: M[], cloth: M[], s: number, floor: number, press?: (ms
       if (best) { was0.dispose(); m.geometry = best; m.userData.free = free; }
       continue;
     }
-    const walk = (room: number) => {
-      const rad = (k: number) => { const t = k / N; return (r0 + (r1 - r0) * t) * (1 + 0.25 * Math.sin(Math.PI * t)) + room; };
-      const F = ks.map((k) => C[k].clone()), D = new THREE.Vector3(), P = new THREE.Vector3();
-      const clear = (a: THREE.Vector3, ra: number, b: THREE.Vector3, rb: number): number => {
-        if (b.y < floor + rb) return -2; const d = b.clone().sub(a); if (d.lengthSq() < 1e-12) return -1; d.normalize();
-        return sides(ringAbout(a, d, ra), 0, ringAbout(b, d, rb), 0);
-      };
-      for (let i = 1; i < F.length; i++) {
-        const a = F[i - 1], ra = rad(ks[i - 1]), rb = rad(ks[i]), o = C[ks[i]];
-        let t = clear(a, ra, P.copy(o), rb);
-        if (t === -1) { D.set(0, 0, 0); continue; }
-        if (D.lengthSq() > 0 && clear(a, ra, P.copy(o).add(D), rb) === -1) { F[i].copy(P); continue; }
-        // (the face it met, turned to the side the point before is on)
-        if (t < 0) t = clear(a, ra, P.copy(o).add(D), rb);
-        const dirs = [up];
-        if (t >= 0) {
-          const q = t * 9, n = new THREE.Vector3().crossVectors(new THREE.Vector3(T[q + 3] - T[q], T[q + 4] - T[q + 1], T[q + 5] - T[q + 2]), new THREE.Vector3(T[q + 6] - T[q], T[q + 7] - T[q + 1], T[q + 8] - T[q + 2])).normalize();
-          if (v.copy(a).sub(new THREE.Vector3(T[q], T[q + 1], T[q + 2])).dot(n) < 0) n.negate();
-          dirs.push(n, n.clone().add(up).normalize());
-        }
-        dirs.push(a.clone().sub(o).normalize());
-        let found = false;
-        for (const k of mags) { for (const base of [new THREE.Vector3(), D.clone()]) { for (const d of dirs) { P.copy(o).add(base).addScaledVector(d, k); if (clear(a, ra, P, rb) === -1) { found = true; break; } } if (found) break; } if (found) break; }
-        // (where nothing clears it, the lock ends at the point before: under a body fallen on its face, a lock framing the
-        // face that lies between the floor and the cloth on it has no room to go on)
-        if (!found) { F.length = i; break; }
-        D.copy(P).sub(o); F[i].copy(P);
-      }
-      // (and the line eased: each point taken toward the middle of the two either side of it, three times over, where the
-      // lock still passes clear of the cloth from the point before to it and from it to the next; stepped round the cloth
-      // point by point, the least way each time, a lock kinked where it left its line and where it came back onto it)
-      const E = F.map((p) => p.clone());
-      for (let it = 0; it < 3; it++) for (let i = 1; i + 1 < E.length; i++) {
-        P.copy(E[i - 1]).add(E[i + 1]).addScaledVector(E[i], 2).multiplyScalar(0.25);
-        if (clear(E[i - 1], rad(ks[i - 1]), P, rad(ks[i])) === -1 && clear(P, rad(ks[i]), E[i + 1], rad(ks[i + 1])) === -1) E[i].copy(P);
-      }
-      return [E, F];
-    };
     // built again along its line: on the head as it was (every fourth ring), and below as it now runs, eased if that
     // passes clear of the cloth (where it does not, its tube may meet the cloth in other places than the line as walked
     // does: below the head rather than on it); with more room round it if the curve through its points still meets it
     let best: THREE.BufferGeometry | undefined, least = was, free = m.userData.free as number;
+    const O = ks.map((k) => C[k]), rad = (k: number) => { const t = k / N; return (r0 + (r1 - r0) * t) * (1 + 0.25 * Math.sin(Math.PI * t)); };
     for (const room of [gap, 2.5 * gap, 5 * gap]) {
-      const [E, F] = walk(room); let h = Infinity;
+      const [E, F] = walkOut(O, (i) => rad(ks[i]) + room, faces, s, floor); let h = Infinity;
       for (const line of E.every((p, i) => p.equals(F[i])) ? [F] : [E, F]) {
         const Q: THREE.Vector3[] = []; for (let k = 0; k < kF; k += 4) Q.push(C[k].clone().applyMatrix4(inv));
         for (const p of line) Q.push(p.clone().applyMatrix4(inv));
@@ -6080,6 +6101,65 @@ function coilsOffCloth(head: THREE.Object3D, cloth: M[], s: number): void {
     }
     m.geometry.dispose();
     if (g) m.geometry = g; else m.removeFromParent();
+  }
+}
+/** A braid's line as drapeBraids hung it: its points (root first, three numbers each, in the frame its pieces hang in),
+ *  its colour, and how its tuft is laid (on a body laid on its back). */
+type BraidLine = { path: number[]; color: string; lay?: (q: THREE.Vector3) => void };
+/** Braids kept out of the cloth once it has hung, standing or fallen. Hung as it would hang standing, a braid lies over
+ *  what the chest wears (drapeBraids), cast from behind the neck; but cloth that stands up beside the neck is missed so (a
+ *  capelet lifted beside the head by an arm raised to strike), and on a body fallen the cloth hangs as the body fell (a
+ *  mantle bunched at the nape, or hanging from the shoulder beside the head). A braid whose pieces pass through the cloth
+ *  has its line (userData.braidLine, which drapeBraids leaves on each piece and this takes off) walked out of it as a tube
+ *  as thick as the braid is round its line, its two strands and the bands that bind them (walkOut), eased where that
+ *  passes clear, its root held; its pieces are built again along it (braidPieces) and laid as the hair was (`lay`, on a
+ *  body laid out), and kept where fewer of their faces then pass through the cloth. A braid that cannot go on is left as it
+ *  was, not cut short. */
+function braidsOffCloth(up: THREE.Object3D, cloth: M[], s: number, lay?: (ms: M[]) => void): void {
+  const lines = new Map<BraidLine, M[]>();
+  up.traverse((o) => { const l = o.userData.braidLine as BraidLine | undefined; if (!l) return; delete o.userData.braidLine; const ms = lines.get(l); if (ms) ms.push(o as M); else lines.set(l, [o as M]); });
+  if (!lines.size || !cloth.length) return;
+  up.updateWorldMatrix(true, true);
+  const box = new THREE.Box3(); for (const ms of lines.values()) for (const m of ms) box.expandByObject(m); box.expandByScalar(0.3 * s);
+  const faces = clothFaces(cloth, box, s); if (!faces) return;
+  const v = new THREE.Vector3(), A = new Float64Array(9);
+  // (how many faces of these pieces pass through the cloth, and the middle of each)
+  const meeting = (ms: M[]) => {
+    const at: THREE.Vector3[] = [];
+    for (const m of ms) {
+      m.updateWorldMatrix(true, false); const p = m.geometry.getAttribute('position'), ix = m.geometry.index, n = ix ? ix.count : p.count;
+      for (let i = 0; i + 2 < n; i += 3) { for (let j = 0; j < 3; j++) { v.fromBufferAttribute(p, ix ? ix.getX(i + j) : i + j).applyMatrix4(m.matrixWorld); A[j * 3] = v.x; A[j * 3 + 1] = v.y; A[j * 3 + 2] = v.z; } if (faces.meets(A, 0) >= 0) at.push(new THREE.Vector3((A[0] + A[3] + A[6]) / 3, (A[1] + A[4] + A[7]) / 3, (A[2] + A[5] + A[8]) / 3)); }
+    }
+    return at;
+  };
+  const drop = (ms: M[]) => { for (const m of ms) { m.parent?.remove(m); m.geometry.dispose(); } };
+  for (const [line, pieces] of lines) {
+    const met = meeting(pieces); let least = met.length; if (!least) continue;
+    const frame = pieces[0].parent!, O: THREE.Vector3[] = [];
+    for (let i = 0; i + 2 < line.path.length; i += 3) O.push(frame.localToWorld(new THREE.Vector3(line.path[i], line.path[i + 1], line.path[i + 2])));
+    // (as far out from its line as the braid reaches: its strands roped round it, and a little more for its bands)
+    const n = O.length - 1, reach = (i: number) => { const t = i / n; return (0.045 * (1 - 0.35 * t) + 0.05 - 0.02 * t + 0.012) * s; };
+    // walked from the point of its line before the first place its pieces meet the cloth, so that cloth near the head
+    // that passes between its strands there does not hold it (then from halfway back to its root, then from its root)
+    let j1 = n; for (const c of met) { let near = Infinity, k = n; O.forEach((p, i) => { const d = p.distanceToSquared(c); if (d < near) { near = d; k = i; } }); j1 = Math.min(j1, k); }
+    let best: M[] | undefined;
+    for (const j0 of [...new Set([Math.max(0, j1 - 1), Math.floor(Math.max(0, j1 - 1) / 2), 0])]) {
+      let h = Infinity;
+      for (const room of [0.004 * s, 0.01 * s, 0.02 * s]) {
+        const [E, F] = walkOut(O.slice(j0), (i) => reach(i + j0) + room, faces, s);
+        for (const L of E.every((p, i) => p.equals(F[i])) ? [F] : [E, F]) {
+          if (j0 + L.length < O.length) continue;
+          const ms = braidPieces([...O.slice(0, j0), ...L].map((p) => frame.worldToLocal(p.clone())), line.color, s, line.lay);
+          for (const m of ms) frame.add(m);
+          lay?.(ms); h = meeting(ms).length;
+          if (h < least && (L === F || !h)) { if (best) drop(best); best = ms; least = h; } else drop(ms);
+          if (!h) break;
+        }
+        if (!h) break;
+      }
+      if (!h) break;
+    }
+    if (best) drop(pieces);
   }
 }
 /** A wing of a body laid out: flat on the floor from its root when the root is down there (the body on its back lies on
