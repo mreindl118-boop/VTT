@@ -3,6 +3,7 @@
 // The recipe is data, so no character of any one table lives in the repo: the parts are generic (pointed ears, wings,
 // a halo, a thorn crown, a shield, an axe, a book ...) and the pack says which a character wears, in what colours.
 import * as THREE from 'three';
+import { toCreasedNormals } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { mat, matClone } from '../render/materials';
 import { HIP, SHIN, THIGH, clipRings, forearmRings, frameOf, loftGeometry, lockGeometry, neckBump, neckLift, neckRings, pelvisRings, ringAt, ringPoint, shinRings, thighRings, torsoRings, upperArmRings, type Frame, type Measures, type Ring } from './anatomy';
 import type { CreatureSize } from '../core/units';
@@ -10,7 +11,7 @@ import { faceFeatures, hairSkull, browLift, weld, type FaceSpec, type FaceDetail
 import { hairdo as buildHairdo, cutSphere, sheen, type Hairdo } from './hair';
 import { smin } from './sdf';
 import { weapon as gearWeapon, scabbard, bladeOf, closeGrip, secondHandAt, secondHandSlide, walkingStick, caneFoot, type WeaponSpec } from './weapons';
-import { clothPoint, hangGarments, pointsOf, type DrapeWorld, type Garment } from './cloth';
+import { clothPoint, hangGarments, keepOut, pointsOf, type DrapeWorld, type Garment } from './cloth';
 
 export type HeroWeapon = 'none' | 'sword' | 'axe' | 'mace' | 'staff' | 'spear' | 'torch';
 export type HeroOffhand = 'none' | 'shield' | 'book' | 'orb';
@@ -1819,7 +1820,7 @@ function rig(f: HeroFigure, s: number, gown: boolean) {
     up.add(skinOf(loft(tr, torsoC, fr.bust ? { seg: 80, rows: 90, bump: chestBump, warp: bustWarp, jig: bustJig } : { seg: 32, bump: chestBump })));
     const br = ringAt(tr, 0.42); up.add(skinOf(sm(loftGeometry([{ ...br, y: 0.32 }, { ...br, y: 0.52 }], s, { seg: 32, k: 1.05, rows: 2 }), trim)));
     if (!f.skirt && f.hem !== false && f.armor?.kind !== 'plate') { hem = bodyCut(tr, pelvisRings(fr), s, cloth, { top: 0.4, hem: -0.42, rows: HEM_ROWS, ease: [1.03, 1.06], flare: 0.16, flareFrom: 0.4, folds: 6, amp: 0.05, jag: 0.03, seed: 0.2, seat: seatBump }); up.add(hem); } // (from under the belt; hung with the rest of the cloth once posed)
-    if (!f.armor?.knotwork) up.add(band(tr, 2.13, 0.07, 1.07, trim, 24));                              // the neckband (an engraved harness's gorget lies on the body there)
+    if (!f.armor?.knotwork) { const nb = band(tr, 2.13, 0.07, 1.07, trim, 24); nb.userData.neckband = true; up.add(nb); } // the neckband (an engraved harness's gorget lies on the body there)
     if (f.hem !== false && f.armor?.kind !== 'plate') { // (under a plate's fauld the belt's tail would hang down into the tassets)
       const tail = box(0.1 * s, 0.5 * s, 0.03 * s, trim); tail.rotation.z = -LX * 0.12; up.add(skinOf(at(tail, LX * 0.2 * s, 0.17 * s, (br.f * 1.05 + 0.03) * s))); // the belt's tail, hanging on the left
       up.add(skinOf(at(box(0.11 * s, 0.05 * s, 0.035 * s, tone(trim, '#ffffff', 0.25)), LX * 0.235 * s, -0.06 * s, (br.f * 1.05 + 0.032) * s)));
@@ -2978,7 +2979,62 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
           const d = cyl(0.11 * s, 0.11 * s, 0.05 * s, f.clasps, 12); d.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), n); up.add(at(d, p.x, p.y, p.z));
           const k = cap(0.015 * s, 0.12 * s, tone(f.clasps, '#000000', 0.4)); k.quaternion.copy(d.quaternion); const q = p.clone().addScaledVector(n, 0.03 * s); up.add(at(k, q.x, q.y, q.z));
         }
-        if (f.hood) { const p = clothPoint(G, 0.5, 0.2, 0.12 * s), h = sph(0.5 * s, f.cloak!, 16, 10); h.scale.set(1, 0.5, 0.75); up.add(at(h, p.x, p.y + 0.05 * s, p.z)); }
+        if (f.hood) {
+          const p = clothPoint(G, 0.5, 0.2, 0.12 * s), h = sph(0.5 * s, f.cloak!, 16, 10); h.scale.set(1, 0.5, 0.75); h.userData.hood = true; up.add(at(h, p.x, p.y + 0.05 * s, p.z));
+          if (laid) {
+            // (on a body laid out the hood lies on the floor: what of it would pass into the floor lies flat on it, as
+            // high over it as hair lying under it needs, so that on a body laid on its back the hood lies over the hair
+            // there as the rest of the cloth does; on one laid on its side or face down it keeps out of the head with
+            // the hair on it, as the cloth it is laid on does, along the floor where it lies between the two)
+            const F = floorUnder(up), HP = h.geometry.getAttribute('position') as THREE.BufferAttribute, q = new THREE.Vector3(); h.updateMatrix(); const inv = h.matrix.clone().invert(); let moved = false;
+            if (headOff) {
+              const toWorld = up.matrixWorld.clone().multiply(h.matrix), toHood = toWorld.clone().invert(), A = Float64Array.from(HP.array as ArrayLike<number>), first = A.slice();
+              // (where the head lies deep in the hood, the hood first gives way before it whole, squashed toward its
+              // far side, away from the head, as far as brings its deepest point out to the head's room, never flatter
+              // than a third of itself, so that it keeps its round, where put out of it point by point alone, its side
+              // in the head folded over sharply. The head being round, a point squashed so can be left a little in that
+              // room: the hood is squashed again for it, a few times at the most, and all told never flatter than that
+              // third)
+              {
+                const W: THREE.Vector3[] = [], D: number[] = [], O: THREE.Vector3[] = [], o = new THREE.Vector3(), u = new THREE.Vector3(), c = new THREE.Vector3(), v = new THREE.Vector3();
+                for (let it = 0, flat = 1; it < 4; it++) {
+                  W.length = 0; D.length = 0; O.length = 0; u.set(0, 0, 0); c.set(0, 0, 0);
+                  for (let i = 0; i < A.length / 3; i++) { const w = new THREE.Vector3(A[i * 3], A[i * 3 + 1], A[i * 3 + 2]).applyMatrix4(toWorld), d = headOff.depth(w, o) + 0.015 * s; W.push(w); c.add(w); D.push(d); O.push(o.clone()); if (d > 0) u.addScaledVector(o, d); }
+                  if (u.lengthSq() <= 1e-12) break;
+                  u.normalize(); c.divideScalar(W.length);
+                  let far = -Infinity; for (const w of W) far = Math.max(far, v.subVectors(w, c).dot(u));
+                  let k = 1; for (let i = 0; i < W.length; i++) { const along = O[i].dot(u), room = far - v.subVectors(W[i], c).dot(u); if (D[i] > 0 && along > 0.2 && room > 1e-6) k = Math.min(k, 1 - D[i] / (along * room)); }
+                  k = Math.max(1 / 3 / flat, k);
+                  if (k >= 1) break;
+                  for (let i = 0; i < W.length; i++) { W[i].addScaledVector(u, (1 - k) * (far - v.subVectors(W[i], c).dot(u))).applyMatrix4(toHood); A[i * 3] = W[i].x; A[i * 3 + 1] = W[i].y; A[i * 3 + 2] = W[i].z; }
+                  flat *= k;
+                }
+              }
+              // (where the head lies deeper in the hood than that takes it out of, the hood is then moved out of the
+              // head's room whole, as far as the point of it with the farthest to go is put out of it, a few times at
+              // the most: put out point by point, its side in the head was pushed out through its other side, the two
+              // folded over each other)
+              {
+                const B = new Float64Array(A.length), w = new THREE.Vector3(), t = new THREE.Vector3(), move = new THREE.Vector3();
+                for (let it = 0; it < 4; it++) {
+                  B.set(A); keepOut(B, [headOff.depth], toWorld, toHood, F.n.clone().negate(), laid.lift - laid.low - 0.016 * s, 0.03 * s);
+                  let most = (1e-4 * s) ** 2; move.set(0, 0, 0);
+                  for (let i = 0; i < A.length / 3; i++) { w.set(A[i * 3], A[i * 3 + 1], A[i * 3 + 2]).applyMatrix4(toWorld); t.set(B[i * 3], B[i * 3 + 1], B[i * 3 + 2]).applyMatrix4(toWorld).sub(w); if (t.lengthSq() > most) { most = t.lengthSq(); move.copy(t); } }
+                  if (move.lengthSq() === 0) break; // (nothing in that room but by a hair, which the next step takes)
+                  for (let i = 0; i < A.length / 3; i++) { w.set(A[i * 3], A[i * 3 + 1], A[i * 3 + 2]).applyMatrix4(toWorld).add(move).applyMatrix4(toHood); A[i * 3] = w.x; A[i * 3 + 1] = w.y; A[i * 3 + 2] = w.z; }
+                }
+              }
+              // (and what may still be left in that room, should moving it whole a few times not have taken it all out,
+              // is put out of it point by point)
+              keepOut(A, [headOff.depth], toWorld, toHood, F.n.clone().negate(), laid.lift - laid.low - 0.016 * s, 0.03 * s);
+              for (let i = 0; i < HP.count; i++) if (A[i * 3] !== first[i * 3] || A[i * 3 + 1] !== first[i * 3 + 1] || A[i * 3 + 2] !== first[i * 3 + 2]) { HP.setXYZ(i, A[i * 3], A[i * 3 + 1], A[i * 3 + 2]); moved = true; }
+            }
+            for (let i = 0; i < HP.count; i++) { q.fromBufferAttribute(HP, i).applyMatrix4(h.matrix); const d = 0.016 * s - F.height(q); if (d > 0) { q.addScaledVector(F.rise, d).applyMatrix4(inv); HP.setXYZ(i, q.x, q.y, q.z); moved = true; } }
+            // (its normals found again across faces that meet gently only: what lies flat on the floor and what folds over
+            // onto it are each shaded as it faces, and the sphere's seam closes)
+            if (moved) { HP.needsUpdate = true; h.geometry = toCreasedNormals(h.geometry, Math.PI / 3); h.geometry.computeBoundingSphere(); h.geometry.computeBoundingBox(); }
+          }
+        }
       } });
     }
   }
@@ -3312,11 +3368,16 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
     }
   }
 
-  // a wreath: twigs woven low round the head, their thorns and broken ends standing out no further than a leaf
+  // a wreath: twigs woven low round the head, their thorns and broken ends standing out no further than a leaf (on a
+  // body laid out, pressed onto the floor where it would pass into it: see below)
+  let wreathOn: THREE.Group | undefined;
   if (f.wreath) {
-    const wg = new THREE.Group(); wg.position.set(0, hy + 0.2 * s, -0.03 * s); wg.rotation.x = -0.12; up.add(wg);
+    const wg = new THREE.Group(); wg.position.set(0, hy + 0.2 * s, -0.03 * s); wg.rotation.x = -0.12; up.add(wg); wreathOn = wg;
     const C = f.wreath.color, dark = tone(C, '#000000', 0.3), leafC = f.wreath.leaf ?? '#5a7a3a', R = 0.41 * s;
-    const ring = (a: number, k = 1, y = 0) => new THREE.Vector3(Math.cos(a) * R * k, y * s, Math.sin(a) * R * k);
+    // (let out a little over the back of the head, which is longer than it is wide: there it sits on the hair rather than
+    // pressing into it, easing back to the round before it reaches the ears)
+    const toBack = (a: number) => { const d = Math.abs(((((a + Math.PI / 2) % (2 * Math.PI)) + 3 * Math.PI) % (2 * Math.PI)) - Math.PI); return d < 0.35 ? 1 : d < 0.87 ? 0.5 + 0.5 * Math.cos((Math.PI * (d - 0.35)) / 0.52) : 0; };
+    const ring = (a: number, k = 1, y = 0) => { const r = (R + 0.03 * s * toBack(a)) * k; return new THREE.Vector3(Math.cos(a) * r, y * s, Math.sin(a) * r); };
     for (let k = 0; k < 4; k++) {             // four strands wound round each other, each wandering a little
       const pts: THREE.Vector3[] = [];
       for (let i = 0; i < 28; i++) { const a = (i / 28) * Math.PI * 2, w = 4 * a + k * 1.57; pts.push(ring(a, 1 + 0.035 * Math.cos(w) + 0.02 * Math.sin(7 * a + k), 0.032 * Math.sin(w) + 0.012 * Math.sin(9 * a + 2 * k))); }
@@ -3919,7 +3980,7 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
   const overDress = (laid?: Laid) => {
     const kit = f.satchel ? f.satchelKit : undefined; if (!f.belt && !kit) return;
     body.updateMatrixWorld(true);
-    const inner = garments.filter((g) => g.name !== 'cloak' && g.name !== 'mantle' && g.name !== 'tails'), w = drapeWorld(body, { pel, up, neck, arm, leg, gR, gL }, fr, s, P, dead, laid);
+    const inner = garments.filter((g) => g.name !== 'cloak' && g.name !== 'mantle' && g.name !== 'tails'), w = drapeWorld(body, { pel, up, neck, arm, leg, gR, gL }, fr, s, P, dead, laid, laid && headOff);
     const cuts = inner.map((g) => (g.mesh.geometry.getAttribute('position').array as Float32Array).slice());
     if (inner.length) hangGarments(inner.map((g) => ({ ...g, after: undefined })), w);
     for (const g of inner) if (g.name === 'mail') yokeMeet?.(g);
@@ -4315,9 +4376,22 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
   // (it lies on its clothes: what of them is under it lies under it, each garment worn over another a layer nearer the
   // floor (kit/cloth.ts), so the more it wears one over another, the higher it lies on them)
   if (laid && garments.length) { const ls = garments.map((g) => g.layer); laid.lift = Math.max(0.02 * s, 0.005 + 0.012 * (Math.max(0, ...ls) - Math.min(...ls)) + 0.01 * s); }
+  // (on a body laid on its side or face down the cloth keeps out of the head with the hair on it, which would otherwise
+  // lie in the cloth fallen past it, or cut where the head has come to lie; on one laid on its back the hair lies under
+  // the cloth)
+  const headOff = laid && (P.lie === 'side' || P.lie === 'front') ? headRoom(head, f.skin ?? '#d9b899', s) : undefined;
   if (laid) overDress(laid);
   // the cloth hangs on the posed body (on one laid out, the way it lies)
-  if (garments.length) hangGarments(garments, drapeWorld(body, { pel, up, neck, arm, leg, gR, gL }, fr, s, P, dead, laid));
+  if (garments.length) hangGarments(garments, drapeWorld(body, { pel, up, neck, arm, leg, gR, gL }, fr, s, P, dead, laid, headOff));
+  // (a capelet kept off the head comes down off it at the collar, its neckline drawn down over the neckband: where it
+  // lies over the band, even on the body just above it, the band is drawn in under it, no further than keeps the collar
+  // a little off it, so the collar lies over the band, never through it; where nothing lies near it, the band stands as
+  // it does on a body standing. The band only draws in, so nothing hung over it comes to lie in it)
+  if (headOff && garments.some((g) => g.name === 'mantle')) {
+    const nb = up.children.find((c) => c.userData.neckband) as M | undefined, cape: M[] = [];
+    body.traverse((o) => { const m = o as M; if (m.isMesh && (o.userData.garment === 'mantle' || o.userData.cloth === 'mantle') && !o.userData.hood && !(m.material as THREE.Material).transparent) cape.push(m); });
+    if (nb) tuckUnder(nb, cape, 0.006 * s, 24);
+  }
   // a bow or a crossbow slung on the back lies over what hangs there (a cloak, a coat's tails, a mantle), never through it
   if (slung && garments.length && !P.lie) {
     const cloth: M[] = []; body.traverse((o) => { const m = o as M; if (m.isMesh && (m.userData.garment || m.userData.cloth) && !(m.material as THREE.Material).transparent) cloth.push(m); });
@@ -4361,6 +4435,9 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
     // (a cloak's laurel lies on the outer face of its cloth, which under the body is the face turned to the floor: it
     // is pressed flat there with the cloth, a hair under it)
     if (f.cloakLaurel) { const sprays: M[] = []; body.traverse((o) => { if ((o as M).isMesh && o.userData.laurel) sprays.push(o as M); }); pressOnFloor(sprays, -0.016); for (const m of sprays) { m.geometry.computeBoundingBox(); m.geometry.computeBoundingSphere(); } }
+    // (a wreath round a head laid on the floor is crushed flat on it where it would pass into it, under the hair lying
+    // there; a twig pressed flat over onto itself is shaded as its upper face faces, and stays round where it is not)
+    if (wreathOn) { const ms: M[] = []; wreathOn.traverse((o) => { if ((o as M).isMesh) ms.push(o as M); }); pressOnFloor(ms, 0.003 * s, 0.45 * Math.PI); }
   }
   else if (f.hoverFt && !dead) body.position.y += f.hoverFt;
   if (f.sparkles && !dead) {
@@ -4471,10 +4548,226 @@ function bendLimb(l: Limb, reach: number): void {
   for (const c of l.mid.children) if ((c as M).isMesh) turn(c as M, false);
 }
 
+/** Draws a band (a loft of rings all alike round its own axis, each straight along the axis from the one before, as
+ *  `band` lofts the neckband: `seg` points a ring and the middles of its two ends last, as loftGeometry makes it) in
+ *  toward its axis where the cloth `cloth` comes nearer it than `gap`, so that along every way read out from its axis
+ *  between its ends the cloth lies `gap` outside it at the least (just past its rims, and between the ways read, it may
+ *  come a little nearer, but never through it where it lies no deeper in it than half its reach), and leaves it as it
+ *  stands where none does. Rings not alike, or set aside one from the next, can leave cloth through it. The cloth is
+ *  read in half-planes out from the axis, each through a column of the band's points and `sub` - 1 more between each
+ *  two columns: where a face of the cloth cuts a half-plane between the band's ends, it lies as near the axis there as
+ *  the nearest point of that cut. A corner of a face lying between the band's ends, and where an edge crosses its foot
+ *  or its top, are read where they lie too. Each is read against the band's own face at its turn round the axis, in
+ *  each ring the straight line between the two columns round it: where that lies nearer the cloth than `gap`, the
+ *  column nearer it is drawn in, as little as takes the face there `gap` short of the cloth with the other as it stands
+ *  (the two alike only where it lies exactly midway between them, and the other only past what the nearer can take).
+ *  Then each drawn column is let out again, a few times over, halfway toward as far as the columns beside it, as they
+ *  stand, let it go. So no fold of the cloth, lying at any slant, stands into the band between its points or its rings,
+ *  and the band draws in only under cloth that comes near it, a column no further than that cloth asks of it, to within
+ *  a fifth of `gap`. A column's rings are drawn in alike, so the band keeps its shape: where cloth comes near only its
+ *  top, its foot goes in as far. It only draws in, never past half its reach. Exported for tests. */
+export function tuckUnder(band: M, cloth: M[], gap: number, seg: number, sub = 4): void {
+  const pos = band.geometry.getAttribute('position') as THREE.BufferAttribute, n = pos.count - 2, rows = n / seg;
+  const lo = new THREE.Vector3().fromBufferAttribute(pos, n), hi = new THREE.Vector3().fromBufferAttribute(pos, n + 1), v = new THREE.Vector3();
+  // (the axis, foot to top, and how far out from it each point stands, and which way)
+  const ax = new THREE.Vector3().subVectors(hi, lo), len = ax.length(); ax.divideScalar(len || 1);
+  const out: THREE.Vector3[] = [], reach: number[] = [], at: number[] = [];
+  for (let i = 0; i < n; i++) { v.fromBufferAttribute(pos, i).sub(lo); const h = v.dot(ax); v.addScaledVector(ax, -h); at.push(h); reach.push(v.length()); out.push(v.clone().normalize()); }
+  const far = Math.max(...reach) + gap;
+  // (the turn of a way out from the axis, from the first column, the way the columns go round)
+  const e1 = out[0], e2 = new THREE.Vector3().crossVectors(ax, e1), turn = (x: THREE.Vector3) => { const a = Math.atan2(x.dot(e2), x.dot(e1)); return a < 0 ? a + 2 * Math.PI : a; };
+  if (seg > 2 && turn(out[1]) > Math.PI) e2.negate();
+  // (the cloth's faces in the band's own frame, those in the box round all within its reach of the axis between its ends)
+  band.updateWorldMatrix(true, false);
+  const toBand = band.matrixWorld.clone().invert(), F: THREE.Vector3[] = [], m4 = new THREE.Matrix4(), box = new THREE.Box3(), tb = new THREE.Box3();
+  for (const e of [0, 1, 2] as const) { const x = far * Math.sqrt(Math.max(0, 1 - ax.getComponent(e) ** 2)) + gap; box.min.setComponent(e, Math.min(lo.getComponent(e), hi.getComponent(e)) - x); box.max.setComponent(e, Math.max(lo.getComponent(e), hi.getComponent(e)) + x); }
+  for (const m of cloth) {
+    m.updateWorldMatrix(true, false); m4.multiplyMatrices(toBand, m.matrixWorld);
+    const p = m.geometry.getAttribute('position'), ix = m.geometry.index, k = ix ? ix.count : p.count, W: THREE.Vector3[] = [];
+    for (let i = 0; i < p.count; i++) W.push(new THREE.Vector3().fromBufferAttribute(p, i).applyMatrix4(m4));
+    for (let t = 0; t + 2 < k; t += 3) {
+      const a = W[ix ? ix.getX(t) : t], b = W[ix ? ix.getX(t + 1) : t + 1], c = W[ix ? ix.getX(t + 2) : t + 2];
+      if (tb.makeEmpty().expandByPoint(a).expandByPoint(b).expandByPoint(c).intersectsBox(box)) F.push(a, b, c);
+    }
+  }
+  if (!F.length) return;
+  // (how near the axis the cloth lies in the half-plane out along `dir`, between the band's ends)
+  const nrm = new THREE.Vector3(), d = [0, 0, 0], H = [0, 0, 0], R = [0, 0, 0];
+  const nearest = (dir: THREE.Vector3) => {
+    nrm.crossVectors(ax, dir).normalize(); let best = Infinity;
+    for (let f = 0; f < F.length; f += 3) {
+      for (let q = 0; q < 3; q++) { v.subVectors(F[f + q], lo); d[q] = v.dot(nrm); H[q] = v.dot(ax); R[q] = v.dot(dir); }
+      if ((d[0] > 0 && d[1] > 0 && d[2] > 0) || (d[0] < 0 && d[1] < 0 && d[2] < 0)) continue;
+      // (the cut: where the face's edges cross the plane, as height and reach)
+      const cut: [number, number][] = [];
+      for (let q = 0; q < 3; q++) {
+        const r2 = (q + 1) % 3;
+        if (d[q] === 0) cut.push([H[q], R[q]]);
+        if ((d[q] < 0 && d[r2] > 0) || (d[q] > 0 && d[r2] < 0)) { const t = d[q] / (d[q] - d[r2]); cut.push([H[q] + (H[r2] - H[q]) * t, R[q] + (R[r2] - R[q]) * t]); }
+      }
+      if (!cut.length) continue;
+      // (of the cut, the part between the ends and on this side of the axis: its nearest point)
+      const [p0, p1] = [cut[0], cut[cut.length - 1]];
+      let s0 = 0, s1 = 1;
+      for (const [x0, x1, lim, up] of [[p0[0], p1[0], 0, true], [p0[0], p1[0], len, false], [p0[1], p1[1], 0, true]] as const) {
+        const dx = x1 - x0;
+        if (Math.abs(dx) < 1e-12) { if (up ? x0 < lim : x0 > lim) s1 = -1; continue; }
+        const t = (lim - x0) / dx;
+        if (up === dx > 0) s0 = Math.max(s0, t); else s1 = Math.min(s1, t);
+      }
+      if (s0 > s1) continue;
+      best = Math.min(best, p0[1] + (p1[1] - p0[1]) * s0, p0[1] + (p1[1] - p0[1]) * s1);
+    }
+    return best;
+  };
+  // (the cloth read, each read as its turn round the axis and how near the axis it lies there: in the half-planes
+  // through each column and between each two)
+  const asks: [number, number][] = [], dir = new THREE.Vector3();
+  for (let j = 0; j < seg; j++) for (let q = 0; q < sub; q++) {
+    const f = q / sub; dir.copy(out[j]).multiplyScalar(1 - f).addScaledVector(out[(j + 1) % seg], f);
+    if (dir.lengthSq() < 1e-12) continue;
+    const r = nearest(dir.normalize()); if (r < far) asks.push([q ? turn(dir) : j ? turn(out[j]) : 0, r]);
+  }
+  // (and at a corner of a face between the band's ends, or where an edge crosses the band's foot or its top: such a
+  // crossing lies on the end it crosses, however rounding puts it)
+  const mark = (p: THREE.Vector3, end: boolean) => {
+    v.subVectors(p, lo); const h = v.dot(ax); if (!end && (h < 0 || h > len)) return;
+    v.addScaledVector(ax, -h); const r = v.length(); if (r < far && r > 1e-9) asks.push([turn(v.divideScalar(r)), r]);
+  };
+  const c = new THREE.Vector3();
+  for (let f = 0; f < F.length; f += 3) for (let q = 0; q < 3; q++) {
+    const a = F[f + q], b = F[f + (q + 1) % 3]; mark(a, false);
+    const ha = v.subVectors(a, lo).dot(ax), hb = v.subVectors(b, lo).dot(ax);
+    for (const h of [0, len]) if ((ha - h) * (hb - h) < 0) mark(c.copy(a).lerp(b, (h - ha) / (hb - ha)), true);
+  }
+  if (!asks.length) return;
+  // (each ring drawn in by the reads, held as the reciprocals x of its columns' reaches: a turn t1 past one column and t2
+  // short of the next, t between them, the ring's face lies as near the axis as 1 / (A x1 + B x2), A = sin t2 / sin t and
+  // B = sin t1 / sin t, so for it to lie `gap` short of cloth read r out, A x1 + B x2 is to be 1 / (r - gap) at the
+  // least. Drawn in, a column's x grows, never past twice its own as built: half its reach)
+  let moved = false;
+  for (let row = 0; row < rows; row++) {
+    const th: number[] = [], X0: number[] = [], cap: number[] = [];
+    for (let j = 0; j < seg; j++) { const i = row * seg + j, a = turn(out[i]); th.push(j ? a : a > Math.PI ? a - 2 * Math.PI : a); X0.push(1 / reach[i]); cap.push(2 / reach[i]); }
+    th.push(th[0] + 2 * Math.PI);
+    const J: number[] = [], K: number[] = [], A: number[] = [], B: number[] = [], C: number[] = [];
+    for (const [a0, r] of asks) {
+      const a = a0 < th[0] ? a0 + 2 * Math.PI : a0 >= th[seg] ? a0 - 2 * Math.PI : a0;
+      let j = seg - 1; for (let k = 0; k < seg - 1; k++) if (a >= th[k] && a < th[k + 1]) { j = k; break; }
+      const t = th[j + 1] - th[j], t1 = Math.min(t, Math.max(0, a - th[j])), want = 1 / Math.max(r - gap, 1e-9), k = (j + 1) % seg;
+      // (between columns half a turn apart, or near it, there is no face between them to read: each held short of the
+      // cloth itself)
+      if (t > 0.9 * Math.PI) { J.push(j, k); K.push(k, j); A.push(1, 1); B.push(0, 0); C.push(want, want); continue; }
+      J.push(j); K.push(k); A.push(Math.sin(t - t1) / Math.sin(t)); B.push(Math.sin(t1) / Math.sin(t)); C.push(want);
+    }
+    // (each read the ring's face as built does not meet: the column nearer it drawn in as far as that takes, the other
+    // as built, the two alike only where it is exactly midway, and the other taking what the nearer cannot)
+    const X = X0.slice();
+    for (let q = 0; q < C.length; q++) {
+      const left0 = C[q] - A[q] * X0[J[q]] - B[q] * X0[K[q]]; if (left0 <= 0) continue;
+      const near = A[q] >= B[q], p = near ? J[q] : K[q], o = near ? K[q] : J[q], a = near ? A[q] : B[q], b = near ? B[q] : A[q];
+      let xp = Math.min(cap[p], X0[p] + left0 / (a - b < 1e-9 ? a + b : a)), xo = X0[o];
+      let left = left0 - a * (xp - X0[p]); if (left > 0 && b > 0) xo = Math.min(cap[o], X0[o] + left / b);
+      left = left0 - a * (xp - X0[p]) - b * (xo - X0[o]); if (left > 0) xp = Math.min(cap[p], xp + left / a);
+      X[p] = Math.max(X[p], xp); X[o] = Math.max(X[o], xo);
+    }
+    // (then each column let out halfway toward as far as the columns beside it, as they stand, let it go, a few times
+    // over: of a read between two columns both let out so, each half still meets it)
+    for (let pass = 0; pass < 6; pass++) {
+      const may = X0.slice();
+      for (let q = 0; q < C.length; q++) {
+        if (A[q] > 0) may[J[q]] = Math.max(may[J[q]], (C[q] - B[q] * X[K[q]]) / A[q]);
+        if (B[q] > 0) may[K[q]] = Math.max(may[K[q]], (C[q] - A[q] * X[J[q]]) / B[q]);
+      }
+      for (let j = 0; j < seg; j++) if (may[j] < X[j]) X[j] = (X[j] + may[j]) / 2;
+    }
+    for (let j = 0; j < seg; j++) {
+      const i = row * seg + j, to = Math.max(reach[i] / 2, 1 / X[j]);
+      if (to > reach[i] - 1e-3 * gap) continue; // (drawn in by less than a thousandth of the gap: left as it stands)
+      v.copy(lo).addScaledVector(ax, at[i]).addScaledVector(out[i], to); pos.setXYZ(i, v.x, v.y, v.z); moved = true;
+    }
+  }
+  if (moved) { pos.needsUpdate = true; band.geometry.computeVertexNormals(); band.geometry.computeBoundingSphere(); band.geometry.computeBoundingBox(); }
+}
+
+/** The room hair takes on a head, to a unit of the figure's size (scaled with the head, where the head is scaled): cloth
+ *  on a body laid on its side or face down keeps this far off the head's skin (see headRoom). */
+const HAIR_ROOM = 0.1;
+
+/** The head with the hair on it, as cloth on a body laid on its side or face down keeps out of it (kit/cloth.ts
+ *  `DrapeWorld.apart`): the head's own skin (what under it is the skin's colour, `skin`, or the face painted on the
+ *  skull: the skull, the ears, the nose; not a beard, nor marks painted on the skin) grown by HAIR_ROOM (of the
+ *  figure's size, scaled with the head where the head is scaled), read from the middle of the skin as how far out it
+ *  reaches each way: along the middle of each bin of direction, as far as a ball of that room round any point of the
+ *  skin reaches, eased between the bins. Returns points over the grown head (world), how far a triangle in the world
+ *  (its corners) lies off the skin itself (feet, as far as halfway out into the room for the hair and no further: the
+ *  nearest point of the skin to any point of it), and how deep a point in the world lies in the grown head (feet, below
+ *  zero outside it) with the way out, straight out from the middle (world). Exported for tests. */
+export function headRoom(head: THREE.Object3D, skin: THREE.ColorRepresentation, s: number): { points: THREE.Vector3[]; near: (a: THREE.Vector3, b: THREE.Vector3, c: THREE.Vector3) => number; depth: (p: THREE.Vector3, out: THREE.Vector3) => number } | undefined {
+  head.updateWorldMatrix(true, true);
+  const col = new THREE.Color(skin), pts: THREE.Vector3[] = [];
+  head.traverse((o) => {
+    const m = o as M; if (!m.isMesh || o.userData.hair || o.userData.braid || o.userData.coil || o.userData.onFace) return;
+    const mat = m.material as THREE.MeshStandardMaterial; if (mat.transparent || !(mat.color?.equals(col) || mat.map || o.userData.skull)) return;
+    const p = m.geometry.getAttribute('position'); for (let i = 0; i < p.count; i++) pts.push(new THREE.Vector3().fromBufferAttribute(p, i).applyMatrix4(m.matrixWorld));
+  });
+  if (pts.length < 20) return undefined;
+  // (the bins are the head's own: polar from the crown, and round from the face)
+  const q = head.getWorldQuaternion(new THREE.Quaternion()), qi = q.clone().invert(), t = new THREE.Vector3(), box = new THREE.Box3();
+  for (const p of pts) box.expandByPoint(t.copy(p).applyQuaternion(qi));
+  const c = box.getCenter(new THREE.Vector3()).applyQuaternion(q), NT = 16, NP = 32, R = new Float64Array(NT * NP).fill(-1);
+  const at = (d: THREE.Vector3) => [(Math.acos(Math.max(-1, Math.min(1, d.y / (d.length() || 1)))) / Math.PI) * NT, ((Math.atan2(d.x, d.z) + Math.PI) / (2 * Math.PI)) * NP];
+  const way = (th: number, ph: number, out: THREE.Vector3) => out.set(Math.sin(th) * Math.sin(ph), Math.cos(th), Math.sin(th) * Math.cos(ph));
+  const room = HAIR_ROOM * s * Math.max(head.scale.x, head.scale.y, head.scale.z), rr = room * room, L = pts.map((p) => p.clone().sub(c).applyQuaternion(qi)), d = new THREE.Vector3();
+  for (let i = 0; i < NT; i++) for (let j = 0; j < NP; j++) {
+    way(((i + 0.5) / NT) * Math.PI, ((j + 0.5) / NP) * 2 * Math.PI - Math.PI, d);
+    let far = -1; for (const p of L) { const a = p.dot(d), off = p.lengthSq() - a * a; if (off < rr) far = Math.max(far, a + Math.sqrt(rr - off)); }
+    R[i * NP + j] = far;
+  }
+  // (a bin whose middle passes by every ball reaches as far as the farthest of the bins round it)
+  for (let pass = 0; pass < NT + NP && R.some((r) => r < 0); pass++) {
+    const was = R.slice();
+    for (let i = 0; i < NT; i++) for (let j = 0; j < NP; j++) {
+      if (was[i * NP + j] >= 0) continue;
+      for (const [di, dj] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) { const ii = i + di; if (ii >= 0 && ii < NT) R[i * NP + j] = Math.max(R[i * NP + j], was[ii * NP + ((j + dj + NP) % NP)]); }
+    }
+  }
+  const reach = (d: THREE.Vector3) => {
+    const [a0, b0] = at(d), a = Math.max(0, Math.min(NT - 1, a0 - 0.5)), i = Math.min(NT - 2, Math.floor(a)), fa = a - i, b = b0 - 0.5, fb = b - Math.floor(b), j0 = ((Math.floor(b) % NP) + NP) % NP, j1 = (j0 + 1) % NP;
+    return (R[i * NP + j0] * (1 - fb) + R[i * NP + j1] * fb) * (1 - fa) + (R[(i + 1) * NP + j0] * (1 - fb) + R[(i + 1) * NP + j1] * fb) * fa;
+  };
+  // (over the grown head: the way through each bin's middle, and the crown and the foot)
+  const points: THREE.Vector3[] = [];
+  for (let i = -1; i <= NT; i++) for (let j = 0; j < (i < 0 || i === NT ? 1 : NP); j++) {
+    way(i < 0 ? 0 : i === NT ? Math.PI : ((i + 0.5) / NT) * Math.PI, ((j + 0.5) / NP) * 2 * Math.PI - Math.PI, d); points.push(d.clone().multiplyScalar(reach(d)).applyQuaternion(q).add(c));
+  }
+  // (off the skin: its nearest point to any point of the triangle, from a grid of them as wide as halfway into the
+  // room, so the cells round the triangle's own, one deep, hold every point of the skin as near as that; a triangle
+  // drawn to a point or a line, by its corners and edges)
+  const cell = room / 2, cellKey = (x: number, y: number, z: number) => ((x + 512) * 1024 + y + 512) * 1024 + z + 512, grid = new Map<number, THREE.Vector3[]>();
+  for (const p of pts) { const k = cellKey(Math.floor(p.x / cell), Math.floor(p.y / cell), Math.floor(p.z / cell)); let l = grid.get(k); if (!l) grid.set(k, (l = [])); l.push(p); }
+  const tri = new THREE.Triangle(), seg = new THREE.Line3(), cp = new THREE.Vector3();
+  const near = (a: THREE.Vector3, b: THREE.Vector3, c: THREE.Vector3) => {
+    let best = cell; tri.set(a, b, c);
+    const flat = tri.getArea() < 1e-12, lo = (k: 'x' | 'y' | 'z') => Math.floor(Math.min(a[k], b[k], c[k]) / cell) - 1, hi = (k: 'x' | 'y' | 'z') => Math.floor(Math.max(a[k], b[k], c[k]) / cell) + 1;
+    for (let x = lo('x'), x1 = hi('x'); x <= x1; x++) for (let y = lo('y'), y1 = hi('y'); y <= y1; y++) for (let z = lo('z'), z1 = hi('z'); z <= z1; z++) for (const q of grid.get(cellKey(x, y, z)) ?? []) {
+      if (!flat) { tri.closestPointToPoint(q, cp); best = Math.min(best, cp.distanceTo(q)); continue; }
+      for (const [u, v] of [[a, b], [b, c], [c, a]]) { if (u.distanceToSquared(v) < 1e-18) cp.copy(u); else seg.set(u, v).closestPointToPoint(q, true, cp); best = Math.min(best, cp.distanceTo(q)); } // (a triangle drawn to a point: its corner)
+    }
+    return best;
+  };
+  return { points, near, depth: (p, out) => {
+    out.copy(p).sub(c); const r = out.length();
+    if (r < 1e-9) { out.set(0, 1, 0).applyQuaternion(q); return reach(d.set(0, 1, 0)); }
+    d.copy(out).applyQuaternion(qi); out.divideScalar(r); return reach(d) - r;
+  } };
+}
+
 /** What the cloth hangs on (kit/cloth.ts): points over each part of the posed body, the ring volumes it is lofted from,
  *  the way down (on a body to be laid out, the way it will lie), and the floor. Garments are left out (each is in the
- *  way of those hung over it once it hangs), as is a weapon a dead hand will drop. */
-function drapeWorld(body: THREE.Group, j: { pel: THREE.Group; up: THREE.Group; neck: THREE.Group; arm: Limb[]; leg: Limb[]; gR: THREE.Group; gL: THREE.Group }, fr: Frame, s: number, P: HeroPose, dead: boolean, laid?: Laid): DrapeWorld {
+ *  way of those hung over it once it hangs), as is a weapon a dead hand will drop. `head`, on a body laid out, is the head
+ *  with the hair on it (see headRoom): a part no cloth lies in. */
+function drapeWorld(body: THREE.Group, j: { pel: THREE.Group; up: THREE.Group; neck: THREE.Group; arm: Limb[]; leg: Limb[]; gR: THREE.Group; gL: THREE.Group }, fr: Frame, s: number, P: HeroPose, dead: boolean, laid?: Laid, head?: ReturnType<typeof headRoom>): DrapeWorld {
   body.updateMatrixWorld(true);
   const solid = (o: THREE.Object3D): o is M => (o as M).isMesh && !((o as M).material as THREE.Material).transparent && !o.userData.garment;
   // the meshes under a node, not those under any of `stop`
@@ -4500,8 +4793,8 @@ function drapeWorld(body: THREE.Group, j: { pel: THREE.Group; up: THREE.Group; n
   const tr = torsoRings(fr);
   const collars = j.arm.map((l) => l.collar ?? l.root), mounts = j.up.children.filter((c) => c.name === 'beltR' || c.name === 'beltL' || c.name === 'back');
   // each part: a sample of its points for the cloth to hang over, and every point of it for the cloth to be lifted out of
-  const surface = new Map<string, THREE.Vector3[]>(), every = (ms: M[]) => ms.flatMap((m) => pointsOf(m, m.geometry.getAttribute('position').count));
-  const part = (n: string, ms: M[], cap: number) => { const p = sample(ms, cap); parts.set(n, p); surface.set(n, every(ms)); return p; };
+  const surface = new Map<string, THREE.Vector3[]>(), every = (ms: M[]) => ms.flatMap((m) => pointsOf(m, m.geometry.getAttribute('position').count)), made = new Map<string, M[]>();
+  const part = (n: string, ms: M[], cap: number) => { const p = sample(ms, cap); parts.set(n, p); surface.set(n, every(ms)); made.set(n, ms); return p; };
   part('torso', meshes(j.up, [j.neck, ...collars, ...mounts]), 2400); volumes.set('torso', vol(j.up, tr));
   part('pelvis', meshes(j.pel, [j.up, ...j.leg.map((l) => l.root)]), 1400); volumes.set('pelvis', vol(j.pel, pelvisRings(fr)));
   // (the neck, which nothing is hung over, is still in the way of cloth falling past it: a capelet's collar on a body
@@ -4548,6 +4841,9 @@ function drapeWorld(body: THREE.Group, j: { pel: THREE.Group; up: THREE.Group; n
   // a shield on the arm, for the cloth behind it (a mantle's flap, a cloak's front edge), which it lies outside
   const shield = dead ? undefined : j.gL.getObjectByName('shieldFace')?.parent;
   if (shield) part('shield', meshes(shield), 500);
+  // (the head with the hair on it: cloth falling past it stops on it, and cloth cut where the head has come to lie is put
+  // out of it)
+  if (head) { parts.set('head', head.points); volumes.set('head', head.depth); }
   // the way down: on a body laid out, the way it lies as it settled (settleLay), toward the floor it rests on there
   const down = laid ? laid.n.clone().negate() : new THREE.Vector3(...(P.lie === 'back' ? [0, 0, -1] : P.lie === 'front' ? [0, 0, 1] : P.lie === 'side' ? [-SIDE_X.R, 0, 0] : [0, -1, 0]) as [number, number, number]);
   // the floor: the body's lowest point that way (what it rests on: on a body laid out, the very point it is put on the
@@ -4575,10 +4871,24 @@ function drapeWorld(body: THREE.Group, j: { pel: THREE.Group; up: THREE.Group; n
   if (stowLine) bones.set('stowed', stowLine); // (along its length: a haft, a blade; with several pieces, the first one's, as `pieces` holds each)
   // (on a body laid out, the trunk's own skin, for a plate in lames to rest on: read only when one does)
   const skinOf = (o: THREE.Object3D) => every(o.children.filter((c): c is M => solid(c) && !!c.userData.skin));
-  let skin: Map<string, THREE.Vector3[]> | undefined;
+  let trunkSkin: Map<string, THREE.Vector3[]> | undefined;
+  // (on a body laid out, a part's faces, for cloth settling off it between its points: read only when it does)
+  const faceOf = new Map<string, Float32Array | undefined>(), faces = (n: string) => {
+    if (faceOf.has(n)) return faceOf.get(n);
+    const ms = made.get(n); let out: Float32Array | undefined;
+    if (ms?.length) {
+      out = new Float32Array(ms.reduce((a, m) => a + (m.geometry.index?.count ?? m.geometry.getAttribute('position').count), 0) * 3);
+      const v = new THREE.Vector3(); let o = 0;
+      for (const m of ms) {
+        const p = m.geometry.getAttribute('position'), ix = m.geometry.index, k = ix ? ix.count : p.count;
+        for (let i = 0; i < k; i++) { v.fromBufferAttribute(p, ix ? ix.getX(i) : i).applyMatrix4(m.matrixWorld); out[o++] = v.x; out[o++] = v.y; out[o++] = v.z; }
+      }
+    }
+    faceOf.set(n, out); return out;
+  };
   // (gear put away moves with the trunk: what of it stands above a cloak's top, the head of a weapon slung on the back, is
   // not under the cloak)
-  return { parts, down, floor, volumes, bones, surface, pieces, size: s, get skin() { return P.lie ? (skin ??= new Map([['torso', skinOf(j.up)], ['pelvis', skinOf(j.pel)]])) : undefined; }, trunk: ['torso', 'pelvis', 'stowed'], lying: !!P.lie };
+  return { parts, down, floor, volumes, bones, surface, pieces, size: s, get skin() { return P.lie ? (trunkSkin ??= new Map([['torso', skinOf(j.up)], ['pelvis', skinOf(j.pel)]])) : undefined; }, faces: P.lie ? faces : undefined, trunk: ['torso', 'pelvis', 'stowed'], lying: !!P.lie, apart: head ? ['head'] : undefined, apartNear: head?.near };
 }
 
 // The hand functions below take `sx` as the hand's handedness: +1 for a right hand, -1 for a left, which is -SIDE_X of
@@ -5534,13 +5844,18 @@ function pressUnderCloth(ms: M[], cloth: M[], lift: number, gap: number, low: nu
   }
 }
 /** What is worn under a body laid out is pressed flat on the floor: every point of these meshes that would lie below
- *  `y` (world) is brought up to it. */
-function pressOnFloor(ms: M[], y: number): void {
+ *  `y` (world) is brought up to it. With `crease`, a mesh pressed has its normals found again across faces that meet
+ *  at less than that angle only (a piece pressed flat over onto itself is shaded as each face of it faces), in its own
+ *  proportions (a leaf is a squashed ball: its squash is put in its shape first), and its bounds found again. */
+function pressOnFloor(ms: M[], y: number, crease?: number): void {
   const v = new THREE.Vector3();
   for (const m of ms) {
     const pos = m.geometry.getAttribute('position'); let moved = false; m.updateWorldMatrix(true, false);
     for (let i = 0; i < pos.count; i++) if (v.fromBufferAttribute(pos, i).applyMatrix4(m.matrixWorld).y < y) { v.y = y; m.worldToLocal(v); pos.setXYZ(i, v.x, v.y, v.z); moved = true; }
-    if (moved) { pos.needsUpdate = true; m.geometry.computeVertexNormals(); }
+    if (moved && crease !== undefined) {
+      if (m.scale.x !== 1 || m.scale.y !== 1 || m.scale.z !== 1) { m.geometry.scale(m.scale.x, m.scale.y, m.scale.z); m.scale.set(1, 1, 1); m.updateMatrixWorld(true); }
+      m.geometry = toCreasedNormals(m.geometry, crease); m.geometry.computeBoundingBox(); m.geometry.computeBoundingSphere();
+    } else if (moved) { pos.needsUpdate = true; m.geometry.computeVertexNormals(); }
   }
 }
 /** A wing of a body laid out: flat on the floor from its root when the root is down there (the body on its back lies on
