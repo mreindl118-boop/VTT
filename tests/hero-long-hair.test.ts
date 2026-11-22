@@ -7,7 +7,9 @@
 // there is clean once it shows, and paint on the face never moves it. On a body laid out no hair (long, braided or curly)
 // lies under the floor, on its back it lies under the cloak it lies on, and a fairy's curls keep off her wings. An NPC
 // fallen in a shoulder mantle on a side or face down lays its locks over what is left of the mantle below the head, and
-// on its back drops a lock beside the head to the floor before the mantle's collar (clearOfCloth).
+// on its back drops a lock beside the head to the floor before the mantle's collar (clearOfCloth). Curls keep out of
+// the cloth, standing and fallen: a coil that would pass through a hood folded on the back or a mantle lying beside a
+// fallen head ends short of it (coilsOffCloth).
 import { describe, expect, it } from 'vitest';
 import * as THREE from 'three';
 import { heroFigure, type HeroFigure } from '../app/src/kit/heroes';
@@ -275,6 +277,22 @@ describe('curls and wings', () => {
       for (const m of coils) { const p = m.geometry.getAttribute('position'); for (let i = 0; i < p.count; i++) { v.fromBufferAttribute(p, i).applyMatrix4(m.matrixWorld); for (const t of tris) near = Math.min(near, t.closestPointToPoint(v, q).distanceTo(v)); } }
       expect(coils.length, st).toBeGreaterThan(30);
       expect(near / s, st).toBeGreaterThan(0.01);
+    }
+  }, 120000);
+});
+
+describe('curls and cloth', () => {
+  it('keeps every curl out of what the figure wears: a hood folded on the back, a mantle lying beside a fallen head', () => {
+    // (scouts with curly hair under a hood folded on the back, at rest and in a fight, and a scout and a knight fallen on
+    // a side in a mantle: the curls hanging low behind the head passed into the hood, and the mantle laid beside a fallen
+    // head through the curls on that side)
+    const cases: [string, string, 'rest' | 'battle' | 'dead'][] = [['scout', 'a', 'rest'], ['scout', 'f', 'rest'], ['scout', 'g', 'battle'], ['scout', 'c', 'dead'], ['knight', 'g', 'dead']];
+    for (const [id, seed, st] of cases) {
+      const g = figureFor(BESTIARY.find((e) => e.id === id)!, st === 'dead' ? 'dead' : st === 'battle', seed); g.updateMatrixWorld(true);
+      const s = scaleOf(g), all = meshes(g), coils = all.filter((m) => m.userData.coil), cloth = all.filter((m) => (m.userData.garment || m.userData.cloth) && !(m.material as THREE.Material).transparent);
+      expect(coils.length, `${id}@${seed} ${st}`).toBeGreaterThan(50);
+      expect(cloth.length, `${id}@${seed} ${st}`).toBeGreaterThan(0);
+      expect(crossings(trisOf(coils), trisOf(cloth), 0.06 * s), `${id}@${seed} ${st}: curls through the cloth`).toBe(0);
     }
   }, 120000);
 });

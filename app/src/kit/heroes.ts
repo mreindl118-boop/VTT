@@ -864,7 +864,7 @@ function buildHair(head: THREE.Group, s: number, hy: number, f: HeroFigure, fem:
       const side = new THREE.Vector3(-out.z, 0, out.x).normalize(), upv = new THREE.Vector3().crossVectors(out, side), len = (0.16 + rnd() * 0.12) * (el < 0.3 ? 1.5 : 1), rr = 0.045 + rnd() * 0.02, turns = 2.2 + rnd();
       const pts: THREE.Vector3[] = []; for (let k = 0; k <= 14; k++) { const t = k / 14, ph = t * turns * Math.PI * 2 + i; pts.push(root.clone().addScaledVector(out, len * t * s).addScaledVector(side, Math.cos(ph) * rr * s).addScaledVector(upv, Math.sin(ph) * rr * s).add(new THREE.Vector3(0, -len * 0.35 * t * t * s, 0))); }
       if (touchesEar(pts, 0.055 * s)) continue;
-      lock(pts, 0.04, 0.02, i, streakAt(az), 0.8).userData.coil = true;
+      const c = lock(pts, 0.04, 0.02, i, streakAt(az), 0.8); c.userData.coil = true; c.userData.r = [0.04 * s, 0.02 * s];
     }
   }
 }
@@ -4421,6 +4421,8 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
   drapeLong(up, neck, head, s);
   underBands(head, up, s);
   clearOfWings(head, up, s);
+  // (and out of the cloth it wears; on a body laid out, once its hair lies)
+  if (!laid) { const cloth: M[] = []; body.traverse((o) => { const m = o as M; if (m.isMesh && (m.userData.garment || m.userData.cloth) && !(m.material as THREE.Material).transparent) cloth.push(m); }); coilsOffCloth(head, cloth, s); }
   const joints: Record<string, THREE.Object3D> = {};
   body.traverse((o) => { if (o.name) joints[o.name] = o; });
   body.userData.joints = joints;
@@ -4435,6 +4437,7 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
       const hair: M[] = [], cloth: M[] = [];
       body.traverse((o) => { const m = o as M; if (!m.isMesh) return; if (o.userData.hair || o.userData.braid) hair.push(m); else if ((o.userData.garment || o.userData.cloth) && !(m.material as THREE.Material).transparent) cloth.push(m); });
       if (P.lie === 'back') { const press = (ms: M[]) => pressUnderCloth(ms, cloth, 0.006 * s, 0.004 * s, 0.3 * s, 0.15 * s, 0.02 * s); press(hair); clearOfCloth(hair, cloth, s, 0.006 * s, press); } else { pressOnFloor(hair, 0.006 * s); clearOfCloth(hair, cloth, s, 0.006 * s); }
+      coilsOffCloth(head, cloth, s);
     }
     clearOfWings(head, up, s); // (and off the wings laid on the floor beside it)
     // (a harness's pieces, and the trims of its tassets and coat skirt, laid on them once they hung)
@@ -5865,26 +5868,11 @@ function pressOnFloor(ms: M[], y: number, crease?: number): void {
     } else if (moved) { pos.needsUpdate = true; m.geometry.computeVertexNormals(); }
   }
 }
-/** A fallen body's locks kept out of the cloth below where they leave the head. Hung as it would hang standing, a lock
- *  lies over what the body wears; but the cloth hangs as the body fell.
- *  On its front or on a side, a mantle kept off the head bunches at the nape, or hangs from the shoulder to the floor
- *  beside the head, where a lock falls through it. A lock that passes through the cloth below the head (from
- *  `userData.free` on) has its line there taken every 0.03 of the figure's scale and followed from the head: where the
- *  lock, as thick as it is there, would pass through the cloth between one point and the next, the next is moved the
- *  least way that keeps it on the side it came from (up, back off the cloth square to the face it met, or back toward
- *  the point before), or as the point before was moved; it goes back onto its own line as soon as that is clear. Points
- *  stay their thickness off the floor (`floor`).
- *  On its back (`press`, how its hair is pressed under the cloak it lies on), the lock lies under the body, and a lock
- *  beside the head falls through the collar of a cloak laid round the neck before it reaches the floor. It drops to the
- *  floor sooner instead, before the cloth it met (the nearest point back toward the head that clears it), runs on along
- *  the floor to where it lay there, and is pressed again.
- *  Either way the lock is built again along its new line, and where it leaves the head marked again. (A lock's tube is
- *  rings of 6 and a cap at each end: lockGeometry.) */
-function clearOfCloth(ms: M[], cloth: M[], s: number, floor: number, press?: (ms: M[]) => void): void {
-  const locks = ms.filter((m) => (m.userData.hair === 'lock' || m.userData.hair === 'frame') && m.userData.free !== undefined && m.userData.r && (m.geometry.getAttribute('position').count - 2) % 6 === 0);
-  if (!locks.length || !cloth.length) return;
-  const box = new THREE.Box3(); for (const m of locks) box.expandByObject(m); box.expandByScalar(0.5 * s);
-  // the cloth's faces near the hair, as numbers, binned by the cells they span
+/** The cloth's faces (`cloth`) near `box` (world), as numbers binned by the cells they span (0.06 of the figure's scale
+ *  across), and what reads them: `T`, each face's three corners, nine numbers; `sides`, the first face a stretch of a
+ *  lock's tube passes through, -1 if none (its sides between two rings of 6 points, A[a..] and B[b..], each point three
+ *  numbers, as lockGeometry builds a lock). Undefined where no cloth lies near. */
+function clothFaces(cloth: M[], box: THREE.Box3, s: number): { T: number[]; sides: (A: ArrayLike<number>, a: number, B: ArrayLike<number>, b: number) => number } | undefined {
   const T: number[] = [], cell = 0.06 * s, grid = new Map<number, number[]>(), v = new THREE.Vector3();
   const key = (i: number, j: number, k: number) => ((i + 1024) * 2048 + (j + 1024)) * 2048 + (k + 1024);
   const span = (A: ArrayLike<number>, o: number, f: (k: number) => void) => {
@@ -5900,7 +5888,7 @@ function clearOfCloth(ms: M[], cloth: M[], s: number, floor: number, press?: (ms
       span(T, o, (k) => { const l = grid.get(k); if (l) l.push(o / 9); else grid.set(k, [o / 9]); });
     }
   }
-  if (!T.length) return;
+  if (!T.length) return undefined;
   // (whether the segment p to q passes through the triangle at A[o..o+8], its ends left out)
   const through = (px: number, py: number, pz: number, qx: number, qy: number, qz: number, A: ArrayLike<number>, o: number) => {
     const ax = A[o], ay = A[o + 1], az = A[o + 2], e1x = A[o + 3] - ax, e1y = A[o + 4] - ay, e1z = A[o + 5] - az, e2x = A[o + 6] - ax, e2y = A[o + 7] - ay, e2z = A[o + 8] - az;
@@ -5930,6 +5918,29 @@ function clearOfCloth(ms: M[], cloth: M[], s: number, floor: number, press?: (ms
     }
     return -1;
   };
+  return { T, sides };
+}
+/** A fallen body's locks kept out of the cloth below where they leave the head. Hung as it would hang standing, a lock
+ *  lies over what the body wears; but the cloth hangs as the body fell.
+ *  On its front or on a side, a mantle kept off the head bunches at the nape, or hangs from the shoulder to the floor
+ *  beside the head, where a lock falls through it. A lock that passes through the cloth below the head (from
+ *  `userData.free` on) has its line there taken every 0.03 of the figure's scale and followed from the head: where the
+ *  lock, as thick as it is there, would pass through the cloth between one point and the next, the next is moved the
+ *  least way that keeps it on the side it came from (up, back off the cloth square to the face it met, or back toward
+ *  the point before), or as the point before was moved; it goes back onto its own line as soon as that is clear. Points
+ *  stay their thickness off the floor (`floor`).
+ *  On its back (`press`, how its hair is pressed under the cloak it lies on), the lock lies under the body, and a lock
+ *  beside the head falls through the collar of a cloak laid round the neck before it reaches the floor. It drops to the
+ *  floor sooner instead, before the cloth it met (the nearest point back toward the head that clears it), runs on along
+ *  the floor to where it lay there, and is pressed again.
+ *  Either way the lock is built again along its new line, and where it leaves the head marked again. (A lock's tube is
+ *  rings of 6 and a cap at each end: lockGeometry.) */
+function clearOfCloth(ms: M[], cloth: M[], s: number, floor: number, press?: (ms: M[]) => void): void {
+  const locks = ms.filter((m) => (m.userData.hair === 'lock' || m.userData.hair === 'frame') && m.userData.free !== undefined && m.userData.r && (m.geometry.getAttribute('position').count - 2) % 6 === 0);
+  if (!locks.length || !cloth.length) return;
+  const box = new THREE.Box3(); for (const m of locks) box.expandByObject(m); box.expandByScalar(0.5 * s);
+  const faces = clothFaces(cloth, box, s); if (!faces) return;
+  const { T, sides } = faces, v = new THREE.Vector3();
   // (a round ring of 6 points about c, square to `d`, of radius r)
   const ringAbout = (c: THREE.Vector3, d: THREE.Vector3, r: number) => {
     const u = new THREE.Vector3(Math.abs(d.x) < 0.9 ? 1 : 0, Math.abs(d.x) < 0.9 ? 0 : 1, 0).cross(d).normalize(), w = new THREE.Vector3().crossVectors(d, u), out = new Float64Array(18);
@@ -6015,6 +6026,40 @@ function clearOfCloth(ms: M[], cloth: M[], s: number, floor: number, press?: (ms
     }
     // (where it leaves the head, along the lock as built again)
     if (best) { m.geometry.dispose(); m.geometry = best; m.userData.free = free; }
+  }
+}
+/** Curls kept out of the cloth once it has hung, standing or fallen: a coil of curly hair that passes through what the
+ *  body wears (the hood folded down behind the neck, a mantle lying beside the head of a body fallen) ends a ring short
+ *  of where it would meet it, as if it went on under it; one that meets it within the first third of its length, or
+ *  still meets it once shortened, is left out (the hair's cap under the coils still covers the scalp). A coil is a
+ *  lock's tube, rings of 6 and a cap at each end (lockGeometry): it is built again along its own line, every fourth
+ *  ring's middle, as thick as it was there. */
+function coilsOffCloth(head: THREE.Object3D, cloth: M[], s: number): void {
+  const coils: M[] = []; head.traverse((o) => { const m = o as M; if (m.isMesh && o.userData.coil && o.userData.r && (m.geometry.getAttribute('position').count - 2) % 6 === 0) coils.push(m); });
+  if (!coils.length || !cloth.length) return;
+  head.updateWorldMatrix(true, true);
+  const box = new THREE.Box3(); for (const m of coils) box.expandByObject(m); box.expandByScalar(0.1 * s);
+  const faces = clothFaces(cloth, box, s); if (!faces) return;
+  const v = new THREE.Vector3();
+  // (the first stretch of a tube that passes through the cloth, -1 if none)
+  const first = (m: M, g: THREE.BufferGeometry) => {
+    const p = g.getAttribute('position'), n = (p.count - 2) / 6 - 1, A = new Float64Array(p.count * 3);
+    for (let i = 0; i < p.count; i++) { v.fromBufferAttribute(p, i).applyMatrix4(m.matrixWorld); A[i * 3] = v.x; A[i * 3 + 1] = v.y; A[i * 3 + 2] = v.z; }
+    for (let k = 0; k < n; k++) if (faces.sides(A, k * 18, A, (k + 1) * 18) >= 0) return k;
+    return -1;
+  };
+  for (const m of coils) {
+    const p = m.geometry.getAttribute('position'), n = (p.count - 2) / 6 - 1, [r0, r1] = m.userData.r as [number, number];
+    let k1 = first(m, m.geometry); if (k1 < 0) continue;
+    const mid = (k: number) => { const c = new THREE.Vector3(); for (let j = 0; j < 6; j++) c.add(v.fromBufferAttribute(p, k * 6 + j)); return c.multiplyScalar(1 / 6); };
+    let g: THREE.BufferGeometry | undefined;
+    while (!g && k1 >= n / 3) {
+      const pts: THREE.Vector3[] = []; for (let k = 0; k < k1 - 1; k += 4) pts.push(mid(k)); pts.push(mid(k1 - 1));
+      const t1 = (k1 - 1) / n, out = lockGeometry(pts, r0, (r0 + (r1 - r0) * t1) * (1 + 0.25 * Math.sin(Math.PI * t1)), 0.8, 6);
+      if (first(m, out) < 0) g = out; else { out.dispose(); k1 -= 4; }
+    }
+    m.geometry.dispose();
+    if (g) m.geometry = g; else m.removeFromParent();
   }
 }
 /** A wing of a body laid out: flat on the floor from its root when the root is down there (the body on its back lies on
