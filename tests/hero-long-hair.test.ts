@@ -6,11 +6,12 @@
 // to the ear and never running through it; before the ears its under-layer's edge lies on the skin, so that the hairline
 // there is clean once it shows, and paint on the face never moves it. On a body laid out no hair (long, braided or curly)
 // lies under the floor, on its back it lies under the cloak it lies on, and a fairy's curls keep off her wings. An NPC
-// fallen in a shoulder mantle on a side or face down lays its locks over what is left of the mantle below the head, and
-// on its back drops a lock beside the head to the floor before the mantle's collar (clearOfCloth). Curls keep out of
-// the cloth, standing and fallen: a coil that would pass through a hood folded on the back or a mantle lying beside a
-// fallen head ends short of it (coilsOffCloth). Standing, an NPC's locks go round what stands up steeply beside the neck
-// below the head, a capelet lifted by an arm raised to strike or a hood folded at the nape (clearOfCloth).
+// fallen in a shoulder mantle on a side or face down lays its locks over what is left of the mantle below the head
+// (clearOfCloth) and ends the sheet under them where it meets the mantle (sheetsOffCloth), and on its back drops a lock
+// beside the head to the floor before the mantle's collar (clearOfCloth). Curls keep out of the cloth, standing and
+// fallen: a coil that would pass through a hood folded on the back or a mantle lying beside a fallen head ends short of
+// it (coilsOffCloth). Standing, an NPC's locks go round what stands up steeply beside the neck below the head, a capelet
+// lifted by an arm raised to strike or a hood folded at the nape (clearOfCloth).
 import { describe, expect, it } from 'vitest';
 import * as THREE from 'three';
 import { heroFigure, type HeroFigure } from '../app/src/kit/heroes';
@@ -321,6 +322,20 @@ describe('long hair on an NPC fallen in a shoulder mantle', () => {
       expect(crossings(locks.flatMap(fallOf), trisOf(clothOf(all)), 0.06 * s), `${id}@${seed}: locks through the cloth below the head`).toBe(0);
     }
   }, 180000);
+
+  it('on a side or face down ends the sheet under the locks where it meets the mantle: none of it passes through the cloth below the head', () => {
+    // (the sheet behind the locks falls as they do but nearer the body, and is not walked out of the cloth as they are: it
+    // fell through the mantle lying beside the head and on the floor)
+    for (const [id, seed, lie] of [['mage', 'e', 'front'], ['druid', '', 'front'], ['cultist', 'g', 'side'], ['barovian-witch', 'e', 'side']] as const) {
+      const g = fallen(id, seed), s = scaleOf(g), all = meshes(g), sheets = all.filter((m) => m.userData.hair === 'sheet');
+      expect(lieOf(g), `${id}@${seed}`).toBe(lie);
+      expect(sheets.length, `${id}@${seed}`).toBe(1);
+      // (its faces below its first two rows: a sheet is 17 rows of its columns, its top row under the locks' feet)
+      const below = sheets.flatMap((m) => { const n = m.geometry.getAttribute('position').count / 17, per = 2 * (n - 1); return trisOf([m]).filter((_, f) => Math.floor(f / per) >= 2); });
+      expect(below.length, `${id}@${seed}`).toBeGreaterThan(100);
+      expect(crossings(below, trisOf(clothOf(all)), 0.06 * s), `${id}@${seed}: the sheet through the cloth below the head`).toBe(0);
+    }
+  }, 120000);
 
   it('on its back drops a lock beside the head to the floor before the mantle\'s collar: no hair passes through the cloth', () => {
     // (the collar, laid round the neck, stands up beside it: a lock falling from the side of the head to the floor, to lie

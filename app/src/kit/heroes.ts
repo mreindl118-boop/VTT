@@ -4448,12 +4448,13 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
     placeLay(out, body, laid, s, own, { up, head, gR, gL, drop: dead });
     // (hair that would lie under the floor, where the head rests on it or the hair falls past it, is pressed onto it, and
     // on a body on its back, under the cloak it lies on where that lies on the floor; on its front or side the cloak lies
-    // over it, and the hair falls beside it. Either way a lock below the head then keeps out of the cloth: clearOfCloth)
+    // over it, and the hair falls beside it. Either way a lock below the head then keeps out of the cloth (clearOfCloth),
+    // and so do the sheet under the locks on a front or a side (sheetsOffCloth), the curls and the braids)
     {
       const hair: M[] = [], cloth: M[] = [];
       body.traverse((o) => { const m = o as M; if (!m.isMesh) return; if (o.userData.hair || o.userData.braid) hair.push(m); else if ((o.userData.garment || o.userData.cloth) && !(m.material as THREE.Material).transparent) cloth.push(m); });
       const press = P.lie === 'back' ? (ms: M[]) => pressUnderCloth(ms, cloth, 0.006 * s, 0.004 * s, 0.3 * s, 0.15 * s, 0.02 * s) : (ms: M[]) => pressOnFloor(ms, 0.006 * s);
-      press(hair); clearOfCloth(hair, cloth, s, 0.006 * s, P.lie === 'back' ? press : undefined);
+      press(hair); clearOfCloth(hair, cloth, s, 0.006 * s, P.lie === 'back' ? press : undefined); if (P.lie !== 'back') sheetsOffCloth(hair, cloth, s);
       coilsOffCloth(head, cloth, s); braidsOffCloth(up, cloth, s, press);
     }
     clearOfWings(head, up, s); // (and off the wings laid on the floor beside it)
@@ -6101,6 +6102,42 @@ function coilsOffCloth(head: THREE.Object3D, cloth: M[], s: number): void {
     }
     m.geometry.dispose();
     if (g) m.geometry = g; else m.removeFromParent();
+  }
+}
+/** The sheet under the locks behind kept out of the cloth on a body fallen on a side or face down, where the mantle lies
+ *  beside the head and on the floor: each column of it whose faces pass through the cloth below its first two rows ends
+ *  where it first meets it, its points below drawn up to its point there (as a column of it ends at a cloak's top on a
+ *  body standing), with the locks over it as they were walked out of the cloth (clearOfCloth); and again, as long as
+ *  columns end, for what the ends of the columns beside them then meet. Kept only where fewer of its faces then pass
+ *  through the cloth. A sheet is `rows` + 1 rows of its columns, its top row under the locks' feet (gridGeometry). */
+function sheetsOffCloth(ms: M[], cloth: M[], s: number, rows = 16): void {
+  const sheets = ms.filter((m) => m.userData.hair === 'sheet' && m.geometry.index && m.geometry.getAttribute('position').count % (rows + 1) === 0);
+  if (!sheets.length || !cloth.length) return;
+  const box = new THREE.Box3(); for (const m of sheets) box.expandByObject(m); box.expandByScalar(0.1 * s);
+  const faces = clothFaces(cloth, box, s); if (!faces) return;
+  const v = new THREE.Vector3(), A = new Float64Array(9);
+  for (const m of sheets) {
+    m.updateWorldMatrix(true, false);
+    const pos = m.geometry.getAttribute('position') as THREE.BufferAttribute, cols = pos.count / (rows + 1), W = new Float64Array(pos.count * 3);
+    const tri = (a: number, b: number, c: number) => { for (let k = 0; k < 3; k++) { A[k] = W[a * 3 + k]; A[3 + k] = W[b * 3 + k]; A[6 + k] = W[c * 3 + k]; } return faces.meets(A, 0) >= 0; };
+    // (each stretch of the sheet, a row r to the next between columns j and j + 1, whose faces pass through the cloth)
+    const meeting = () => {
+      for (let i = 0; i < pos.count; i++) { v.fromBufferAttribute(pos, i).applyMatrix4(m.matrixWorld); W[i * 3] = v.x; W[i * 3 + 1] = v.y; W[i * 3 + 2] = v.z; }
+      const out: [number, number][] = [];
+      for (let r = 0; r < rows; r++) for (let j = 0; j + 1 < cols; j++) { const a = r * cols + j, b = a + cols; if (tri(a, b, a + 1) || tri(a + 1, b, b + 1)) out.push([r, j]); }
+      return out;
+    };
+    let met = meeting(); const was = met.length; if (!was) continue;
+    const before = Float32Array.from(pos.array as ArrayLike<number>), end = new Array<number>(cols).fill(rows);
+    for (let it = 0; it < 8 && met.length; it++) {
+      let cut = false;
+      for (const [r, j] of met) if (r >= 2) for (const c of [j, j + 1]) if (r < end[c]) { end[c] = r; cut = true; }
+      if (!cut) break;
+      for (let c = 0; c < cols; c++) for (let r = end[c] + 1; r <= rows; r++) pos.setXYZ(r * cols + c, pos.getX(end[c] * cols + c), pos.getY(end[c] * cols + c), pos.getZ(end[c] * cols + c));
+      met = meeting();
+    }
+    if (met.length < was) { pos.needsUpdate = true; m.geometry.computeVertexNormals(); m.geometry.computeBoundingBox(); m.geometry.computeBoundingSphere(); }
+    else { (pos.array as Float32Array).set(before); pos.needsUpdate = true; }
   }
 }
 /** A braid's line as drapeBraids hung it: its points (root first, three numbers each, in the frame its pieces hang in),
