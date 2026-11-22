@@ -5,10 +5,13 @@
 // earrings, is tucked behind the ears so that they hang clear (underBands, buildHair), covering the side of the head down
 // to the ear and never running through it; before the ears its under-layer's edge lies on the skin, so that the hairline
 // there is clean once it shows, and paint on the face never moves it. On a body laid out no hair (long, braided or curly)
-// lies under the floor, on its back it lies under the cloak it lies on, and a fairy's curls keep off her wings.
+// lies under the floor, on its back it lies under the cloak it lies on, and a fairy's curls keep off her wings. An NPC
+// fallen in a shoulder mantle on a side or face down lays its locks over what is left of the mantle below the head, and
+// on its back drops a lock beside the head to the floor before the mantle's collar (clearOfCloth).
 import { describe, expect, it } from 'vitest';
 import * as THREE from 'three';
 import { heroFigure, type HeroFigure } from '../app/src/kit/heroes';
+import { BESTIARY, figureFor } from '../app/src/bestiary';
 
 type M = THREE.Mesh;
 const SKIN = '#d8a888';
@@ -272,6 +275,42 @@ describe('curls and wings', () => {
       for (const m of coils) { const p = m.geometry.getAttribute('position'); for (let i = 0; i < p.count; i++) { v.fromBufferAttribute(p, i).applyMatrix4(m.matrixWorld); for (const t of tris) near = Math.min(near, t.closestPointToPoint(v, q).distanceTo(v)); } }
       expect(coils.length, st).toBeGreaterThan(30);
       expect(near / s, st).toBeGreaterThan(0.01);
+    }
+  }, 120000);
+});
+
+describe('long hair on an NPC fallen in a shoulder mantle', () => {
+  // (the token's seed picks the fall; each of these, long-haired in a mantle, fell as its case says)
+  const fallen = (id: string, seed: string) => { const g = figureFor(BESTIARY.find((e) => e.id === id)!, 'dead', seed); g.updateMatrixWorld(true); return g; };
+  const lieOf = (g: THREE.Object3D) => { const y = new THREE.Vector3(0, 0, 1).transformDirection(g.getObjectByName('chest')!.matrixWorld).y; return y > 0.5 ? 'back' : y < -0.5 ? 'front' : 'side'; };
+  const clothOf = (all: M[]) => all.filter((m) => (m.userData.garment || m.userData.cloth) && !(m.material as THREE.Material).transparent);
+  /** The faces of a lock (a tube of rings of 6, lockGeometry) from where it leaves the head (`userData.free`) to its tip. */
+  function fallOf(m: M): THREE.Vector3[][] {
+    const p = m.geometry.getAttribute('position'), ix = m.geometry.index!, n = (p.count - 2) / 6 - 1, kF = Math.ceil((m.userData.free as number) * n), out: THREE.Vector3[][] = [];
+    const at = (j: number) => new THREE.Vector3().fromBufferAttribute(p, ix.getX(j)).applyMatrix4(m.matrixWorld);
+    for (let i = 0; i + 2 < ix.count; i += 3) { const a = ix.getX(i), k = Math.floor(a / 6); if ((k >= kF && k <= n) || a === (n + 1) * 6 + 1) out.push([at(i), at(i + 1), at(i + 2)]); }
+    return out;
+  }
+
+  it('on a side or face down lays its locks over what is left of the mantle below the head: none passes through the cloth there', () => {
+    // (the mantle, kept off the head, bunches at the nape or hangs from the shoulder to the floor beside the head: hung as
+    // it would hang standing, a lock fell through it)
+    for (const [id, seed, lie] of [['wight', 'a', 'side'], ['dusk-elf', 'g', 'side'], ['barovian-witch', 'e', 'side'], ['dusk-elf', 'd', 'front'], ['barovian-witch', '', 'front'], ['wight', 'b', 'front']] as const) {
+      const g = fallen(id, seed), s = scaleOf(g), all = meshes(g), locks = all.filter((m) => (m.userData.hair === 'lock' || m.userData.hair === 'frame') && m.userData.free !== undefined);
+      expect(lieOf(g), `${id}@${seed}`).toBe(lie);
+      expect(locks.length, `${id}@${seed}`).toBeGreaterThan(40);
+      expect(crossings(locks.flatMap(fallOf), trisOf(clothOf(all)), 0.06 * s), `${id}@${seed}: locks through the cloth below the head`).toBe(0);
+    }
+  }, 180000);
+
+  it('on its back drops a lock beside the head to the floor before the mantle\'s collar: no hair passes through the cloth', () => {
+    // (the collar, laid round the neck, stands up beside it: a lock falling from the side of the head to the floor, to lie
+    // under the body, fell through it)
+    for (const [id, seed] of [['mage', 'g'], ['druid', 'd']] as const) {
+      const g = fallen(id, seed), s = scaleOf(g), all = meshes(g), hair = all.filter(isHair);
+      expect(lieOf(g), `${id}@${seed}`).toBe('back');
+      expect(hair.filter((m) => m.userData.hair === 'lock').length, `${id}@${seed}`).toBeGreaterThan(40);
+      expect(crossings(trisOf(hair), trisOf(clothOf(all)), 0.06 * s), `${id}@${seed}: hair through the cloth`).toBe(0);
     }
   }, 120000);
 });
