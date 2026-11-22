@@ -3120,7 +3120,7 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
   const overDress = (laid?: Laid) => {
     const kit = f.satchel ? f.satchelKit : undefined; if (!f.belt && !kit) return;
     body.updateMatrixWorld(true);
-    const inner = garments.filter((g) => g.name !== 'cloak' && g.name !== 'mantle' && g.name !== 'tails'), w = drapeWorld(body, { pel, up, neck, arm, leg, gR, gL }, fr, s, P, dead, laid, laid && headOff);
+    const inner = garments.filter((g) => g.name !== 'cloak' && g.name !== 'mantle' && g.name !== 'tails'), w = drapeWorld(body, { pel, up, neck, arm, leg, gR, gL }, fr, s, P, dead, laid, laid && clothOff);
     const cuts = inner.map((g) => (g.mesh.geometry.getAttribute('position').array as Float32Array).slice());
     if (inner.length) hangGarments(inner.map((g) => ({ ...g, after: undefined })), w);
     for (const g of inner) if (g.name === 'mail') yokeMeet?.(g);
@@ -3500,13 +3500,17 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
   // (it lies on its clothes: what of them is under it lies under it, each garment worn over another a layer nearer the
   // floor (kit/cloth.ts), so the more it wears one over another, the higher it lies on them)
   if (laid && garments.length) { const ls = garments.map((g) => g.layer); laid.lift = Math.max(0.02 * s, 0.005 + 0.012 * (Math.max(0, ...ls) - Math.min(...ls)) + 0.01 * s); }
-  // (on a body laid on its side or face down the cloth keeps out of the head with the hair on it, which would otherwise
-  // lie in the cloth fallen past it, or cut where the head has come to lie; on one laid on its back the hair lies under
-  // the cloth)
-  const headOff = laid && (P.lie === 'side' || P.lie === 'front') ? headRoom(head, f.skin ?? '#d9b899', s) : undefined;
+  // (on a body laid out the cloth keeps out of the head with the hair on it, which would otherwise lie in the cloth
+  // fallen past it, or cut where the head has come to lie: on one laid on its back as well, where the hair lies under
+  // the cloth lying on the floor round the head, but a capelet's neckline drawn up beside the head by an arm raised over
+  // it stood in the hair. On its back the cloth falls past the head to the floor, stopping on it only where it would
+  // come to rest in it, so cloth that falls clear of the head lies as it fell. A hood keeps out of it only on a body
+  // laid on its side or face down: on one laid on its back it lies flat on the floor under the head, over the hair
+  // there)
+  const clothOff = laid ? headRoom(head, f.skin ?? '#d9b899', s) : undefined, headOff = P.lie === 'side' || P.lie === 'front' ? clothOff : undefined;
   if (laid) overDress(laid);
   // the cloth hangs on the posed body (on one laid out, the way it lies)
-  if (garments.length) hangGarments(garments, drapeWorld(body, { pel, up, neck, arm, leg, gR, gL }, fr, s, P, dead, laid, headOff));
+  if (garments.length) hangGarments(garments, drapeWorld(body, { pel, up, neck, arm, leg, gR, gL }, fr, s, P, dead, laid, clothOff));
   // (a capelet's collar comes down over the neckband, on a body standing, fighting or fallen, and on one fallen with the
   // capelet kept off the head further, its neckline drawn down off the head: where it lies over the band, even on the
   // body just above it, the band is drawn in under it, no further than keeps the collar a little off it, so the collar
@@ -3800,15 +3804,15 @@ export function tuckUnder(band: M, cloth: M[], gap: number, seg: number, sub = 4
 }
 
 /** The room hair takes on a head, to a unit of the figure's size (scaled with the head, where the head is scaled): cloth
- *  on a body laid on its side or face down keeps this far off the head's skin (see headRoom), or as far as the long
- *  locks lying on it reach and LOCK_GAP more, where they reach further. */
+ *  on a body laid out keeps this far off the head's skin (see headRoom), or as far as the long locks lying on it reach
+ *  and LOCK_GAP more, where they reach further. */
 const HAIR_ROOM = 0.1;
 /** How far cloth keeps off the farthest of the long locks lying on a head (to the same unit as HAIR_ROOM), past the lock
  *  taken a quarter thicker than at its root: a margin, as no lock swells so thick along its run, so cloth keeps off the
  *  lock itself by more than this. */
 const LOCK_GAP = 0.02;
 
-/** The head with the hair on it, as cloth on a body laid on its side or face down keeps out of it (kit/cloth.ts
+/** The head with the hair on it, as cloth on a body laid out keeps out of it (kit/cloth.ts
  *  `DrapeWorld.apart`): the head's own skin (what under it is the skin's colour, `skin`, or the face painted on the
  *  skull: the skull, the ears, the nose; not a beard, nor marks painted on the skin) grown by HAIR_ROOM (of the
  *  figure's size, scaled with the head where the head is scaled), or on a head with long locks lying on it as far as
@@ -4020,7 +4024,7 @@ function drapeWorld(body: THREE.Group, j: { pel: THREE.Group; up: THREE.Group; n
   };
   // (gear put away moves with the trunk: what of it stands above a cloak's top, the head of a weapon slung on the back, is
   // not under the cloak)
-  return { parts, down, floor, volumes, bones, surface, pieces, size: s, get skin() { return P.lie ? (trunkSkin ??= new Map([['torso', skinOf(j.up)], ['pelvis', skinOf(j.pel)]])) : undefined; }, faces: P.lie ? faces : undefined, trunk: ['torso', 'pelvis', 'stowed'], lying: !!P.lie, apart: head ? ['head'] : undefined, apartNear: head?.near };
+  return { parts, down, floor, volumes, bones, surface, pieces, size: s, get skin() { return P.lie ? (trunkSkin ??= new Map([['torso', skinOf(j.up)], ['pelvis', skinOf(j.pel)]])) : undefined; }, faces: P.lie ? faces : undefined, trunk: ['torso', 'pelvis', 'stowed'], lying: !!P.lie, apart: head ? ['head'] : undefined, fallPast: head && P.lie === 'back' ? ['head'] : undefined, apartNear: head?.near };
 }
 
 // The hand functions below take `sx` as the hand's handedness: +1 for a right hand, -1 for a left, which is -SIDE_X of
