@@ -75,9 +75,22 @@ export interface DrapeWorld {
   /** On a body laid out, the trunk's own skin and what is worn close on it (as kit/clothcheck.ts reads the torso and the
    *  pelvis), where `surface` holds all that is on it (a fauld's lames): what a plate in lames comes to rest on. */
   skin?: Map<string, THREE.Vector3[]>;
+  /** On a body laid out, the faces of a part's surface (world; three corners to a face, x, y, z for each), read when
+   *  asked for: cloth settled off what it covers reads it between its points too (see hangOne), as a plate's dome or
+   *  rim stands through cloth between them. */
+  faces?: (part: string) => ArrayLike<number> | undefined;
   /** The figure's size (feet to a unit of its build, as kit/clothcheck.ts reads it): cloth lying in a part outside it no
    *  deeper than that check lets skin lie past cloth (GRAZE of this) only grazes the part. */
   size?: number;
+  /** On a body laid out, parts (with points in `parts` and a volume in `volumes`) that no cloth lies in, though it covers
+   *  none of them: the head with the hair on it. Cloth falling past one stops on it, as on any part, and cloth found in
+   *  one once it has fallen is put out of it (see keepOut). */
+  apart?: string[];
+  /** How far a triangle (its corners, world) lies off the skin of the parts in `apart` (feet), as far as halfway out
+   *  into the room round it for the hair and no further: cloth settling off what it covers comes no nearer that skin
+   *  than that where it can, nor nearer than it lay; only where the head rests on what the cloth covers, with no room
+   *  between, does the cloth lie on that part under the head (see hangOne). */
+  apartNear?: (a: THREE.Vector3, b: THREE.Vector3, c: THREE.Vector3) => number;
 }
 
 /** The farthest a strip turns from its cut (radians from hanging): a strip swung out over a limb raised high stands up
@@ -99,6 +112,22 @@ const PLATE_SWINGS = [0, 0.25, -0.25, 0.5, -0.5];
 /** How deep cloth may lie in a part outside it and only graze it, to a unit of the figure's size (`DrapeWorld.size`):
  *  the depth kit/clothcheck.ts lets skin lie past cloth. */
 const GRAZE = 0.03;
+/** On a body laid out, cloth put out of the head (keepOut) is eased into the cloth round it this many times over, and
+ *  so many rings of points round those it moved with it; and once lifted out of what it covers after, the points lifted
+ *  this many times more. */
+const EASE_PASSES = 8, EASE_RINGS = 2, EASE_AFTER = 2;
+/** On a body laid out, cloth so eased that still runs through what it covers between two of its points settles off it
+ *  (liftOff) at most this many times over at each of its steps (see hangOne). */
+const SETTLE_PASSES = 8;
+/** Where the head lies on what the cloth covers, with no room between for the hair, the cloth settles off the part only
+ *  just: half this much of its clearance (`Garment.clear`, the room it keeps off what it covers) past it, liftOff taking
+ *  a crossing half the clearance it is given past; and it keeps this much of it off the head's skin where it can. */
+const HEAD_GAP = 0.25;
+/** Cloth settling off what it covers reads the part between the cloth's points (see liftOff) at points of each of its
+ *  triangles this far apart, to a unit of the figure's size, finer than a plate's dome or a fold standing through a
+ *  pauldron's rim between the cloth's points; but at most eight to a side, so on a large triangle further apart (an
+ *  eighth of its longest side). */
+const FACE_STEP = 0.012;
 
 /** The points of the parts that lie outside a garment, in its parent's frame (flat x, y, z), but those sunk in what it
  *  covers: a hand pressed into the hip leaves no room for cloth between, so the cloth goes over it there. */
@@ -431,20 +460,22 @@ function hangOne(g: Garment, w: DrapeWorld, hung: Map<string, THREE.Vector3[]>, 
   // such a part is laid under it, pressed in toward the body, and what it covers pushes it back out of the body below
   // (squeezed thin between the two where the part leaves little room)
   if (g.outside?.length && w.bones && !g.stiff && geo.index) layUnder(P, geo.index.array, g.outside, w, toLocal, clear, ax, az, g.closed ? C : undefined);
-  // anything still inside what it covers is pushed out of it
-  if (w.volumes && !g.stiff) {
-    const vols = g.covers.map((n) => w.volumes!.get(n)).filter((f): f is NonNullable<typeof f> => !!f);
-    if (vols.length) for (let k = 0; k < C * R; k++) {
+  // anything still inside what it covers is pushed out of it (all of it, or the points `ks`)
+  const coverVols = w.volumes && !g.stiff ? g.covers.map((n) => w.volumes!.get(n)).filter((f): f is NonNullable<typeof f> => !!f) : [];
+  const pushOut = (ks?: number[]) => {
+    for (let i = 0, n = ks ? ks.length : C * R; i < n; i++) {
+      const k = ks ? ks[i] : i;
       v.set(P[k * 3], P[k * 3 + 1], P[k * 3 + 2]).applyMatrix4(toWorld);
       let moved = false;
       for (let pass = 0; pass < 3; pass++) {
         let any = false;
-        for (const f of vols) { const d = f(v, o); if (d > -clear * 0.5) { v.addScaledVector(o, d + clear * 0.5); any = true; moved = true; } }
+        for (const f of coverVols) { const d = f(v, o); if (d > -clear * 0.5) { v.addScaledVector(o, d + clear * 0.5); any = true; moved = true; } }
         if (!any) break;
       }
       if (moved) { v.applyMatrix4(toLocal); P[k * 3] = v.x; P[k * 3 + 1] = v.y; P[k * 3 + 2] = v.z; }
     }
-  }
+  };
+  if (coverVols.length) pushOut();
   // and where it still runs through a part it covers, between the part's bone and its surface (cloth drawn across a
   // toe, or over an elbow between two of its strips), it is lifted out past the surface there
   // (never through the floor: cloth under a limb resting on the floor stays on the floor under it)
@@ -452,8 +483,311 @@ function hangOne(g: Garment, w: DrapeWorld, hung: Map<string, THREE.Vector3[]>, 
   // capelet drawn up the inside of an arm raised past the shoulders comes out of the arm on that side, toward the neck)
   let rise = -Infinity; for (let c = 0; c < C; c++) rise = Math.max(rise, P[c * 3 + 1] + clear);
   if ((w.bones || w.pieces) && !g.stiff && geo.index) { liftOut(P, geo.index.array, g.covers, w, toLocal, clear, ax, az, w.lying ? down.clone().negate() : undefined, w.lying ? undefined : rise, g.closed ? C : undefined); onFloor(); }
+  // (on a body laid out, what no cloth lies in, the head with the hair on it: cloth cut where the head has come to lie,
+  // or lifted into it out of what it covers, is put out of it; never into what it covers, though, which wins where it
+  // lies in that room itself, as an upper arm the head has come to rest on does: there the cloth lies on the arm, nearer
+  // the head)
+  if (w.lying && w.apart?.length && w.volumes && !g.stiff && Number.isFinite(lvl)) {
+    const fs = w.apart.map((n) => w.volumes!.get(n)).filter((f): f is NonNullable<typeof f> => !!f);
+    const floorW = lvl + new THREE.Vector3().setFromMatrixPosition(toWorld).dot(w.down), was = P.slice();
+    keepOut(P, fs, toWorld, toLocal, w.down, floorW, clear, coverVols);
+    // (each point is put out on its own, so the cloth it moved is eased into the cloth round it, that it neither folds
+    // back on itself nor runs through itself where a point was moved and the next was not: the points moved and two
+    // rings round them, never the top it hangs from, each drawn halfway to the middle of its neighbours, a few times
+    // over, and each time put back out of what it covers, out of the head, and onto the floor; a closed garment's seam
+    // is one point)
+    const one = (k: number) => (g.closed && k % C === C - 1 ? k - C + 1 : k), eased = new Uint8Array(C * R);
+    let ring: number[] = [];
+    for (let k = 0; k < C * R; k++) if ((P[k * 3] !== was[k * 3] || P[k * 3 + 1] !== was[k * 3 + 1] || P[k * 3 + 2] !== was[k * 3 + 2]) && !eased[one(k)]) { eased[one(k)] = 1; ring.push(one(k)); }
+    if (ring.length && geo.index) {
+      const ix = geo.index.array, nb: number[][] = Array.from({ length: C * R }, () => []);
+      for (let t = 0; t + 2 < ix.length; t += 3) for (let e = 0; e < 3; e++) { const a = one(ix[t + e]), b = one(ix[t + ((e + 1) % 3)]); if (a !== b && !nb[a].includes(b)) { nb[a].push(b); nb[b].push(a); } }
+      for (let q = 0; q < EASE_RINGS; q++) { const next: number[] = []; for (const k of ring) for (const m of nb[k]) if (!eased[m]) { eased[m] = 1; next.push(m); } ring = next; }
+      const ks: number[] = []; for (let k = C; k < C * R; k++) if (eased[k]) ks.push(k);
+      const snap = new Float64Array(P.length);
+      const ease = (L: number[], passes: number) => {
+        for (let pass = 0; pass < passes; pass++) {
+          snap.set(P);
+          for (const k of L) {
+            const n = nb[k]; if (!n.length) continue;
+            let x = 0, y = 0, z = 0; for (const m of n) { x += snap[m * 3]; y += snap[m * 3 + 1]; z += snap[m * 3 + 2]; }
+            P[k * 3] = (snap[k * 3] + x / n.length) / 2; P[k * 3 + 1] = (snap[k * 3 + 1] + y / n.length) / 2; P[k * 3 + 2] = (snap[k * 3 + 2] + z / n.length) / 2;
+          }
+          if (coverVols.length) pushOut(L);
+          keepOut(P, fs, toWorld, toLocal, w.down, floorW, clear, coverVols);
+          onFloor();
+          if (g.closed) for (let r = 0; r < R; r++) for (let i = 0; i < 3; i++) P[(r * C + C - 1) * 3 + i] = P[r * C * 3 + i];
+        }
+      };
+      ease(ks, EASE_PASSES);
+      // (and where, eased so, it runs through what it covers between two of its points, over a shoulder, it is lifted
+      // out as before, put out of the head once more, and what was lifted eased into the cloth round it again)
+      if (w.bones || w.pieces) {
+        const sub: number[] = []; for (let t = 0; t + 2 < ix.length; t += 3) if (eased[one(ix[t])] || eased[one(ix[t + 1])] || eased[one(ix[t + 2])]) sub.push(ix[t], ix[t + 1], ix[t + 2]);
+        const before = P.slice();
+        liftOut(P, sub, g.covers, w, toLocal, clear, ax, az, down.clone().negate(), undefined, g.closed ? C : undefined); onFloor();
+        keepOut(P, fs, toWorld, toLocal, w.down, floorW, clear, coverVols);
+        const lifted = new Uint8Array(C * R); for (const k of ks) if (P[k * 3] !== before[k * 3] || P[k * 3 + 1] !== before[k * 3 + 1] || P[k * 3 + 2] !== before[k * 3 + 2]) lifted[k] = 1;
+        const L = ks.filter((k) => lifted[k] || nb[k].some((m) => lifted[m]));
+        if (L.length) ease(L, EASE_AFTER);
+        // (and where it still runs through what it covers between two of its points, an arm come up through it beside the
+        // head, it settles off the part the least way that takes it out, no nearer the head's skin than halfway out into
+        // the room round it for the hair, nor nearer than it already lay, each face of it round a corner moved; where that
+        // leaves it in the part, the head lying on it with no such room between, what it covers wins, as it does where
+        // the cloth is put out of the head: there the cloth settles off the part only just, keeping as much off the head's
+        // skin where it can, and where it cannot, the head resting on the part right through the cloth, it lies on the
+        // part under the head; a crossing taken only partway, a corner of it held, is not taken again. It is read along the
+        // lines from the part's bone out to its points, and between the cloth's points along the rays from the bone out
+        // through them, where the part's faces are read: a fold of it standing through a pauldron's rim; and down toward
+        // the floor only where there is room for the cloth under the part)
+        const near = w.apartNear, fa = new THREE.Vector3(), fb = new THREE.Vector3(), fc = new THREE.Vector3();
+        const around: number[][] = Array.from({ length: C * R }, () => []); for (let t = 0; t + 2 < ix.length; t += 3) for (let e = 0; e < 3; e++) around[ix[t + e]].push(t);
+        const corner = (i: number, k: number, to: THREE.Vector3 | undefined, out: THREE.Vector3) => (i === k && to ? out.copy(to) : out.set(P[i * 3], P[i * 3 + 1], P[i * 3 + 2])).applyMatrix4(toWorld);
+        const face = (f: (a: THREE.Vector3, b: THREE.Vector3, c: THREE.Vector3) => number, t: number, k: number, to?: THREE.Vector3) => f(corner(ix[t], k, to, fa), corner(ix[t + 1], k, to, fb), corner(ix[t + 2], k, to, fc));
+        const offHead = (m: number) => near && ((k: number, to: THREE.Vector3) => around[k].every((t) => face(near, t, k, to) >= Math.min(m, face(near, t, k))));
+        const heldFaces = new Uint8Array(sub.length / 3), inside = facesNear(P, sub, g.covers, w, toWorld, toLocal);
+        const settle = (c: number, may: ((k: number, to: THREE.Vector3) => boolean) | undefined) => { for (let pass = 0; pass < SETTLE_PASSES && liftOff(P, sub, g.covers, w, toLocal, c, (k) => k < C, down, g.closed ? C : undefined, may, heldFaces, { floor: lvl, room: clear, inside }); pass++) onFloor(); };
+        settle(clear, offHead(Infinity));
+        for (const may of [offHead(clear * HEAD_GAP), undefined]) {
+          let left = false; for (let t = 0; t < heldFaces.length; t++) if (heldFaces[t] === 2) { heldFaces[t] = 0; left = true; }
+          if (!left) break;
+          settle(clear * HEAD_GAP, may);
+        }
+      }
+    }
+  }
   for (let k = 0; k < C * R; k++) pos.setXYZ(k, P[k * 3], P[k * 3 + 1], P[k * 3 + 2]);
   pos.needsUpdate = true; geo.computeVertexNormals(); geo.computeBoundingBox(); geo.computeBoundingSphere();
+}
+
+/** How deep a point (world) lies in a part, feet (<= 0 outside), and the way out of it, as `DrapeWorld.volumes` reads. */
+type Volume = (p: THREE.Vector3, out: THREE.Vector3) => number;
+
+/** Puts points (`P`, flat x, y, z in a frame `toWorld` takes to the world and `toLocal` back) out of volumes (`fs`, each
+ *  how deep a point in the world lies in it, and the way out, as `DrapeWorld.volumes` reads): `clear` / 2 past one,
+ *  straight out of it; or, where that way would take a point into the floor (`floor` along `down`, both world), onto the
+ *  floor and on along it, out from under the volume. Never into one of `keep` (the parts the cloth covers, volumes read
+ *  the same way), which win: a point goes that way only so far as it can without coming deeper into one of them than
+ *  `clear` / 2 short of it, or than it already lay, and rests there, nearer the volume. A point left where it was is
+ *  left to the last digit. Exported for the cloth laid on with a garment (a folded hood), and for tests. */
+export function keepOut(P: Float64Array, fs: Volume[], toWorld: THREE.Matrix4, toLocal: THREE.Matrix4, down: THREE.Vector3, floor: number, clear: number, keep: Volume[] = []): void {
+  if (!fs.length) return;
+  const v = new THREE.Vector3(), o = new THREE.Vector3(), a = new THREE.Vector3(), t = new THREE.Vector3(), u = new THREE.Vector3(), from = new THREE.Vector3(), start = new THREE.Vector3(), step = Math.max(clear * 0.25, 0.004);
+  const most = new Float64Array(keep.length), ok = (p: THREE.Vector3) => { for (let i = 0; i < keep.length; i++) if (keep[i](p, u) > most[i]) return false; return true; };
+  // (how far from `from` along `o` it can go, up to `l`: never into what it covers, nor into the floor)
+  const reach = (l: number) => { let lo = 0, hi = l; for (let it = 0; it < 20; it++) { const m = (lo + hi) / 2; t.copy(from).addScaledVector(o, m); if (ok(t) && t.dot(down) <= floor) lo = m; else hi = m; } return lo; };
+  for (let k = 0; k < P.length / 3; k++) {
+    v.set(P[k * 3], P[k * 3 + 1], P[k * 3 + 2]).applyMatrix4(toWorld); start.copy(v);
+    for (let i = 0; i < keep.length; i++) most[i] = Math.max(-clear * 0.5, keep[i](v, u));
+    for (let pass = 0; pass < 3; pass++) {
+      let any = false;
+      for (const f of fs) {
+        const d = f(v, o); if (d <= -clear * 0.5) continue;
+        from.copy(v); v.addScaledVector(o, d + clear * 0.5);
+        // (that way runs into what it covers: as far as it can go, and no further)
+        if (keep.length && !ok(v)) { v.copy(from).addScaledVector(o, reach(d + clear * 0.5)); continue; }
+        any = true;
+        const under = v.dot(down) - floor; if (under <= 0) continue;
+        // (no room that way, the floor being there: along the floor instead)
+        v.addScaledVector(down, -under);
+        if (keep.length && !ok(v)) { v.copy(from).addScaledVector(o, reach(d + clear * 0.5)); continue; }
+        a.copy(o).addScaledVector(down, -o.dot(down));
+        if (a.lengthSq() < 1e-8) continue;
+        a.normalize();
+        for (let s = step; s < 3; s += step) { t.copy(v).addScaledVector(a, s); if (keep.length && !ok(t)) break; if (f(t, o) <= -clear * 0.5) { v.copy(t); break; } }
+      }
+      if (!any) break;
+    }
+    if (v.x !== start.x || v.y !== start.y || v.z !== start.z) { v.applyMatrix4(toLocal); P[k * 3] = v.x; P[k * 3 + 1] = v.y; P[k * 3 + 2] = v.z; }
+  }
+}
+
+/** A part's faces near the cloth, as liftOff reads them (`more.inside`): the faces (three corners to a face, x, y, z for
+ *  each, in the cloth's frame), a grid of them `h` wide, the part's bone in that frame, and how far its surface reaches
+ *  from the bone. */
+export type PartFaces = { F: Float64Array; grid: Map<number, number[]>; h: number; bone: number[]; reach: number };
+
+const cellKey = (x: number, y: number, z: number) => ((x + 512) * 1024 + y + 512) * 1024 + z + 512;
+
+/** The faces of the parts `covers` with a bone of their own (`w.faces`; a part in pieces has none) that can stand
+ *  through the cloth (`P`, flat x, y, z in the frame `toLocal` takes the world to, triangles `index`; `toWorld` back):
+ *  those no further from it than the part reaches from its bone, in that frame, for liftOff. Exported for tests. */
+export function facesNear(P: Float64Array, index: ArrayLike<number>, covers: string[], w: DrapeWorld, toWorld: THREE.Matrix4, toLocal: THREE.Matrix4): Map<string, PartFaces> {
+  const out = new Map<string, PartFaces>();
+  if (!w.faces || !w.bones || !index.length) return out;
+  const box = new THREE.Box3(), a = new THREE.Vector3(), q = new THREE.Vector3(), seg = new THREE.Line3(), tb = new THREE.Box3(), c3 = [new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()];
+  for (let i = 0; i < index.length; i++) { const k = index[i]; box.expandByPoint(a.set(P[k * 3], P[k * 3 + 1], P[k * 3 + 2]).applyMatrix4(toWorld)); }
+  for (const n of covers) {
+    const bone = w.bones.get(n), F = w.pieces?.get(n)?.length || !bone || bone.length < 2 ? undefined : w.faces(n);
+    if (!F || !bone) continue;
+    // (as far as the part reaches from its bone: a face further than that from the cloth cannot stand through it)
+    let reach = 0;
+    for (let o = 0; o + 2 < F.length; o += 3) { a.set(F[o], F[o + 1], F[o + 2]); let d = Infinity; for (let i = 0; i + 1 < bone.length; i++) d = Math.min(d, seg.set(bone[i], bone[i + 1]).closestPointToPoint(a, true, q).distanceTo(a)); reach = Math.max(reach, d); }
+    const near = box.clone().expandByScalar(reach), L: number[] = [];
+    let edge = 0;
+    for (let o = 0; o + 8 < F.length; o += 9) {
+      for (let c = 0; c < 3; c++) c3[c].set(F[o + c * 3], F[o + c * 3 + 1], F[o + c * 3 + 2]);
+      if (!near.intersectsBox(tb.setFromPoints(c3))) continue;
+      edge += Math.max(c3[0].distanceTo(c3[1]), c3[1].distanceTo(c3[2]), c3[2].distanceTo(c3[0]));
+      for (const c of c3) { c.applyMatrix4(toLocal); L.push(c.x, c.y, c.z); }
+    }
+    const nf = L.length / 9; if (!nf) continue;
+    const h = Math.max(0.02 * (w.size ?? 1), 2 * edge / nf), grid = new Map<number, number[]>();
+    for (let f = 0; f < nf; f++) {
+      const o = f * 9, lo = [0, 1, 2].map((k) => Math.floor(Math.min(L[o + k], L[o + 3 + k], L[o + 6 + k]) / h)), hi = [0, 1, 2].map((k) => Math.floor(Math.max(L[o + k], L[o + 3 + k], L[o + 6 + k]) / h));
+      for (let x = lo[0]; x <= hi[0]; x++) for (let y = lo[1]; y <= hi[1]; y++) for (let z = lo[2]; z <= hi[2]; z++) { const k = cellKey(x, y, z); let l = grid.get(k); if (!l) grid.set(k, (l = [])); l.push(f); }
+    }
+    out.set(n, { F: Float64Array.from(L), grid, h, bone: bone.flatMap((p) => q.copy(p).applyMatrix4(toLocal).toArray()), reach });
+  }
+  return out;
+}
+
+/** Settles cloth (`P`, flat x, y, z in its parent's frame, `toLocal` from the world) off the parts it covers (`covers`)
+ *  where the line from a part's bone out to a point of its surface crosses one of the triangles `index`: the corners of
+ *  such a triangle go out along that line, each its share of the least move of the three that takes the crossing
+ *  `clear` / 2 past the surface (the corner nearest the crossing the furthest), whichever way the line runs but down
+ *  onto the floor (`down`, in the parent's frame: cloth under a limb resting on the floor stays on the floor under it);
+ *  with `more.floor` (how far the floor lies that way, in the parent's frame), a line down to a point that stands
+ *  `more.room` (or `clear`) or more above the floor is taken too, as there is room for the cloth under the part there.
+ *  With `more.inside` (a part's faces near the cloth, see facesNear), the cloth is read between its points as well:
+ *  where a point over one of its triangles lies in such a part, the ray from the part's bone out through it meeting one
+ *  of its faces beyond it on its way out (a fold of the cloth standing through a pauldron's rim, a dome standing up
+ *  through it between the part's points), the corners go out along that ray, each its share of what takes the point
+ *  `clear` / 2 past the face (as the line, under the same floor). A point `fixed` stays, so a
+ *  crossing it has a share of is taken only partway out (its share left to the others, they were thrown out the
+ *  further the more of the crossing it had). The corners move in turn, each cut to as much of its move as `may` (the
+ *  corner, and where it would go, in the parent's frame, `P` holding the corners moved before it) allows. A closed
+ *  garment's seam (its first and last columns; `seam`, its number of columns) moves as one. With `held` (one for each
+ *  triangle of `index`), a triangle held is passed over, and one whose crossing is taken only partway is held: 1 for a
+ *  corner fixed, 2 for a move `may` cut, so a crossing is never taken over and over, its free corners thrown out a share
+ *  at a time. Whether any point moved. Exported for tests. */
+export function liftOff(P: Float64Array, index: ArrayLike<number>, covers: string[], w: DrapeWorld, toLocal: THREE.Matrix4, clear: number, fixed: (k: number) => boolean, down: THREE.Vector3, seam?: number, may?: (k: number, to: THREE.Vector3) => boolean, held?: Uint8Array, more?: { floor?: number; room?: number; inside?: Map<string, PartFaces> }): boolean {
+  const pts: number[] = [], lines: number[][] = [], owner: number[] = [], v = new THREE.Vector3();
+  for (const n of covers) {
+    const b = w.bones?.get(n), ps = w.surface?.get(n) ?? w.parts.get(n), set = w.pieces?.get(n);
+    for (const { bone, surface } of set?.length ? set : b && ps ? [{ bone: b, surface: ps }] : []) {
+      if (bone.length < 2) continue;
+      lines.push(bone.flatMap((p) => v.copy(p).applyMatrix4(toLocal).toArray()));
+      for (const p of surface) { v.copy(p).applyMatrix4(toLocal); pts.push(v.x, v.y, v.z); owner.push(lines.length - 1); }
+    }
+  }
+  // (a move down toward the floor only where what it ends past stands far enough above the floor for the cloth)
+  const room = more?.room ?? clear, floorOk = (x: number, y: number, z: number, dx: number, dy: number, dz: number) => dx * down.x + dy * down.y + dz * down.z <= 0 || (more?.floor !== undefined && more.floor - (x * down.x + y * down.y + z * down.z) >= room);
+  const T = Math.floor(index.length / 3), N = P.length / 3;
+  if (!pts.length || !T) return false;
+  let edge = 0; for (let t = 0; t < T; t++) { const a = index[t * 3] * 3, b = index[t * 3 + 1] * 3; edge += Math.hypot(P[a] - P[b], P[a + 1] - P[b + 1], P[a + 2] - P[b + 2]); }
+  const h = Math.max(0.05, 2 * edge / T), key = (x: number, y: number, z: number) => ((x + 512) * 1024 + y + 512) * 1024 + z + 512, grid = new Map<number, number[]>();
+  for (let t = 0; t < T; t++) {
+    const i0 = index[t * 3] * 3, i1 = index[t * 3 + 1] * 3, i2 = index[t * 3 + 2] * 3;
+    const lo = [0, 1, 2].map((k) => Math.floor(Math.min(P[i0 + k], P[i1 + k], P[i2 + k]) / h)), hi = [0, 1, 2].map((k) => Math.floor(Math.max(P[i0 + k], P[i1 + k], P[i2 + k]) / h));
+    for (let x = lo[0]; x <= hi[0]; x++) for (let y = lo[1]; y <= hi[1]; y++) for (let z = lo[2]; z <= hi[2]; z++) { const k = key(x, y, z); let l = grid.get(k); if (!l) grid.set(k, (l = [])); l.push(t); }
+  }
+  const want = new Float64Array(N), dirs = new Float64Array(N * 3), stamp = new Int32Array(T).fill(-1), crossed = new Uint8Array(T), hit: number[] = [];
+  const A = new THREE.Vector3(), D = new THREE.Vector3(), e1 = new THREE.Vector3(), e2 = new THREE.Vector3(), pv = new THREE.Vector3(), tv = new THREE.Vector3(), qv = new THREE.Vector3();
+  let seq = 0;
+  for (let i = 0; i < owner.length; i++) {
+    const px = pts[i * 3], py = pts[i * 3 + 1], pz = pts[i * 3 + 2], L = lines[owner[i]];
+    let best = Infinity;
+    for (let k = 0; k + 5 < L.length; k += 3) {
+      const qx = L[k], qy = L[k + 1], qz = L[k + 2], bx = L[k + 3] - qx, by = L[k + 4] - qy, bz = L[k + 5] - qz, l2 = bx * bx + by * by + bz * bz;
+      const u = l2 > 1e-12 ? Math.max(0, Math.min(1, ((px - qx) * bx + (py - qy) * by + (pz - qz) * bz) / l2)) : 0, cx = qx + bx * u, cy = qy + by * u, cz = qz + bz * u, dd = (px - cx) ** 2 + (py - cy) ** 2 + (pz - cz) ** 2;
+      if (dd < best) { best = dd; A.set(cx, cy, cz); }
+    }
+    D.set(px - A.x, py - A.y, pz - A.z); const len = D.length(); if (len < 1e-6) continue;
+    if (!floorOk(px, py, pz, D.x, D.y, D.z)) continue;
+    seq++;
+    const x0 = Math.floor(Math.min(A.x, px) / h), x1 = Math.floor(Math.max(A.x, px) / h), y0 = Math.floor(Math.min(A.y, py) / h), y1 = Math.floor(Math.max(A.y, py) / h), z0 = Math.floor(Math.min(A.z, pz) / h), z1 = Math.floor(Math.max(A.z, pz) / h);
+    for (let x = x0; x <= x1; x++) for (let y = y0; y <= y1; y++) for (let z = z0; z <= z1; z++) {
+      const l = grid.get(key(x, y, z)); if (!l) continue;
+      for (const t of l) {
+        if (stamp[t] === seq || held?.[t]) continue; stamp[t] = seq;
+        const c0 = index[t * 3], c1 = index[t * 3 + 1], c2 = index[t * 3 + 2], i0 = c0 * 3, i1 = c1 * 3, i2 = c2 * 3;
+        e1.set(P[i1] - P[i0], P[i1 + 1] - P[i0 + 1], P[i1 + 2] - P[i0 + 2]); e2.set(P[i2] - P[i0], P[i2 + 1] - P[i0 + 1], P[i2 + 2] - P[i0 + 2]);
+        pv.crossVectors(D, e2); const det = e1.dot(pv); if (Math.abs(det) < 1e-12) continue;
+        const inv = 1 / det; tv.set(A.x - P[i0], A.y - P[i0 + 1], A.z - P[i0 + 2]); const uu = tv.dot(pv) * inv; if (uu < 0 || uu > 1) continue;
+        qv.crossVectors(tv, e1); const vv = D.dot(qv) * inv; if (vv < 0 || uu + vv > 1) continue;
+        const tt = e2.dot(qv) * inv; if (tt <= 0 || tt >= 1) continue;
+        // (the least move of the three corners that takes the crossing out: each by its share of it, a corner fixed
+        // keeping still)
+        const need = (1 - tt) * len + clear * 0.5, bs = [1 - uu - vv, uu, vv], cs = [c0, c1, c2], s2 = bs[0] * bs[0] + bs[1] * bs[1] + bs[2] * bs[2];
+        for (let q = 0; q < 3; q++) { const k = cs[q]; if (fixed(k)) continue; const d = need * bs[q] / s2; if (d > want[k]) { want[k] = d; dirs[k * 3] = D.x / len; dirs[k * 3 + 1] = D.y / len; dirs[k * 3 + 2] = D.z / len; } }
+        if (!crossed[t]) { crossed[t] = 1; hit.push(t); }
+      }
+    }
+  }
+  // (and between its points, where a point over a triangle lies in a part with its faces read: the first face of the part
+  // the ray from the bone out through the point meets, as far as the part reaches, faces out along the ray)
+  if (more?.inside?.size) {
+    const step = FACE_STEP * (w.size ?? 1), q = new THREE.Vector3(), R = new THREE.Vector3(), B = new THREE.Vector3();
+    for (const n of covers) {
+      const X = more.inside.get(n); if (!X) continue;
+      const { F, grid: G, h: H, bone: Lb, reach } = X, fst = new Int32Array(F.length / 9).fill(-1);
+      let ray = 0;
+      for (let t = 0; t < T; t++) {
+        if (held?.[t]) continue;
+        const c0 = index[t * 3], c1 = index[t * 3 + 1], c2 = index[t * 3 + 2], i0 = c0 * 3, i1 = c1 * 3, i2 = c2 * 3;
+        // (only a triangle with faces of the part about it)
+        const lo = [0, 1, 2].map((k) => Math.floor(Math.min(P[i0 + k], P[i1 + k], P[i2 + k]) / H)), hi = [0, 1, 2].map((k) => Math.floor(Math.max(P[i0 + k], P[i1 + k], P[i2 + k]) / H));
+        let about = false;
+        for (let x = lo[0]; x <= hi[0] && !about; x++) for (let y = lo[1]; y <= hi[1] && !about; y++) for (let z = lo[2]; z <= hi[2] && !about; z++) if (G.has(cellKey(x, y, z))) about = true;
+        if (!about) continue;
+        const e = Math.max(Math.hypot(P[i1] - P[i0], P[i1 + 1] - P[i0 + 1], P[i1 + 2] - P[i0 + 2]), Math.hypot(P[i2] - P[i1], P[i2 + 1] - P[i1 + 1], P[i2 + 2] - P[i1 + 2]), Math.hypot(P[i0] - P[i2], P[i0 + 1] - P[i2 + 1], P[i0 + 2] - P[i2 + 2]));
+        const m = Math.max(2, Math.min(8, Math.ceil(e / step)));
+        for (let i = 0; i <= m; i++) for (let j = 0; i + j <= m; j++) {
+          const b1 = i / m, b2 = j / m, b0 = 1 - b1 - b2;
+          q.set(P[i0] * b0 + P[i1] * b1 + P[i2] * b2, P[i0 + 1] * b0 + P[i1 + 1] * b1 + P[i2 + 1] * b2, P[i0 + 2] * b0 + P[i1 + 2] * b1 + P[i2 + 2] * b2);
+          // (the nearest point of the bone, and the way out from it through the point)
+          let best = Infinity;
+          for (let k = 0; k + 5 < Lb.length; k += 3) {
+            const qx = Lb[k], qy = Lb[k + 1], qz = Lb[k + 2], bx = Lb[k + 3] - qx, by = Lb[k + 4] - qy, bz = Lb[k + 5] - qz, l2 = bx * bx + by * by + bz * bz;
+            const u = l2 > 1e-12 ? Math.max(0, Math.min(1, ((q.x - qx) * bx + (q.y - qy) * by + (q.z - qz) * bz) / l2)) : 0, cx = qx + bx * u, cy = qy + by * u, cz = qz + bz * u, dd = (q.x - cx) ** 2 + (q.y - cy) ** 2 + (q.z - cz) ** 2;
+            if (dd < best) { best = dd; B.set(cx, cy, cz); }
+          }
+          R.subVectors(q, B); const len = R.length(); if (len < 1e-6 || len >= reach) continue; R.divideScalar(len);
+          // (the first face it meets beyond the point, cell by cell along the ray, and whether the ray leaves the part there)
+          ray++;
+          let tmin = Infinity, out = false, ix = Math.floor(q.x / H), iy = Math.floor(q.y / H), iz = Math.floor(q.z / H), at = 0;
+          const sx = R.x > 0 ? 1 : -1, sy = R.y > 0 ? 1 : -1, sz = R.z > 0 ? 1 : -1, dx = R.x !== 0 ? H / Math.abs(R.x) : Infinity, dy = R.y !== 0 ? H / Math.abs(R.y) : Infinity, dz = R.z !== 0 ? H / Math.abs(R.z) : Infinity;
+          let tx = R.x !== 0 ? ((ix + (R.x > 0 ? 1 : 0)) * H - q.x) / R.x : Infinity, ty = R.y !== 0 ? ((iy + (R.y > 0 ? 1 : 0)) * H - q.y) / R.y : Infinity, tz = R.z !== 0 ? ((iz + (R.z > 0 ? 1 : 0)) * H - q.z) / R.z : Infinity;
+          while (at <= reach && at < tmin) {
+            for (const f of G.get(cellKey(ix, iy, iz)) ?? []) {
+              if (fst[f] === ray) continue; fst[f] = ray;
+              const o = f * 9;
+              e1.set(F[o + 3] - F[o], F[o + 4] - F[o + 1], F[o + 5] - F[o + 2]); e2.set(F[o + 6] - F[o], F[o + 7] - F[o + 1], F[o + 8] - F[o + 2]);
+              pv.crossVectors(R, e2); const det = e1.dot(pv); if (Math.abs(det) < 1e-12) continue;
+              const inv = 1 / det; tv.set(q.x - F[o], q.y - F[o + 1], q.z - F[o + 2]); const uu = tv.dot(pv) * inv; if (uu < 0 || uu > 1) continue;
+              qv.crossVectors(tv, e1); const vv = R.dot(qv) * inv; if (vv < 0 || uu + vv > 1) continue;
+              const tt = e2.dot(qv) * inv; if (tt <= 1e-9 || tt >= tmin) continue;
+              tmin = tt; out = pv.crossVectors(e1, e2).dot(R) > 0;
+            }
+            if (tx < ty && tx < tz) { at = tx; tx += dx; ix += sx; } else if (ty < tz) { at = ty; ty += dy; iy += sy; } else { at = tz; tz += dz; iz += sz; }
+          }
+          if (!out || !floorOk(q.x + R.x * tmin, q.y + R.y * tmin, q.z + R.z * tmin, R.x, R.y, R.z)) continue;
+          const need = tmin + clear * 0.5, bs = [b0, b1, b2], cs = [c0, c1, c2], s2 = b0 * b0 + b1 * b1 + b2 * b2;
+          for (let k = 0; k < 3; k++) { const c = cs[k]; if (fixed(c) || bs[k] <= 0) continue; const d = need * bs[k] / s2; if (d > want[c]) { want[c] = d; dirs[c * 3] = R.x; dirs[c * 3 + 1] = R.y; dirs[c * 3 + 2] = R.z; } }
+          if (!crossed[t]) { crossed[t] = 1; hit.push(t); }
+        }
+      }
+    }
+  }
+  if (seam) for (let a = 0; a + seam - 1 < N; a += seam) { const b = a + seam - 1, f = want[a] >= want[b] ? a : b, t = f === a ? b : a; want[t] = want[f]; for (let x = 0; x < 3; x++) dirs[t * 3 + x] = dirs[f * 3 + x]; }
+  // (each corner in turn, as far as `may` lets it go, and a seam's two corners together, as far as it lets both)
+  const twin = (k: number) => (!seam ? -1 : k % seam === 0 ? k + seam - 1 : k % seam === seam - 1 ? k - seam + 1 : -1);
+  const to = new THREE.Vector3(), to2 = new THREE.Vector3(), cut = new Uint8Array(N);
+  let any = false;
+  for (let k = 0; k < N; k++) {
+    if (!(want[k] > 0)) continue;
+    const k2 = twin(k); if (k2 >= 0 && k2 < k) continue;
+    const at = (m: number, i: number, out: THREE.Vector3) => out.set(P[i * 3] + dirs[k * 3] * want[k] * m, P[i * 3 + 1] + dirs[k * 3 + 1] * want[k] * m, P[i * 3 + 2] + dirs[k * 3 + 2] * want[k] * m);
+    const ok = (m: number) => !may || (may(k, at(m, k, to)) && (k2 < 0 || k2 >= N || may(k2, at(m, k2, to2))));
+    let lo = 1;
+    if (!ok(1)) { lo = 0; let hi = 1; for (let it = 0; it < 16; it++) { const m = (lo + hi) / 2; if (ok(m)) lo = m; else hi = m; } cut[k] = 1; if (k2 >= 0 && k2 < N) cut[k2] = 1; }
+    if (lo <= 0) continue;
+    any = true;
+    for (const i of k2 >= 0 && k2 < N ? [k, k2] : [k]) { at(lo, i, to); P[i * 3] = to.x; P[i * 3 + 1] = to.y; P[i * 3 + 2] = to.z; }
+  }
+  if (held) for (const t of hit) { const cs = [index[t * 3], index[t * 3 + 1], index[t * 3 + 2]]; if (cs.some(fixed)) held[t] = 1; else if (cs.some((k) => cut[k])) held[t] = 2; }
+  return any;
 }
 
 /** Lifts hung cloth (`P`, flat x, y, z in its parent's frame; triangles `index`) out of the parts it covers: where the

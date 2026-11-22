@@ -1,7 +1,9 @@
 // A gown's finer dress on the hero figures (kit/heroes.ts): a wreath, a leather corset with its belt, full sleeves, vine
 // embroidery, a dagged hem over lace, laced boots, laced bracers, cloak brooches and a cloak worn on the shoulders. Each
 // is its own recipe field; a generic figure wearing them all is read in every state against the clip check
-// (kit/clipcheck.ts) and the cloth check (kit/clothcheck.ts), and each part is found on the figure where it belongs.
+// (kit/clipcheck.ts) and the cloth check (kit/clothcheck.ts), and each part is found on the figure where it belongs. On
+// a body laid out the wreath lies on the floor where the head lies on it, never under it (its back went into the floor),
+// crushed flat there and lit as each face of it faces.
 import { describe, expect, it } from 'vitest';
 import * as THREE from 'three';
 import { heroFigure, type HeroFigure } from '../app/src/kit/heroes';
@@ -54,6 +56,54 @@ describe('a gown\'s finer dress', () => {
     const left = flowers.filter((m) => boxOf([m]).getCenter(new THREE.Vector3()).x > head.x).length;
     expect(left).toBeGreaterThan(flowers.length - left);
   });
+  it('lets the wreath out a little over the back of the head, longer than it is wide, so that it sits on the hair there', () => {
+    // (its twigs round its own middle, in its own frame: over the back of the head they stand further out than over the
+    // brow, by most of 0.03 to the figure's size; at the sides, over the ears, as far as at the brow)
+    const g = heroFigure(DRESSED), wg = (g.userData.joints as Record<string, THREE.Object3D>).head.children.find((c) => coloured(c, '#2a1a0c').length)!;
+    const s = g.getObjectByName('neck')!.position.y / 2.24, inv = wg.matrixWorld.clone().invert(), v = new THREE.Vector3(), by: Record<string, number[]> = { back: [], brow: [], side: [] };
+    for (const m of coloured(wg, '#2a1a0c')) {
+      const p = m.geometry.attributes.position;
+      for (let i = 0; i < p.count; i++) {
+        v.fromBufferAttribute(p, i).applyMatrix4(m.matrixWorld).applyMatrix4(inv); const a = Math.atan2(v.z, v.x), r = Math.hypot(v.x, v.z);
+        if (Math.abs(a + Math.PI / 2) < 0.3) by.back.push(r); else if (Math.abs(a - Math.PI / 2) < 0.3) by.brow.push(r); else if (Math.abs(Math.cos(a)) > 0.98) by.side.push(r);
+      }
+    }
+    const mid = (l: number[]) => { expect(l.length).toBeGreaterThan(20); return [...l].sort((x, y) => x - y)[l.length >> 1]; };
+    expect(mid(by.back) - mid(by.brow)).toBeGreaterThan(0.02 * s);
+    expect(Math.abs(mid(by.side) - mid(by.brow))).toBeLessThan(0.01 * s);
+  });
+  it('lays the wreath on the floor where the head lies on it, never under it, crushed flat there and lit as it faces', () => {
+    // (the wreath: what on the head holds its twigs)
+    const wreathOf = (g: THREE.Object3D) => meshes((g.userData.joints as Record<string, THREE.Object3D>).head.children.find((c) => coloured(c, '#2a1a0c').length)!);
+    // (faces of the wreath's smooth pieces lit by a normal at one of their corners turned away from them, which shows
+    // near black: a twig pressed flat over onto itself shares its corners between the faces over and under)
+    const A = new THREE.Vector3(), B = new THREE.Vector3(), C = new THREE.Vector3(), f = new THREE.Vector3(), v = new THREE.Vector3();
+    const darkFaces = (ms: M[]) => {
+      let away = 0;
+      for (const m of ms) {
+        if (!(m.material as THREE.Material).userData.smooth) continue;
+        const p = m.geometry.attributes.position, n = m.geometry.attributes.normal, ix = m.geometry.index, nm = new THREE.Matrix3().getNormalMatrix(m.matrixWorld);
+        for (let t = 0; t + 2 < (ix ? ix.count : p.count); t += 3) {
+          const c3 = [0, 1, 2].map((k) => (ix ? ix.getX(t + k) : t + k));
+          A.fromBufferAttribute(p, c3[0]).applyMatrix4(m.matrixWorld); B.fromBufferAttribute(p, c3[1]).applyMatrix4(m.matrixWorld); C.fromBufferAttribute(p, c3[2]).applyMatrix4(m.matrixWorld);
+          f.crossVectors(C.sub(B), A.sub(B)); if (f.lengthSq() < 1e-14) continue; f.normalize();
+          if (c3.some((i) => v.fromBufferAttribute(n, i).applyMatrix3(nm).normalize().dot(f) <= 0)) away++;
+        }
+      }
+      return away;
+    };
+    const standing = wreathOf(heroFigure(DRESSED));
+    expect(darkFaces(standing)).toBe(0);
+    let flat = 0;
+    for (const deadPose of ['dead', 'dead-swoon', 'dead-comic', 'dead-prone', 'dead-curled'] as const) {
+      const w = wreathOf(heroFigure({ ...DRESSED, deadPose }, 'medium', 'dead'));
+      expect(w.length, `${deadPose}: all of it`).toBe(standing.length);
+      expect(lowest(w), `${deadPose}: never under the floor`).toBeGreaterThan(-1e-6);
+      expect(darkFaces(w), `${deadPose}: lit as it faces`).toBe(0);
+      if (lowest(w) < 0.01) flat++;
+    }
+    expect(flat, 'laid on the floor in the falls that bring the head down onto it').toBeGreaterThanOrEqual(3);
+  }, 60000);
   it('hangs each of the corset\'s vials from its own place on the belt: plumb on a figure standing, lying on the cloth of one fallen', () => {
     const glassOf = (g: THREE.Object3D) => ['#9a3a6a', '#d0a040'].map((c) => coloured(g, c).find((m) => m.geometry.type === 'SphereGeometry')!);
     for (const st of ['rest', 'battle'] as const) {
