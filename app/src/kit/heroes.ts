@@ -6036,8 +6036,10 @@ function walkOut(O: THREE.Vector3[], rad: (i: number) => number, faces: ClothFac
  *  beside the head falls through the collar of a cloak laid round the neck before it reaches the floor. It drops to the
  *  floor sooner instead, before the cloth it met (the nearest point back toward the head that clears it), runs on along
  *  the floor to where it lay there, and is pressed again.
- *  Either way the lock is built again along its new line, and where it leaves the head marked again. (A lock's tube is
- *  rings of 6 and a cap at each end: lockGeometry.) */
+ *  Either way the lock is built again along its new line, kept where the whole of it then passes through the cloth in
+ *  fewer places than the lock did (weighed whole, so that a lock whose part on the head lies where the cloth does, as it
+ *  did, is still cleared below the head), and where it leaves the head marked again. (A lock's tube is rings of 6 and a
+ *  cap at each end: lockGeometry.) */
 function clearOfCloth(ms: M[], cloth: M[], s: number, floor: number, press?: (ms: M[]) => void): void {
   const locks = ms.filter((m) => (m.userData.hair === 'lock' || m.userData.hair === 'frame') && m.userData.free !== undefined && m.userData.r && (m.geometry.getAttribute('position').count - 2) % 6 === 0);
   if (!locks.length || !cloth.length) return;
@@ -6051,6 +6053,8 @@ function clearOfCloth(ms: M[], cloth: M[], s: number, floor: number, press?: (ms
     let c = 0; for (let k = from; k < n; k++) if (sides(A, k * 18, A, (k + 1) * 18) >= 0) { if (first) return k; c++; }
     return first ? -1 : c;
   };
+  // (the first ring of a lock's tube below the head, where it leaves it at `free` of its length)
+  const fromHead = (g: THREE.BufferGeometry, free: number) => { const n = (g.getAttribute('position').count - 2) / 6 - 1; return Math.min(n, Math.max(1, Math.ceil(free * n))); };
   for (const m of locks) {
     m.updateWorldMatrix(true, false);
     const pos = m.geometry.getAttribute('position') as THREE.BufferAttribute, N = (pos.count - 2) / 6 - 1;
@@ -6068,7 +6072,7 @@ function clearOfCloth(ms: M[], cloth: M[], s: number, floor: number, press?: (ms
       const k1 = hits(m, m.geometry, kF, true), rad = (k: number) => { const t = k / N; return (r0 + (r1 - r0) * t) * (1 + 0.25 * Math.sin(Math.PI * t)); };
       let kL = -1; for (let k = k1 + 1; k1 >= 0 && k <= N && kL < 0; k++) if (C[k].y < floor + 2.5 * rad(k)) kL = k;
       if (kL < 0) continue;
-      const was0 = m.geometry; let best: THREE.BufferGeometry | undefined, least = was, free = m.userData.free as number;
+      const was0 = m.geometry; let best: THREE.BufferGeometry | undefined, least = hits(m, m.geometry, 0), free = m.userData.free as number;
       for (let i = ks.length - 1; i >= 0 && least > 0; i--) {
         const j = ks[i]; if (j > k1) continue;
         const Q: THREE.Vector3[] = []; for (let k = 0; k < kF; k += 4) Q.push(C[k].clone().applyMatrix4(inv));
@@ -6081,17 +6085,18 @@ function clearOfCloth(ms: M[], cloth: M[], s: number, floor: number, press?: (ms
       continue;
     }
     // built again along its line: on the head as it was (every fourth ring), and below as it now runs, eased if that
-    // passes clear of the cloth (where it does not, its tube may meet the cloth in other places than the line as walked
-    // does: below the head rather than on it); with more room round it if the curve through its points still meets it
-    let best: THREE.BufferGeometry | undefined, least = was, free = m.userData.free as number;
+    // passes clear of the cloth below the head (where it does not, its tube may meet the cloth in other places than the
+    // line as walked does: below the head rather than on it); with more room round it if the curve through its points
+    // still meets it
+    let best: THREE.BufferGeometry | undefined, least = hits(m, m.geometry, 0), free = m.userData.free as number;
     const O = ks.map((k) => C[k]), rad = (k: number) => { const t = k / N; return (r0 + (r1 - r0) * t) * (1 + 0.25 * Math.sin(Math.PI * t)); };
     for (const room of [gap, 2.5 * gap, 5 * gap]) {
       const [E, F] = walkOut(O, (i) => rad(ks[i]) + room, faces, s, floor); let h = Infinity;
       for (const line of E.every((p, i) => p.equals(F[i])) ? [F] : [E, F]) {
         const Q: THREE.Vector3[] = []; for (let k = 0; k < kF; k += 4) Q.push(C[k].clone().applyMatrix4(inv));
         for (const p of line) Q.push(p.clone().applyMatrix4(inv));
-        const g = lockGeometry(Q, r0, r1, 0.5, 6); h = hits(m, g, 0);
-        if (h < least && (line === F || !h)) { best?.dispose(); best = g; least = h; free = freeFrom(Q, Q[Math.ceil(kF / 4)]); } else g.dispose();
+        const g = lockGeometry(Q, r0, r1, 0.5, 6), f = freeFrom(Q, Q[Math.ceil(kF / 4)]); h = hits(m, g, 0); const below = hits(m, g, fromHead(g, f));
+        if (h < least && (line === F || !below)) { best?.dispose(); best = g; least = h; free = f; } else g.dispose();
         if (!h) break;
       }
       if (!h) break;
