@@ -23,7 +23,8 @@
 // its side in the head folded over on itself). A face of cloth drawn to a line or a point is read off the head by its
 // edges and corners (read as a triangle it came out as no number, and the cloth round it could not move). On any body
 // laid out the hood, pressed flat on the floor (never into it) or kept off the head, is lit as each face of it faces
-// (faces pressed over onto the flat of it shared their corners with it and showed dark notches along its rim).
+// (faces pressed over onto the flat of it shared their corners with it and showed dark notches along its rim). The
+// room for the hair on a head with long locks lying on it reaches as far as the farthest of them, all round the head.
 import { describe, expect, it } from 'vitest';
 import * as THREE from 'three';
 import { AT_EASE, headRoom, heroFigure, POSES, tuckUnder, type HeroPose } from '../app/src/kit/heroes';
@@ -459,6 +460,29 @@ describe('hero garments', () => {
     // out as no number)
     for (const [u, v, w] of [[a, a, b], [a, b, a], [b, a, a], [a, b, b], [b, a, b], [b, b, a], [a, a, a]]) expect(room.near(u, v, w), `${u.x}, ${v.x}, ${w.x}`).toBeCloseTo(0.02, 9);
     expect(room.near(b, b, b)).toBeCloseTo(0.03, 9);
+  });
+
+  it('give a head with long locks lying on it room as far out as the farthest of them reaches, all round, and a head without them the room for the hair', () => {
+    // (the head a ball of the skin's colour, 0.5 round, scaled by 1.2 and hung from a parent moved and turned, the
+    // figure's size 2: 0.6 round in the world, the unit of the room 2.4. Bare, the room reaches 0.24 past its skin every
+    // way. With long locks on it, their line on the head as the hair keeps it (`userData.long`, in the head's frame), as
+    // thick as 0.1 at the root as they were built (hanging from the chest: not scaled with the head): as far as the lock
+    // farthest off the skin reaches, a quarter thicker than at its root, and 0.048 more, every way; a lock framing the
+    // face is read as the others are. Its points are read off the nearest point of the skin. The ball is cut 64 round by
+    // 32 down so that a point of it lies on the middle of each of the room's bins of direction, which then reach exactly
+    // as far as the room: cut otherwise, the bins come short of it by up to a few hundredths)
+    const skin = '#c8a07a', out = new THREE.Vector3(), ways = [new THREE.Vector3(1, 0, 0), new THREE.Vector3(0, 1, 0), new THREE.Vector3(0, -1, 0), new THREE.Vector3(-0.6, 0, 0.8), new THREE.Vector3(0.48, 0.6, -0.64)];
+    const ball = (long?: unknown) => {
+      const neck = new THREE.Group(), g = new THREE.Group(); neck.position.set(0.3, 1.1, -0.4); neck.rotation.set(0.4, -0.7, 0.2); g.position.set(0, 0.2, 0.1); g.scale.setScalar(1.2); neck.add(g);
+      g.add(new THREE.Mesh(new THREE.SphereGeometry(0.5, 64, 32), new THREE.MeshStandardMaterial({ color: skin }))); if (long) g.userData.long = long; return g;
+    };
+    const reach = (head: THREE.Group) => { const room = headRoom(head, skin, 2)!, c = head.getWorldPosition(new THREE.Vector3()); return ways.map((w) => room.depth(w.clone().normalize().multiplyScalar(0.6).add(c), out) + 0.6); };
+    for (const r of reach(ball())) expect(r, 'bare').toBeCloseTo(0.6 + 0.24, 2);
+    const v = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z);
+    for (const r of reach(ball({ locks: [{ pts: [v(0, 0.53, 0), v(0.65, 0, 0)] }, { pts: [v(0, 0, -0.55)] }], frame: [{ pts: [v(0, 0, 0.54)] }], r: [0.1, 0.03] }))) expect(r, 'a lock 0.18 off').toBeCloseTo(0.6 + 0.18 + 0.125 + 0.048, 2);
+    for (const r of reach(ball({ locks: [{ pts: [v(0, 0.52, 0)] }], frame: [{ pts: [v(0, 0, 0.7)] }], r: [0.1, 0.03] }))) expect(r, 'a lock framing the face 0.24 off').toBeCloseTo(0.6 + 0.24 + 0.125 + 0.048, 2);
+    // (locks lying close on the head leave it the room for the hair)
+    for (const r of reach(ball({ locks: [{ pts: [v(0, 0.51, 0), v(0.51, 0, 0)] }], frame: [], r: [0.01, 0.005] }))) expect(r, 'locks close on it').toBeCloseTo(0.6 + 0.24, 2);
   });
 
   it('light each face of a capelet\'s hood as it faces on a body laid out, pressed flat on the floor or kept off the head', () => {

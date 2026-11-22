@@ -3800,18 +3800,27 @@ export function tuckUnder(band: M, cloth: M[], gap: number, seg: number, sub = 4
 }
 
 /** The room hair takes on a head, to a unit of the figure's size (scaled with the head, where the head is scaled): cloth
- *  on a body laid on its side or face down keeps this far off the head's skin (see headRoom). */
+ *  on a body laid on its side or face down keeps this far off the head's skin (see headRoom), or as far as the long
+ *  locks lying on it reach and LOCK_GAP more, where they reach further. */
 const HAIR_ROOM = 0.1;
+/** How far cloth keeps off the farthest of the long locks lying on a head (to the same unit as HAIR_ROOM), past the lock
+ *  taken a quarter thicker than at its root: a margin, as no lock swells so thick along its run, so cloth keeps off the
+ *  lock itself by more than this. */
+const LOCK_GAP = 0.02;
 
 /** The head with the hair on it, as cloth on a body laid on its side or face down keeps out of it (kit/cloth.ts
  *  `DrapeWorld.apart`): the head's own skin (what under it is the skin's colour, `skin`, or the face painted on the
  *  skull: the skull, the ears, the nose; not a beard, nor marks painted on the skin) grown by HAIR_ROOM (of the
- *  figure's size, scaled with the head where the head is scaled), read from the middle of the skin as how far out it
- *  reaches each way: along the middle of each bin of direction, as far as a ball of that room round any point of the
- *  skin reaches, eased between the bins. Returns points over the grown head (world), how far a triangle in the world
- *  (its corners) lies off the skin itself (feet, as far as halfway out into the room for the hair and no further: the
- *  nearest point of the skin to any point of it), and how deep a point in the world lies in the grown head (feet, below
- *  zero outside it) with the way out, straight out from the middle (world). Exported for tests. */
+ *  figure's size, scaled with the head where the head is scaled), or on a head with long locks lying on it as far as
+ *  the farthest of them reaches off the skin and LOCK_GAP more, where that is further (their line on the head as the
+ *  hair keeps it, `head.userData.long`: each lock's points and those of the locks framing the face, each off the
+ *  nearest point of the skin, the lock taken a quarter thicker than at its root, thicker than any lock swells); read
+ *  from the middle of the skin as how far out it reaches each way: along the middle of each bin of direction, as far
+ *  as a ball of that room round any point of the skin reaches, eased between the bins. Returns points over the grown
+ *  head (world), how far a triangle in the world (its corners) lies off the skin itself (feet, as far as halfway out
+ *  into the room for the hair and no further: the nearest point of the skin to any point of it), and how deep a point
+ *  in the world lies in the grown head (feet, below zero outside it) with the way out, straight out from the middle
+ *  (world). Exported for tests. */
 export function headRoom(head: THREE.Object3D, skin: THREE.ColorRepresentation, s: number): { points: THREE.Vector3[]; near: (a: THREE.Vector3, b: THREE.Vector3, c: THREE.Vector3) => number; depth: (p: THREE.Vector3, out: THREE.Vector3) => number } | undefined {
   head.updateWorldMatrix(true, true);
   const col = new THREE.Color(skin), pts: THREE.Vector3[] = [];
@@ -3827,7 +3836,21 @@ export function headRoom(head: THREE.Object3D, skin: THREE.ColorRepresentation, 
   const c = box.getCenter(new THREE.Vector3()).applyQuaternion(q), NT = 16, NP = 32, R = new Float64Array(NT * NP).fill(-1);
   const at = (d: THREE.Vector3) => [(Math.acos(Math.max(-1, Math.min(1, d.y / (d.length() || 1)))) / Math.PI) * NT, ((Math.atan2(d.x, d.z) + Math.PI) / (2 * Math.PI)) * NP];
   const way = (th: number, ph: number, out: THREE.Vector3) => out.set(Math.sin(th) * Math.sin(ph), Math.cos(th), Math.sin(th) * Math.cos(ph));
-  const room = HAIR_ROOM * s * Math.max(head.scale.x, head.scale.y, head.scale.z), rr = room * room, L = pts.map((p) => p.clone().sub(c).applyQuaternion(qi)), d = new THREE.Vector3();
+  const k = s * Math.max(head.scale.x, head.scale.y, head.scale.z);
+  let room = HAIR_ROOM * k;
+  // (long locks lying on the head stand further off it than that in places, most where they leave it: the room reaches
+  // as far as the farthest of them all round, so cloth keeps off the locks beside the head and where they leave it too)
+  const long = head.userData.long as { locks?: { pts: THREE.Vector3[] }[]; frame?: { pts: THREE.Vector3[] }[]; r?: [number, number] } | undefined;
+  if (long?.r) {
+    // (a lock's points lie on the head, in its frame, but the lock is as thick as it was built, hanging from the chest:
+    // not scaled with the head, only with what the head hangs from)
+    const ws = head.parent ? head.parent.getWorldScale(new THREE.Vector3()) : new THREE.Vector3(1, 1, 1), thick = 1.25 * long.r[0] * Math.max(ws.x, ws.y, ws.z), w = new THREE.Vector3();
+    for (const l of [...(long.locks ?? []), ...(long.frame ?? [])]) for (const p of l.pts) {
+      w.copy(p).applyMatrix4(head.matrixWorld); let dd = Infinity; for (const q of pts) dd = Math.min(dd, w.distanceToSquared(q));
+      room = Math.max(room, Math.sqrt(dd) + thick + LOCK_GAP * k);
+    }
+  }
+  const rr = room * room, L = pts.map((p) => p.clone().sub(c).applyQuaternion(qi)), d = new THREE.Vector3();
   for (let i = 0; i < NT; i++) for (let j = 0; j < NP; j++) {
     way(((i + 0.5) / NT) * Math.PI, ((j + 0.5) / NP) * 2 * Math.PI - Math.PI, d);
     let far = -1; for (const p of L) { const a = p.dot(d), off = p.lengthSq() - a * a; if (off < rr) far = Math.max(far, a + Math.sqrt(rr - off)); }
