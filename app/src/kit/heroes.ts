@@ -4421,8 +4421,13 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
   drapeLong(up, neck, head, s);
   underBands(head, up, s);
   clearOfWings(head, up, s);
-  // (and out of the cloth it wears; on a body laid out, once its hair lies)
-  if (!laid) { const cloth: M[] = []; body.traverse((o) => { const m = o as M; if (m.isMesh && (m.userData.garment || m.userData.cloth) && !(m.material as THREE.Material).transparent) cloth.push(m); }); coilsOffCloth(head, cloth, s); }
+  // (and out of the cloth it wears: a curl ends short of it, and a lock goes round it below the head, clearOfCloth; on a
+  // body laid out, once its hair lies)
+  if (!laid) {
+    const cloth: M[] = [], hair: M[] = [];
+    body.traverse((o) => { const m = o as M; if (!m.isMesh) return; if (o.userData.hair) hair.push(m); else if ((o.userData.garment || o.userData.cloth) && !(m.material as THREE.Material).transparent) cloth.push(m); });
+    coilsOffCloth(head, cloth, s); body.updateMatrixWorld(true); clearOfCloth(hair, cloth, s, 0.006 * s);
+  }
   const joints: Record<string, THREE.Object3D> = {};
   body.traverse((o) => { if (o.name) joints[o.name] = o; });
   body.userData.joints = joints;
@@ -5920,15 +5925,17 @@ function clothFaces(cloth: M[], box: THREE.Box3, s: number): { T: number[]; side
   };
   return { T, sides };
 }
-/** A fallen body's locks kept out of the cloth below where they leave the head. Hung as it would hang standing, a lock
- *  lies over what the body wears; but the cloth hangs as the body fell.
- *  On its front or on a side, a mantle kept off the head bunches at the nape, or hangs from the shoulder to the floor
- *  beside the head, where a lock falls through it. A lock that passes through the cloth below the head (from
+/** Locks kept out of the cloth below where they leave the head, on a body standing or fallen. Hung as it would hang
+ *  standing, a lock lies over what the body wears (drapeLong), cast level from in front; but cloth that stands up steeply
+ *  beside the neck is missed so (a capelet lifted up beside the head by an arm raised to strike, a hood folded at the
+ *  nape), and on a body fallen the cloth hangs as the body fell.
+ *  Standing, on its front or on a side (a mantle kept off the head bunches at the nape, or hangs from the shoulder to the
+ *  floor beside the head, where a lock falls through it), a lock that passes through the cloth below the head (from
  *  `userData.free` on) has its line there taken every 0.03 of the figure's scale and followed from the head: where the
  *  lock, as thick as it is there, would pass through the cloth between one point and the next, the next is moved the
  *  least way that keeps it on the side it came from (up, back off the cloth square to the face it met, or back toward
- *  the point before), or as the point before was moved; it goes back onto its own line as soon as that is clear. Points
- *  stay their thickness off the floor (`floor`).
+ *  the point before), or as the point before was moved; it goes back onto its own line as soon as that is clear. The
+ *  line is then eased where it stays as clear. Points stay their thickness off the floor (`floor`).
  *  On its back (`press`, how its hair is pressed under the cloak it lies on), the lock lies under the body, and a lock
  *  beside the head falls through the collar of a cloak laid round the neck before it reaches the floor. It drops to the
  *  floor sooner instead, before the cloth it met (the nearest point back toward the head that clears it), runs on along
@@ -6012,16 +6019,29 @@ function clearOfCloth(ms: M[], cloth: M[], s: number, floor: number, press?: (ms
         if (!found) { F.length = i; break; }
         D.copy(P).sub(o); F[i].copy(P);
       }
-      return F;
+      // (and the line eased: each point taken toward the middle of the two either side of it, three times over, where the
+      // lock still passes clear of the cloth from the point before to it and from it to the next; stepped round the cloth
+      // point by point, the least way each time, a lock kinked where it left its line and where it came back onto it)
+      const E = F.map((p) => p.clone());
+      for (let it = 0; it < 3; it++) for (let i = 1; i + 1 < E.length; i++) {
+        P.copy(E[i - 1]).add(E[i + 1]).addScaledVector(E[i], 2).multiplyScalar(0.25);
+        if (clear(E[i - 1], rad(ks[i - 1]), P, rad(ks[i])) === -1 && clear(P, rad(ks[i]), E[i + 1], rad(ks[i + 1])) === -1) E[i].copy(P);
+      }
+      return [E, F];
     };
-    // built again along its line: on the head as it was (every fourth ring), and below as it now runs; with more room
-    // round it if the curve through its points still meets the cloth
+    // built again along its line: on the head as it was (every fourth ring), and below as it now runs, eased if that
+    // passes clear of the cloth (where it does not, its tube may meet the cloth in other places than the line as walked
+    // does: below the head rather than on it); with more room round it if the curve through its points still meets it
     let best: THREE.BufferGeometry | undefined, least = was, free = m.userData.free as number;
     for (const room of [gap, 2.5 * gap, 5 * gap]) {
-      const Q: THREE.Vector3[] = []; for (let k = 0; k < kF; k += 4) Q.push(C[k].clone().applyMatrix4(inv));
-      for (const p of walk(room)) Q.push(p.applyMatrix4(inv));
-      const g = lockGeometry(Q, r0, r1, 0.5, 6), h = hits(m, g, 0);
-      if (h < least) { best?.dispose(); best = g; least = h; free = freeFrom(Q, Q[Math.ceil(kF / 4)]); } else g.dispose();
+      const [E, F] = walk(room); let h = Infinity;
+      for (const line of E.every((p, i) => p.equals(F[i])) ? [F] : [E, F]) {
+        const Q: THREE.Vector3[] = []; for (let k = 0; k < kF; k += 4) Q.push(C[k].clone().applyMatrix4(inv));
+        for (const p of line) Q.push(p.clone().applyMatrix4(inv));
+        const g = lockGeometry(Q, r0, r1, 0.5, 6); h = hits(m, g, 0);
+        if (h < least && (line === F || !h)) { best?.dispose(); best = g; least = h; free = freeFrom(Q, Q[Math.ceil(kF / 4)]); } else g.dispose();
+        if (!h) break;
+      }
       if (!h) break;
     }
     // (where it leaves the head, along the lock as built again)

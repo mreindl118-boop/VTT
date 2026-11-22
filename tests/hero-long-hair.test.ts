@@ -9,7 +9,8 @@
 // fallen in a shoulder mantle on a side or face down lays its locks over what is left of the mantle below the head, and
 // on its back drops a lock beside the head to the floor before the mantle's collar (clearOfCloth). Curls keep out of
 // the cloth, standing and fallen: a coil that would pass through a hood folded on the back or a mantle lying beside a
-// fallen head ends short of it (coilsOffCloth).
+// fallen head ends short of it (coilsOffCloth). Standing, an NPC's locks go round what stands up steeply beside the neck
+// below the head, a capelet lifted by an arm raised to strike or a hood folded at the nape (clearOfCloth).
 import { describe, expect, it } from 'vitest';
 import * as THREE from 'three';
 import { heroFigure, type HeroFigure } from '../app/src/kit/heroes';
@@ -331,4 +332,28 @@ describe('long hair on an NPC fallen in a shoulder mantle', () => {
       expect(crossings(trisOf(hair), trisOf(clothOf(all)), 0.06 * s), `${id}@${seed}: hair through the cloth`).toBe(0);
     }
   }, 120000);
+});
+
+describe('long hair on an NPC standing in a capelet or a hood', () => {
+  const standing = (id: string, seed: string, st: 'rest' | 'battle') => { const g = figureFor(BESTIARY.find((e) => e.id === id)!, st === 'battle', seed); g.updateMatrixWorld(true); return g; };
+  /** The faces of a lock (a tube of rings of 6, lockGeometry) from where it leaves the head (`userData.free`) to its tip. */
+  function fallOf(m: M): THREE.Vector3[][] {
+    const p = m.geometry.getAttribute('position'), ix = m.geometry.index!, n = (p.count - 2) / 6 - 1, kF = Math.ceil((m.userData.free as number) * n), out: THREE.Vector3[][] = [];
+    const at = (j: number) => new THREE.Vector3().fromBufferAttribute(p, ix.getX(j)).applyMatrix4(m.matrixWorld);
+    for (let i = 0; i + 2 < ix.count; i += 3) { const a = ix.getX(i), k = Math.floor(a / 6); if ((k >= kF && k <= n) || a === (n + 1) * 6 + 1) out.push([at(i), at(i + 1), at(i + 2)]); }
+    return out;
+  }
+
+  it('goes round what stands up beside the neck below the head: none of its locks passes through the cloth there', () => {
+    // (cast level from in front as it hangs, a lock missed what stands up steeply beside the neck: the capelet an arm
+    // raised to strike lifts up beside the head (the druid, Mad Mary, a dusk elf, the mage's locks framing the face), and
+    // the hood folded at the nape (a cultist, Davian at rest))
+    const cases: [string, string, 'rest' | 'battle'][] = [['druid', '', 'battle'], ['druid', 'g', 'battle'], ['mad-mary', '', 'battle'], ['dusk-elf', 'a', 'battle'], ['mage', '', 'battle'], ['cultist', 'c', 'rest'], ['davian-martikov', '', 'rest']];
+    for (const [id, seed, st] of cases) {
+      const g = standing(id, seed, st), s = scaleOf(g), all = meshes(g), locks = all.filter((m) => (m.userData.hair === 'lock' || m.userData.hair === 'frame') && m.userData.free !== undefined);
+      const cloth = all.filter((m) => (m.userData.garment || m.userData.cloth) && !(m.material as THREE.Material).transparent);
+      expect(locks.length, `${id}@${seed} ${st}`).toBeGreaterThan(10);
+      expect(crossings(locks.flatMap(fallOf), trisOf(cloth), 0.06 * s), `${id}@${seed} ${st}: locks through the cloth below the head`).toBe(0);
+    }
+  }, 180000);
 });
