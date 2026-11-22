@@ -31,9 +31,12 @@
 // points, where the part's faces are read (facesNear): a face standing through the cloth between them (a pauldron's rim
 // through a fold, missed by every line out to the part's points) takes the cloth out past it, along the way out from
 // the bone through the cloth, under the same floor.
+// On a body laid on its back, cloth falling to the floor falls past the head with the hair on it (drop's `past`), and
+// stops on it only where it would come to rest in it: stopped on it everywhere, as on any part, a capelet falling
+// beside the head that would have lain clear of it caught on top of it instead and stood up there in sharp folds.
 import * as THREE from 'three';
 import { describe, expect, it } from 'vitest';
-import { facesNear, keepOut, layUnder, liftOff, liftOut, type DrapeWorld } from '../app/src/kit/cloth';
+import { drop, facesNear, keepOut, layUnder, liftOff, liftOut, type DrapeWorld } from '../app/src/kit/cloth';
 
 const R = 0.05, CLEAR = 0.04;
 
@@ -529,5 +532,31 @@ describe('cloth settled off what it covers between its points, where the part\'s
     const P = tri(); expect(settled(P, SLAB, { down: DX, floor: 0.1 + CLEAR * 1.01 })).toBeGreaterThan(0); expect(inBox(P, 0, 0.1, 0.03, 0.3)).toBe(0);
     // (where it stands through the box's side, high over a floor beyond the outer face, it goes out of the side)
     const Q = tri(); expect(settled(Q, BOX, { down: DX, floor: 0.1 + CLEAR * 0.99 })).toBeGreaterThan(0); expect(inBox(Q)).toBeLessThan(inBox(tri()));
+  });
+});
+
+describe('cloth falling to the floor past what it may fall past, on a body laid out', () => {
+  // (a sheet lying flat at a height of 1, its first row held, falling straight down onto the floor at 0; a ball floating
+  // over the floor under one point of it, a ball resting on the floor under another)
+  const C = 9, R = 12, CLEAR = 0.02, DOWN = new THREE.Vector3(0, -1, 0);
+  const sheet = () => { const P = new Float64Array(C * R * 3); for (let r = 0; r < R; r++) for (let c = 0; c < C; c++) { const k = r * C + c; P[k * 3] = (c - 4) * 0.1; P[k * 3 + 1] = 1; P[k * 3 + 2] = r * 0.1; } return P; };
+  const ball = (cx: number, cy: number, cz: number, r: number) => (x: number, y: number, z: number) => r - Math.hypot(x - cx, y - cy, z - cz) > -CLEAR * 0.5;
+  const floating = ball(0, 0.6, 0.9, 0.15), resting = ball(0, 0.1, 0.5, 0.15), OVER_FLOATING = 9 * C + 4, OVER_RESTING = 5 * C + 4;
+  const fallen = (inside: (x: number, y: number, z: number, covered: boolean) => boolean, past?: (x: number, y: number, z: number) => boolean) => { const P = sheet(); drop(P, C, R, false, DOWN, 0, [[], [], [], []], CLEAR, inside, past); return (k: number) => P[k * 3 + 1]; };
+  it('falls past it where it would come to rest clear of it, and stops on it where it would come to rest in it', () => {
+    const y = fallen(() => false, (x, yy, z) => floating(x, yy, z) || resting(x, yy, z));
+    expect(y(OVER_FLOATING)).toBeLessThan(0.05); // (past the floating ball, onto the floor under it)
+    expect(y(OVER_RESTING)).toBeGreaterThan(0.25); // (on top of the ball on the floor, which reaches up to 0.25)
+    expect(y(OVER_RESTING)).toBeLessThan(0.35);
+  });
+  it('as on any part, it stops on what it may not fall past, and falls through what is not in its way at all', () => {
+    // (the floating ball as a part in the way: the sheet stops on top of it, which reaches up to 0.75)
+    const solid = fallen((x, yy, z, covered) => !covered && (floating(x, yy, z) || resting(x, yy, z)));
+    expect(solid(OVER_FLOATING)).toBeGreaterThan(0.75);
+    expect(solid(OVER_RESTING)).toBeGreaterThan(0.25);
+    // (and with neither in its way it falls to the floor through both)
+    const none = fallen(() => false);
+    expect(none(OVER_FLOATING)).toBeLessThan(0.05);
+    expect(none(OVER_RESTING)).toBeLessThan(0.05);
   });
 });

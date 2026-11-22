@@ -83,9 +83,13 @@ export interface DrapeWorld {
    *  deeper than that check lets skin lie past cloth (GRAZE of this) only grazes the part. */
   size?: number;
   /** On a body laid out, parts (with points in `parts` and a volume in `volumes`) that no cloth lies in, though it covers
-   *  none of them: the head with the hair on it. Cloth falling past one stops on it, as on any part, and cloth found in
-   *  one once it has fallen is put out of it (see keepOut). */
+   *  none of them: the head with the hair on it. Cloth falling past one stops on it, as on any part (but one in
+   *  `fallPast`), and cloth found in one once it has fallen is put out of it (see keepOut). */
   apart?: string[];
+  /** Of `apart`, those cloth falling toward the floor falls past rather than stops on, unless it would come to rest in
+   *  one, where it stops on it as on any part: on a body laid on its back the head, beside which the cloth falls to the
+   *  floor, so cloth that falls clear of it lies as it fell. */
+  fallPast?: string[];
   /** How far a triangle (its corners, world) lies off the skin of the parts in `apart` (feet), as far as halfway out
    *  into the room round it for the hair and no further: cloth settling off what it covers comes no nearer that skin
    *  than that where it can, nor nearer than it lay; only where the head rests on what the cloth covers, with no room
@@ -448,11 +452,13 @@ function hangOne(g: Garment, w: DrapeWorld, hung: Map<string, THREE.Vector3[]>, 
   if (w.floor !== undefined) {
     if (w.lying && !g.stiff) {
       // (nor through a part of the body on the way down: each part's volume, tested inside its bounds)
-      const vols: [THREE.Box3, (p: THREE.Vector3, out: THREE.Vector3) => number, boolean][] = [];
-      for (const [n, f] of w.volumes ?? []) { const pts = w.parts.get(n); if (pts?.length) vols.push([new THREE.Box3().setFromPoints(pts).expandByScalar(clear), f, g.covers.includes(n) && !w.trunk?.includes(n)]); }
+      // (but those it falls past, unless it would come to rest in one)
+      const vols: [THREE.Box3, (p: THREE.Vector3, out: THREE.Vector3) => number, boolean][] = [], past: typeof vols = [];
+      for (const [n, f] of w.volumes ?? []) { const pts = w.parts.get(n); if (pts?.length) (w.fallPast?.includes(n) ? past : vols).push([new THREE.Box3().setFromPoints(pts).expandByScalar(clear), f, g.covers.includes(n) && !w.trunk?.includes(n)]); }
       const q = new THREE.Vector3(), tmp = new THREE.Vector3();
       const inside = (x: number, y: number, z: number, covered: boolean) => { q.set(x, y, z).applyMatrix4(toWorld); for (const [b, f, c] of vols) if ((c || !covered) && b.containsPoint(q) && f(q, tmp) > -clear * 0.5) return true; return false; };
-      drop(P, C, R, g.closed, down, lvl, [under, heldOn, body, over], clear, inside);
+      const inPast = (x: number, y: number, z: number) => { q.set(x, y, z).applyMatrix4(toWorld); for (const [b, f] of past) if (b.containsPoint(q) && f(q, tmp) > -clear * 0.5) return true; return false; };
+      drop(P, C, R, g.closed, down, lvl, [under, heldOn, body, over], clear, inside, past.length ? inPast : undefined);
     }
     onFloor();
   }
@@ -1171,8 +1177,9 @@ export function layUnder(P: Float64Array, index: ArrayLike<number>, outside: str
  *  x, y, z lists) or on the floor (`lvl` along the way down). The points are binned on the plane across the way down.
  *  Then the cloth eases off what it rests on where it falls steeply (over the side of a leg, from a waistband): each
  *  vertex is raised toward its neighbours' height, never above where it fell from, so cloth falls from a limb to the
- *  floor in a slope rather than a wall. */
-function drop(P: Float64Array, C: number, R: number, closed: boolean, down: THREE.Vector3, lvl: number, sets: number[][], clear: number, inside: (x: number, y: number, z: number, covered: boolean) => boolean): void {
+ *  floor in a slope rather than a wall. What `past` holds (a part none of the cloth covers) a vertex falls past, unless
+ *  it would come to rest in it: then it falls as though it were any part. Exported for tests. */
+export function drop(P: Float64Array, C: number, R: number, closed: boolean, down: THREE.Vector3, lvl: number, sets: number[][], clear: number, inside: (x: number, y: number, z: number, covered: boolean) => boolean, past?: (x: number, y: number, z: number) => boolean): void {
   const e1 = new THREE.Vector3(1, 0, 0); if (Math.abs(down.x) > 0.9) e1.set(0, 1, 0);
   e1.addScaledVector(down, -e1.dot(down)).normalize();
   const e2 = new THREE.Vector3().crossVectors(down, e1), rad = Math.max(0.09, 3.5 * clear), cell = new Map<number, number[]>();
@@ -1199,15 +1206,22 @@ function drop(P: Float64Array, C: number, R: number, closed: boolean, down: THRE
     // never down through a part of the body, nor up into one where it rises onto what lies beneath it (a capelet's
     // collar lifted off the back of the shoulders stops at the neck); and cloth caught inside a limb it covers (under a
     // limb laid across the body) rises out of it, to lie over it (a vertex inside another part stays for it to push out)
-    const step = Math.max(clear, 0.03);
-    if (k >= C && inside(x, y, z, true)) {
-      let up = 0; for (let t = step; t <= 0.8; t += step) if (!inside(x - down.x * t, y - down.y * t, z - down.z * t, true)) { up = t + clear * 0.5; break; }
-      gap = -up;
-    } else if (k >= C && gap !== 0 && !inside(x, y, z, false)) {
-      let ok = 0; const sg = Math.sign(gap), far = Math.abs(gap);
-      for (let t = step; t < far + step; t += step) { const u = Math.min(t, far) * sg; if (inside(x + down.x * u, y + down.y * u, z + down.z * u, false)) break; ok = u; }
-      gap = ok;
-    } else if (k >= C && gap > 0) gap = 0;
+    const step = Math.max(clear, 0.03), g0 = gap;
+    const settle = (ins: (x: number, y: number, z: number, covered: boolean) => boolean) => {
+      let gap = g0;
+      if (k >= C && ins(x, y, z, true)) {
+        let up = 0; for (let t = step; t <= 0.8; t += step) if (!ins(x - down.x * t, y - down.y * t, z - down.z * t, true)) { up = t + clear * 0.5; break; }
+        gap = -up;
+      } else if (k >= C && gap !== 0 && !ins(x, y, z, false)) {
+        let ok = 0; const sg = Math.sign(gap), far = Math.abs(gap);
+        for (let t = step; t < far + step; t += step) { const u = Math.min(t, far) * sg; if (ins(x + down.x * u, y + down.y * u, z + down.z * u, false)) break; ok = u; }
+        gap = ok;
+      } else if (k >= C && gap > 0) gap = 0;
+      return gap;
+    };
+    gap = settle(inside);
+    // (what it falls past it stops on all the same where it would come to rest in it)
+    if (past && k >= C) { const g = Math.max(-1, gap); if (past(x + down.x * g, y + down.y * g, z + down.z * g)) gap = settle((x, y, z, covered) => inside(x, y, z, covered) || (!covered && past(x, y, z))); }
     rest[k] = k < C ? top[k] : top[k] - Math.max(-1, gap);
   }
   const cap = Float64Array.from(top, (t, k) => Math.max(t, rest[k]));

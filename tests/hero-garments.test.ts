@@ -18,12 +18,17 @@
 // check's reach), it lies on the plate, the plate never through it but under the arm on the floor, read along lines
 // from the arm's bone running down as well as up (kept off the head, the capelet was left with the plate standing
 // through it beside the neck, where the lines ran down to it well over the floor); where the head rests on no plate,
-// the capelet keeps off it there too. Its collar comes down over the neckband, never through it, and its hood bends
-// round the head, never folded over sharply (put out of the head point by point, its side in the head folded over on
-// itself). A face of cloth drawn to a line or a point is read off the head by its edges and corners (read as a
-// triangle it came out as no number, and the cloth round it could not move). On any body laid out the hood, pressed
-// flat on the floor (never into it) or kept off the head, is lit as each face of it faces (faces pressed over onto the
-// flat of it shared their corners with it and showed dark notches along its rim).
+// the capelet keeps off it there too. Its collar comes down over the neckband, never through it, on any body, standing,
+// fighting or fallen, and its hood bends round the head, never folded over sharply (put out of the head point by point,
+// its side in the head folded over on itself). A face of cloth drawn to a line or a point is read off the head by its
+// edges and corners (read as a triangle it came out as no number, and the cloth round it could not move). On any body
+// laid out the hood, pressed flat on the floor (never into it) or kept off the head, is lit as each face of it faces
+// (faces pressed over onto the flat of it shared their corners with it and showed dark notches along its rim). The
+// room for the hair on a head with long locks lying on it reaches as far as the farthest of them, all round the head.
+// On a body fallen on its back the capelet keeps off the head too, though an arm raised over the head draws its
+// neckline up beside it (its points came as near as 0.01 to the skin there, its faces as near as 0.001), its hood lying
+// flat on the floor under the head; there it falls past the head to the floor, held up beside it by the room for the
+// hair only where it would come to rest in it (stopped by that room everywhere, it stood up beside the head).
 import { describe, expect, it } from 'vitest';
 import * as THREE from 'three';
 import { AT_EASE, headRoom, heroFigure, POSES, tuckUnder, type HeroPose } from '../app/src/kit/heroes';
@@ -81,6 +86,10 @@ const CRUMPLED: HeroPose = { lie: 'side', spine: [0.35, 0.3, 0.15], neck: [0.3, 
 const KNELT: HeroPose = { lie: 'front', spine: [0.4, 0, 0], neck: [-0.5, 0.6, 0], shoulderR: [0.9, 0, 0.5], elbowR: -0.2, shoulderL: [0.8, 0, 0.6], elbowL: -0.3, hipR: [-1.9, 0, 0.6], kneeR: 1.57, hipL: [-1.77, 0, 0.55], kneeL: 1.57 };
 /** The falls on the side and face down, where cloth keeps off the head with the hair on it. */
 const FALLS: [string, HeroPose | string][] = [['crumpled on its side', CRUMPLED], ['curled on its side', 'dead-curled'], ['face down', 'dead-prone'], ['fallen forward onto its knees', KNELT]];
+/** A body fallen on its back with an arm raised over its head, the hand behind it and the elbow up: on a woman's frame
+ *  the capelet's neckline is drawn up beside the head on that side. And the back falls of the presets. */
+const RAISED: HeroPose = { lie: 'back', neck: [-0.15, -0.3, 0], shoulderR: [-2.6, 0, 0.5], elbowR: -2.0, shoulderL: [0, 0, 0.4], elbowL: -0.3, hipR: [0, 0, 0.06], hipL: [-0.4, 0, 0.1], kneeL: 0.8 };
+const BACK: [string, HeroPose | string][] = [['on its back', 'dead'], ['sprawled on its back', 'dead-comic'], ['swooned on its back', 'dead-swoon'], ['on its back, an arm raised over its head', RAISED]];
 /** An outfit on a body laid out in a pose of its own, every garment it wears hung. */
 function laid(outfit: string, label: string, deadPose: HeroPose): Frame {
   const fig = heroFigure({ ...OUTFITS[outfit], weapon: 'sword', deadPose } as never, 'medium', 'dead'), names = new Set<string>();
@@ -232,13 +241,74 @@ describe('hero garments', () => {
     expect(bad).toEqual([]);
   }, 120000);
 
+  it('keep a capelet off the head of a body fallen on its back too, with room for the hair, though an arm raised over the head draws its neckline up beside it', () => {
+    // (on its back the hair lies under the cloth lying on the floor round the head, and the hood lies flat on the floor
+    // under the head, not kept out of the room for the hair; but on a woman's frame an arm raised over the head drew the
+    // capelet's neckline up beside it, its points as near as 0.01 to the skin and its faces as near as 0.001, where it
+    // stood in the hair. As on a body fallen face down or on its side: room for the hair everywhere, but where the
+    // capelet lies on what it covers, read off the skin and against the head's own room, which on a head with long locks
+    // lying on it (on the NPC branch) reaches past them; and in what it covers no deeper than a hair (with the NPC
+    // branch's necks a man's neck stands through it on the back by 0.011 at the most, and on a woman in plate with an arm
+    // raised over her head the upper arm through the cloak by 0.008, both older than the capelet keeping off the head on
+    // a back fall). The hood apart)
+    const bad: string[] = [], skin = '#c8a07a', o = new THREE.Vector3();
+    for (const frame of ['masculine', 'feminine']) for (const plate of [false, true]) for (const long of frame === 'feminine' ? [false, true] : [false]) for (const [label, deadPose] of BACK) {
+      const { fig, H, cape, covered } = fallenCape({ ...OUTFITS['cloak and capelet'], frame, weapon: 'sword', deadPose, ...(plate ? { armor: { kind: 'plate', color: '#aeb2ba' } } : {}), ...(long ? { hair: '#3a2a1a', hairStyle: 'long' } : {}) });
+      const at = `${frame}${plate ? ', in plate' : ''}${long ? ', long-haired' : ''}, ${label}`, room = headRoom(fig.getObjectByName('head')!, skin, fig.getObjectByName('neck')!.position.y / 2.24)!;
+      const cloth = cape.filter((m) => !m.userData.hood), hood = cape.filter((m) => m.userData.hood);
+      let least = Infinity;
+      for (const q of points(cloth)) {
+        const d = nearest(q, H); least = Math.min(least, d);
+        if ((d < 0.09 || room.depth(q, o) > 0.01) && nearest(q, covered) > 0.055) bad.push(`${at}: ${d.toFixed(3)} off the head, ${room.depth(q, o).toFixed(3)} in its room, on nothing it covers`);
+      }
+      if (least < 0.04) bad.push(`${at}: ${least.toFixed(4)} off the head`);
+      const faces = facesOff(cloth, H); if (faces < 0.03) bad.push(`${at}: a face ${faces.toFixed(4)} off the head`);
+      const pk = findPokes(fig, { tolerance: 0.012 }).filter((p) => CAPES.has(p.garment)); if (pk.length) bad.push(`${at}: ${describePokes(pk)}`);
+      // (the body this is for: the neckline drawn up beside the head by the arm raised over it, on a woman's frame)
+      if (frame === 'feminine' && !long && deadPose === RAISED && least > 0.15) bad.push(`${at}: the capelet ${least.toFixed(4)} off the head, its neckline no longer drawn up beside it`);
+      // (and the hood lies under the head, in the room for the hair, as before: not kept out of it)
+      let under = Infinity; for (const q of points(hood)) under = Math.min(under, nearest(q, H));
+      if (hood.length && under >= 0.1) bad.push(`${at}: the hood ${under.toFixed(4)} off the head, kept out from under it`);
+      if (!hood.length) bad.push(`${at}: no hood`);
+    }
+    expect(bad).toEqual([]);
+  }, 120000);
+
+  it('let a capelet on a body fallen on its back fall past the head to the floor, not held up beside it by the room kept for the hair', () => {
+    // (stopped by that room on its way down, as by any part, the capelet stood up beside the head where it had fallen
+    // clear of the room, 0.2 to 0.7 over what lay under it: it falls past the room, stopping on it only where it would
+    // come to rest in it. Read where it lies just outside the room, within 0.1 of it, standing more than 0.25 over what
+    // lies straight beneath it (the body, the cloth, the floor): on a body fallen on its back with no arm over its head,
+    // 30 to 77 such points where the room stopped it, 22 at the most where it falls past, as many as there were before
+    // the capelet kept off the head on a back fall at all)
+    const bad: string[] = [], skin = '#c8a07a', down = new THREE.Vector3(0, -1, 0), ray = new THREE.Raycaster(), v = new THREE.Vector3(), o = new THREE.Vector3();
+    for (const frame of ['masculine', 'feminine']) for (const plate of [false, true]) for (const [label, deadPose] of BACK.filter(([, p]) => p !== RAISED)) {
+      const { fig } = fallenCape({ ...OUTFITS['cloak and capelet'], frame, weapon: 'sword', deadPose, ...(plate ? { armor: { kind: 'plate', color: '#aeb2ba' } } : {}) }), at = `${frame}${plate ? ', in plate' : ''}, ${label}`;
+      const room = headRoom(fig.getObjectByName('head')!, skin, fig.getObjectByName('neck')!.position.y / 2.24)!, cape: THREE.Mesh[] = [], under: THREE.Mesh[] = [];
+      fig.traverse((x) => { const m = x as THREE.Mesh; if (!m.isMesh || (m.material as THREE.Material).transparent || !m.visible) return; (x.userData.garment === 'mantle' ? cape : under).push(m); });
+      let held = 0;
+      for (const m of cape) {
+        const p = m.geometry.getAttribute('position');
+        for (let i = 0; i < p.count; i++) {
+          v.fromBufferAttribute(p, i).applyMatrix4(m.matrixWorld); const d = room.depth(v, o); if (d > 0 || d <= -0.1) continue;
+          ray.set(v.clone().addScaledVector(down, 1e-4), down); ray.far = 5; const hit = ray.intersectObjects(under, false)[0];
+          if (Math.min(v.y, hit ? hit.distance : Infinity) > 0.25) held++;
+        }
+      }
+      if (held > 25) bad.push(`${at}: ${held} points of the capelet just outside the head's room standing over 0.25 over what lies beneath them`);
+    }
+    expect(bad).toEqual([]);
+  }, 120000);
+
   it('ease a capelet kept off the head into the cloth round it, with few of its edges there folded back on themselves', () => {
     // (put out of the head point by point, the capelet folded back on itself where a point was moved and the one beside
     // it was not: within 0.3 of the head's skin, as many as 30 of its edges had faces meeting at more than 150 degrees,
     // the cloth turned back to within 30 degrees of itself; eased into the cloth round it, no more than 15 are on any of
-    // these falls, and no more than 20 may be)
+    // these falls, and no more than 20 may be. On a body fallen on its back, where the capelet falls past the head and is
+    // kept out of it only where it would come to rest in it, no more than 25 may be: a man swooned on his back had 21
+    // before the capelet kept off the head on a back fall at all)
     const bad: string[] = [], na = new THREE.Vector3(), nb = new THREE.Vector3(), key = (v: THREE.Vector3) => `${v.x.toFixed(5)},${v.y.toFixed(5)},${v.z.toFixed(5)}`;
-    for (const frame of ['masculine', 'feminine']) for (const [label, deadPose] of FALLS) {
+    for (const frame of ['masculine', 'feminine']) for (const [label, deadPose, most] of [...FALLS.map(([l, p]) => [l, p, 20] as const), ...BACK.map(([l, p]) => [l, p, 25] as const)]) {
       const { fig, H, cape } = fallenCape({ ...OUTFITS['cloak and capelet'], frame, weapon: 'sword', deadPose }), at = `${frame}, ${label}`, s = fig.getObjectByName('neck')!.position.y / 2.24;
       // (the capelet itself, its hood and clasps aside: each edge between two of its faces, their corners one where they
       // lie at one place, and the middle of the edge)
@@ -255,7 +325,7 @@ describe('hero garments', () => {
         tris[f[0]].getNormal(na); tris[f[1]].getNormal(nb);
         if (na.dot(nb) < Math.cos((150 * Math.PI) / 180) && nearest(m, H) < 0.3 * s) back++;
       }
-      if (back > 20) bad.push(`${at}: ${back} edges near the head folded back on themselves`);
+      if (back > most) bad.push(`${at}: ${back} edges near the head folded back on themselves`);
     }
     expect(bad).toEqual([]);
   }, 120000);
@@ -302,36 +372,52 @@ describe('hero garments', () => {
     expect(bad.slice(0, 8)).toEqual([]);
   }, 120000);
 
-  it('lay the collar of a capelet kept off the head over the neckband, not through it, with half the band at the least standing as it stands', () => {
-    // (kept off the head, the capelet comes down at the collar onto the neckband, which draws in under it, so no edge of
-    // the capelet runs through the band; as it hung before it was kept off the head it ran up to 0.04 through it. The
-    // band only draws in toward its middle, never out nor aside, and only where the capelet comes near it: on each of
-    // these falls, in plate too, half of it at the least stands as it does on the body standing (drawn in all round, it
+  it('lay the collar of a capelet over the neckband, not through it, on every body, with half the band at the least standing as built', () => {
+    // (the capelet comes down at the collar onto the neckband, which draws in under it, so no edge of the capelet runs
+    // through the band: as it hung before, the collar ran up to 0.04 through the band on a body standing, fighting or
+    // laid on its back, and as deep on one kept off the head, fallen face down or on its side. The band only draws in
+    // toward its middle, never out nor aside, and only where the capelet comes near it: on each body, in plate too, half
+    // of it at the least stands as it is built, as it stands on the same body without a capelet (drawn in all round, it
     // sank wholly into the body and was lost there, and none of it stood so; drawn in under the hood's lump as well, which
     // lies in the back of the neck on purpose, as few as 14 of its 48 points stood so), and nowhere is it drawn in as far
-    // as it goes, half its reach: the capelet never lies so deep. The hood's lump apart, standing as fallen)
-    const bad: string[] = [], falls: [string, HeroPose | string, boolean][] = [...FALLS.map(([l, p]): [string, HeroPose | string, boolean] => [l, p, false]), ['crumpled on its side, in plate', CRUMPLED, true]];
-    for (const frame of ['masculine', 'feminine']) for (const [label, deadPose, plate] of falls) {
-      const rec = { ...OUTFITS['cloak and capelet'], frame, weapon: 'sword', deadPose, ...(plate ? { armor: { kind: 'plate', color: '#aeb2ba' } } : {}) }, { fig, cape } = fallenCape(rec), at = `${frame}, ${label}`, band: THREE.Object3D[] = [];
-      fig.traverse((o) => { if (o.userData.neckband) band.push(o); });
-      expect(band.length, `${at}: the neckband`).toBe(1);
-      const ds = throughDepths(cape.filter((m) => !(m.scale.y === 0.5 && m.scale.z === 0.75)), band).map((x) => x.d);
-      if (ds.length) bad.push(`${at}: ${ds.length} edges through, ${Math.max(...ds).toFixed(4)} deep`);
-      // (the band standing, in the chest's frame as the fallen one is)
-      let up: THREE.Mesh | undefined; heroFigure({ ...rec, skin: '#c8a07a' } as never, 'medium', 'rest').traverse((o) => { if (o.userData.neckband) up = o as THREE.Mesh; });
-      const a = up!.geometry.getAttribute('position'), b = (band[0] as THREE.Mesh).geometry.getAttribute('position'), lo = new THREE.Vector3().fromBufferAttribute(a, a.count - 2), p = new THREE.Vector3(), q = new THREE.Vector3();
-      expect(b.count, at).toBe(a.count);
-      let same = 0;
-      for (let i = 0; i < a.count - 2; i++) {
-        p.fromBufferAttribute(a, i).sub(lo); q.fromBufferAttribute(b, i).sub(lo);
-        if (p.distanceTo(q) < 1e-9) { same++; continue; }
-        if (Math.hypot(q.x, q.z) > Math.hypot(p.x, p.z) || Math.abs(q.y - p.y) > 1e-6 || Math.abs(p.x * q.z - p.z * q.x) > 1e-6) bad.push(`${at}: band point ${i} stands out or aside from where it stands`);
-        if (Math.hypot(q.x, q.z) < Math.hypot(p.x, p.z) / 2 + 1e-6) bad.push(`${at}: band point ${i} drawn in as far as it goes`);
+    // as it goes, half its reach: the capelet never lies so deep. The hood's lump apart)
+    const bad: string[] = [], bodies: [string, Record<string, unknown>, 'rest' | 'battle' | 'dead'][] = [
+      ['standing', {}, 'rest'],
+      ...Object.entries(KIT).map(([stance, kit]): [string, Record<string, unknown>, 'battle'] => [`in stance ${stance}`, { ...kit, stance }, 'battle']),
+      ...(['dead', 'dead-comic', 'dead-swoon'] as const).map((deadPose): [string, Record<string, unknown>, 'dead'] => [`fallen on its back, ${deadPose}`, { deadPose }, 'dead']),
+      ...FALLS.map(([l, deadPose]): [string, Record<string, unknown>, 'dead'] => [l, { deadPose }, 'dead']),
+    ];
+    let drawn = 0;
+    for (const frame of ['masculine', 'feminine']) for (const plate of [false, true]) {
+      const rec = { ...OUTFITS['cloak and capelet'], frame, weapon: 'sword', skin: '#c8a07a', ...(plate ? { armor: { kind: 'plate', color: '#aeb2ba' } } : {}) } as Record<string, unknown>;
+      // (the band as built: on the same body without a capelet, in the chest's frame as the band on each body is)
+      const bare = { ...rec }; for (const k of ['cloak', 'cloakTrim', 'clasps', 'hood']) delete bare[k];
+      let built: THREE.Mesh | undefined; heroFigure(bare as never, 'medium', 'rest').traverse((o) => { if (o.userData.neckband) built = o as THREE.Mesh; });
+      const a = built!.geometry.getAttribute('position'), lo = new THREE.Vector3().fromBufferAttribute(a, a.count - 2), p = new THREE.Vector3(), q = new THREE.Vector3();
+      for (const [label, extra, st] of bodies) {
+        const fig = heroFigure({ ...rec, ...extra } as never, 'medium', st), at = `${frame}${plate ? ', in plate' : ''}, ${label}`, band: THREE.Object3D[] = [], cape: THREE.Object3D[] = [];
+        fig.updateMatrixWorld(true);
+        fig.traverse((o) => { if (o.userData.neckband) band.push(o); else if ((o as THREE.Mesh).isMesh && (o.userData.garment === 'mantle' || o.userData.cloth === 'mantle') && !o.userData.hood) cape.push(o); });
+        expect(band.length, `${at}: the neckband`).toBe(1);
+        expect(cape.length, `${at}: the capelet`).toBeGreaterThan(0);
+        const ds = throughDepths(cape, band).map((x) => x.d);
+        if (ds.length) bad.push(`${at}: ${ds.length} edges through, ${Math.max(...ds).toFixed(4)} deep`);
+        const b = (band[0] as THREE.Mesh).geometry.getAttribute('position');
+        expect(b.count, at).toBe(a.count);
+        let same = 0;
+        for (let i = 0; i < a.count - 2; i++) {
+          p.fromBufferAttribute(a, i).sub(lo); q.fromBufferAttribute(b, i).sub(lo);
+          if (p.distanceTo(q) < 1e-9) { same++; continue; }
+          if (Math.hypot(q.x, q.z) > Math.hypot(p.x, p.z) || Math.abs(q.y - p.y) > 1e-6 || Math.abs(p.x * q.z - p.z * q.x) > 1e-6) bad.push(`${at}: band point ${i} stands out or aside from where it is built`);
+          if (Math.hypot(q.x, q.z) < Math.hypot(p.x, p.z) / 2 + 1e-6) bad.push(`${at}: band point ${i} drawn in as far as it goes`);
+        }
+        if (same < (a.count - 2) / 2) bad.push(`${at}: only ${same} of the band's ${a.count - 2} points stand as built`);
+        if (same < a.count - 2) drawn++;
       }
-      if (same < (a.count - 2) / 2) bad.push(`${at}: only ${same} of the band's ${a.count - 2} points stand as they do standing`);
     }
     expect(bad).toEqual([]);
-  }, 120000);
+    expect(drawn).toBeGreaterThan(bodies.length * 2); // (drawn in under the collar on most of them: it came near the band on every one)
+  }, 240000);
 
   it('draw a band in under cloth lying over part of it at any slant, and leave its far side as it stands', () => {
     // (a band 0.07 high round an oval 0.3 by 0.25, as the neckband is lofted. Over its side where it points along z: one
@@ -443,6 +529,29 @@ describe('hero garments', () => {
     // out as no number)
     for (const [u, v, w] of [[a, a, b], [a, b, a], [b, a, a], [a, b, b], [b, a, b], [b, b, a], [a, a, a]]) expect(room.near(u, v, w), `${u.x}, ${v.x}, ${w.x}`).toBeCloseTo(0.02, 9);
     expect(room.near(b, b, b)).toBeCloseTo(0.03, 9);
+  });
+
+  it('give a head with long locks lying on it room as far out as the farthest of them reaches, all round, and a head without them the room for the hair', () => {
+    // (the head a ball of the skin's colour, 0.5 round, scaled by 1.2 and hung from a parent moved and turned, the
+    // figure's size 2: 0.6 round in the world, the unit of the room 2.4. Bare, the room reaches 0.24 past its skin every
+    // way. With long locks on it, their line on the head as the hair keeps it (`userData.long`, in the head's frame), as
+    // thick as 0.1 at the root as they were built (hanging from the chest: not scaled with the head): as far as the lock
+    // farthest off the skin reaches, a quarter thicker than at its root, and 0.048 more, every way; a lock framing the
+    // face is read as the others are. Its points are read off the nearest point of the skin. The ball is cut 64 round by
+    // 32 down so that a point of it lies on the middle of each of the room's bins of direction, which then reach exactly
+    // as far as the room: cut otherwise, the bins come short of it by up to a few hundredths)
+    const skin = '#c8a07a', out = new THREE.Vector3(), ways = [new THREE.Vector3(1, 0, 0), new THREE.Vector3(0, 1, 0), new THREE.Vector3(0, -1, 0), new THREE.Vector3(-0.6, 0, 0.8), new THREE.Vector3(0.48, 0.6, -0.64)];
+    const ball = (long?: unknown) => {
+      const neck = new THREE.Group(), g = new THREE.Group(); neck.position.set(0.3, 1.1, -0.4); neck.rotation.set(0.4, -0.7, 0.2); g.position.set(0, 0.2, 0.1); g.scale.setScalar(1.2); neck.add(g);
+      g.add(new THREE.Mesh(new THREE.SphereGeometry(0.5, 64, 32), new THREE.MeshStandardMaterial({ color: skin }))); if (long) g.userData.long = long; return g;
+    };
+    const reach = (head: THREE.Group) => { const room = headRoom(head, skin, 2)!, c = head.getWorldPosition(new THREE.Vector3()); return ways.map((w) => room.depth(w.clone().normalize().multiplyScalar(0.6).add(c), out) + 0.6); };
+    for (const r of reach(ball())) expect(r, 'bare').toBeCloseTo(0.6 + 0.24, 2);
+    const v = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z);
+    for (const r of reach(ball({ locks: [{ pts: [v(0, 0.53, 0), v(0.65, 0, 0)] }, { pts: [v(0, 0, -0.55)] }], frame: [{ pts: [v(0, 0, 0.54)] }], r: [0.1, 0.03] }))) expect(r, 'a lock 0.18 off').toBeCloseTo(0.6 + 0.18 + 0.125 + 0.048, 2);
+    for (const r of reach(ball({ locks: [{ pts: [v(0, 0.52, 0)] }], frame: [{ pts: [v(0, 0, 0.7)] }], r: [0.1, 0.03] }))) expect(r, 'a lock framing the face 0.24 off').toBeCloseTo(0.6 + 0.24 + 0.125 + 0.048, 2);
+    // (locks lying close on the head leave it the room for the hair)
+    for (const r of reach(ball({ locks: [{ pts: [v(0, 0.51, 0), v(0.51, 0, 0)] }], frame: [], r: [0.01, 0.005] }))) expect(r, 'locks close on it').toBeCloseTo(0.6 + 0.24, 2);
   });
 
   it('light each face of a capelet\'s hood as it faces on a body laid out, pressed flat on the floor or kept off the head', () => {
