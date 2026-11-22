@@ -18,12 +18,12 @@
 // check's reach), it lies on the plate, the plate never through it but under the arm on the floor, read along lines
 // from the arm's bone running down as well as up (kept off the head, the capelet was left with the plate standing
 // through it beside the neck, where the lines ran down to it well over the floor); where the head rests on no plate,
-// the capelet keeps off it there too. Its collar comes down over the neckband, never through it, and its hood bends
-// round the head, never folded over sharply (put out of the head point by point, its side in the head folded over on
-// itself). A face of cloth drawn to a line or a point is read off the head by its edges and corners (read as a
-// triangle it came out as no number, and the cloth round it could not move). On any body laid out the hood, pressed
-// flat on the floor (never into it) or kept off the head, is lit as each face of it faces (faces pressed over onto the
-// flat of it shared their corners with it and showed dark notches along its rim).
+// the capelet keeps off it there too. Its collar comes down over the neckband, never through it, on any body, standing,
+// fighting or fallen, and its hood bends round the head, never folded over sharply (put out of the head point by point,
+// its side in the head folded over on itself). A face of cloth drawn to a line or a point is read off the head by its
+// edges and corners (read as a triangle it came out as no number, and the cloth round it could not move). On any body
+// laid out the hood, pressed flat on the floor (never into it) or kept off the head, is lit as each face of it faces
+// (faces pressed over onto the flat of it shared their corners with it and showed dark notches along its rim).
 import { describe, expect, it } from 'vitest';
 import * as THREE from 'three';
 import { AT_EASE, headRoom, heroFigure, POSES, tuckUnder, type HeroPose } from '../app/src/kit/heroes';
@@ -302,36 +302,52 @@ describe('hero garments', () => {
     expect(bad.slice(0, 8)).toEqual([]);
   }, 120000);
 
-  it('lay the collar of a capelet kept off the head over the neckband, not through it, with half the band at the least standing as it stands', () => {
-    // (kept off the head, the capelet comes down at the collar onto the neckband, which draws in under it, so no edge of
-    // the capelet runs through the band; as it hung before it was kept off the head it ran up to 0.04 through it. The
-    // band only draws in toward its middle, never out nor aside, and only where the capelet comes near it: on each of
-    // these falls, in plate too, half of it at the least stands as it does on the body standing (drawn in all round, it
+  it('lay the collar of a capelet over the neckband, not through it, on every body, with half the band at the least standing as built', () => {
+    // (the capelet comes down at the collar onto the neckband, which draws in under it, so no edge of the capelet runs
+    // through the band: as it hung before, the collar ran up to 0.04 through the band on a body standing, fighting or
+    // laid on its back, and as deep on one kept off the head, fallen face down or on its side. The band only draws in
+    // toward its middle, never out nor aside, and only where the capelet comes near it: on each body, in plate too, half
+    // of it at the least stands as it is built, as it stands on the same body without a capelet (drawn in all round, it
     // sank wholly into the body and was lost there, and none of it stood so; drawn in under the hood's lump as well, which
     // lies in the back of the neck on purpose, as few as 14 of its 48 points stood so), and nowhere is it drawn in as far
-    // as it goes, half its reach: the capelet never lies so deep. The hood's lump apart, standing as fallen)
-    const bad: string[] = [], falls: [string, HeroPose | string, boolean][] = [...FALLS.map(([l, p]): [string, HeroPose | string, boolean] => [l, p, false]), ['crumpled on its side, in plate', CRUMPLED, true]];
-    for (const frame of ['masculine', 'feminine']) for (const [label, deadPose, plate] of falls) {
-      const rec = { ...OUTFITS['cloak and capelet'], frame, weapon: 'sword', deadPose, ...(plate ? { armor: { kind: 'plate', color: '#aeb2ba' } } : {}) }, { fig, cape } = fallenCape(rec), at = `${frame}, ${label}`, band: THREE.Object3D[] = [];
-      fig.traverse((o) => { if (o.userData.neckband) band.push(o); });
-      expect(band.length, `${at}: the neckband`).toBe(1);
-      const ds = throughDepths(cape.filter((m) => !(m.scale.y === 0.5 && m.scale.z === 0.75)), band).map((x) => x.d);
-      if (ds.length) bad.push(`${at}: ${ds.length} edges through, ${Math.max(...ds).toFixed(4)} deep`);
-      // (the band standing, in the chest's frame as the fallen one is)
-      let up: THREE.Mesh | undefined; heroFigure({ ...rec, skin: '#c8a07a' } as never, 'medium', 'rest').traverse((o) => { if (o.userData.neckband) up = o as THREE.Mesh; });
-      const a = up!.geometry.getAttribute('position'), b = (band[0] as THREE.Mesh).geometry.getAttribute('position'), lo = new THREE.Vector3().fromBufferAttribute(a, a.count - 2), p = new THREE.Vector3(), q = new THREE.Vector3();
-      expect(b.count, at).toBe(a.count);
-      let same = 0;
-      for (let i = 0; i < a.count - 2; i++) {
-        p.fromBufferAttribute(a, i).sub(lo); q.fromBufferAttribute(b, i).sub(lo);
-        if (p.distanceTo(q) < 1e-9) { same++; continue; }
-        if (Math.hypot(q.x, q.z) > Math.hypot(p.x, p.z) || Math.abs(q.y - p.y) > 1e-6 || Math.abs(p.x * q.z - p.z * q.x) > 1e-6) bad.push(`${at}: band point ${i} stands out or aside from where it stands`);
-        if (Math.hypot(q.x, q.z) < Math.hypot(p.x, p.z) / 2 + 1e-6) bad.push(`${at}: band point ${i} drawn in as far as it goes`);
+    // as it goes, half its reach: the capelet never lies so deep. The hood's lump apart)
+    const bad: string[] = [], bodies: [string, Record<string, unknown>, 'rest' | 'battle' | 'dead'][] = [
+      ['standing', {}, 'rest'],
+      ...Object.entries(KIT).map(([stance, kit]): [string, Record<string, unknown>, 'battle'] => [`in stance ${stance}`, { ...kit, stance }, 'battle']),
+      ...(['dead', 'dead-comic', 'dead-swoon'] as const).map((deadPose): [string, Record<string, unknown>, 'dead'] => [`fallen on its back, ${deadPose}`, { deadPose }, 'dead']),
+      ...FALLS.map(([l, deadPose]): [string, Record<string, unknown>, 'dead'] => [l, { deadPose }, 'dead']),
+    ];
+    let drawn = 0;
+    for (const frame of ['masculine', 'feminine']) for (const plate of [false, true]) {
+      const rec = { ...OUTFITS['cloak and capelet'], frame, weapon: 'sword', skin: '#c8a07a', ...(plate ? { armor: { kind: 'plate', color: '#aeb2ba' } } : {}) } as Record<string, unknown>;
+      // (the band as built: on the same body without a capelet, in the chest's frame as the band on each body is)
+      const bare = { ...rec }; for (const k of ['cloak', 'cloakTrim', 'clasps', 'hood']) delete bare[k];
+      let built: THREE.Mesh | undefined; heroFigure(bare as never, 'medium', 'rest').traverse((o) => { if (o.userData.neckband) built = o as THREE.Mesh; });
+      const a = built!.geometry.getAttribute('position'), lo = new THREE.Vector3().fromBufferAttribute(a, a.count - 2), p = new THREE.Vector3(), q = new THREE.Vector3();
+      for (const [label, extra, st] of bodies) {
+        const fig = heroFigure({ ...rec, ...extra } as never, 'medium', st), at = `${frame}${plate ? ', in plate' : ''}, ${label}`, band: THREE.Object3D[] = [], cape: THREE.Object3D[] = [];
+        fig.updateMatrixWorld(true);
+        fig.traverse((o) => { if (o.userData.neckband) band.push(o); else if ((o as THREE.Mesh).isMesh && (o.userData.garment === 'mantle' || o.userData.cloth === 'mantle') && !o.userData.hood) cape.push(o); });
+        expect(band.length, `${at}: the neckband`).toBe(1);
+        expect(cape.length, `${at}: the capelet`).toBeGreaterThan(0);
+        const ds = throughDepths(cape, band).map((x) => x.d);
+        if (ds.length) bad.push(`${at}: ${ds.length} edges through, ${Math.max(...ds).toFixed(4)} deep`);
+        const b = (band[0] as THREE.Mesh).geometry.getAttribute('position');
+        expect(b.count, at).toBe(a.count);
+        let same = 0;
+        for (let i = 0; i < a.count - 2; i++) {
+          p.fromBufferAttribute(a, i).sub(lo); q.fromBufferAttribute(b, i).sub(lo);
+          if (p.distanceTo(q) < 1e-9) { same++; continue; }
+          if (Math.hypot(q.x, q.z) > Math.hypot(p.x, p.z) || Math.abs(q.y - p.y) > 1e-6 || Math.abs(p.x * q.z - p.z * q.x) > 1e-6) bad.push(`${at}: band point ${i} stands out or aside from where it is built`);
+          if (Math.hypot(q.x, q.z) < Math.hypot(p.x, p.z) / 2 + 1e-6) bad.push(`${at}: band point ${i} drawn in as far as it goes`);
+        }
+        if (same < (a.count - 2) / 2) bad.push(`${at}: only ${same} of the band's ${a.count - 2} points stand as built`);
+        if (same < a.count - 2) drawn++;
       }
-      if (same < (a.count - 2) / 2) bad.push(`${at}: only ${same} of the band's ${a.count - 2} points stand as they do standing`);
     }
     expect(bad).toEqual([]);
-  }, 120000);
+    expect(drawn).toBeGreaterThan(bodies.length * 2); // (drawn in under the collar on most of them: it came near the band on every one)
+  }, 240000);
 
   it('draw a band in under cloth lying over part of it at any slant, and leave its far side as it stands', () => {
     // (a band 0.07 high round an oval 0.3 by 0.25, as the neckband is lofted. Over its side where it points along z: one

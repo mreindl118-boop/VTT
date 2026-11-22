@@ -3507,11 +3507,14 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
   if (laid) overDress(laid);
   // the cloth hangs on the posed body (on one laid out, the way it lies)
   if (garments.length) hangGarments(garments, drapeWorld(body, { pel, up, neck, arm, leg, gR, gL }, fr, s, P, dead, laid, headOff));
-  // (a capelet kept off the head comes down off it at the collar, its neckline drawn down over the neckband: where it
-  // lies over the band, even on the body just above it, the band is drawn in under it, no further than keeps the collar
-  // a little off it, so the collar lies over the band, never through it; where nothing lies near it, the band stands as
-  // it does on a body standing. The band only draws in, so nothing hung over it comes to lie in it)
-  if (headOff && garments.some((g) => g.name === 'mantle')) {
+  // (a capelet's collar comes down over the neckband, on a body standing, fighting or fallen, and on one fallen with the
+  // capelet kept off the head further, its neckline drawn down off the head: where it lies over the band, even on the
+  // body just above it, the band is drawn in under it, no further than keeps the collar a little off it, so the collar
+  // lies over the band, never through it. A column of the band draws in whole, top and foot alike, so where the collar's
+  // edge crosses the band, the part of a column it leaves bare draws in with the rest: beside the edge the band's top
+  // shows a small notch, as deep as a twentieth of the figure's size. Columns nothing lies near stand as they are built.
+  // The band only draws in, so nothing hung over it comes to lie in it)
+  if (garments.some((g) => g.name === 'mantle')) {
     const nb = up.children.find((c) => c.userData.neckband) as M | undefined, cape: M[] = [];
     body.traverse((o) => { const m = o as M; if (m.isMesh && (o.userData.garment === 'mantle' || o.userData.cloth === 'mantle') && !o.userData.hood && !(m.material as THREE.Material).transparent) cape.push(m); });
     if (nb) tuckUnder(nb, cape, 0.006 * s, 24);
