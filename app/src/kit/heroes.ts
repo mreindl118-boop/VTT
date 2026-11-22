@@ -4455,14 +4455,18 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
     placeLay(out, body, laid, s, own, { up, head, gR, gL, drop: dead });
     // (hair that would lie under the floor, where the head rests on it or the hair falls past it, is pressed onto it, and
     // on a body on its back, under the cloak it lies on where that lies on the floor; on its front or side the cloak lies
-    // over it, and the hair falls beside it. Either way a lock below the head then keeps out of the cloth (clearOfCloth),
-    // and so do the sheet under the locks on a front or a side (sheetsOffCloth), the curls and the braids)
+    // over it, and the hair falls beside it. The braids hang in front of the chest, over what it wears (drapeBraids): on
+    // its front the body lies on them, so they lie on the floor under what it wears, which lies 0.005 above the floor at
+    // the least (cloth.ts). Either way a lock below the head then keeps out of the cloth (clearOfCloth), and so do the
+    // sheet under the locks on a front or a side (sheetsOffCloth), the curls and the braids)
     {
       const hair: M[] = [], cloth: M[] = [];
       body.traverse((o) => { const m = o as M; if (!m.isMesh) return; if (o.userData.hair || o.userData.braid) hair.push(m); else if ((o.userData.garment || o.userData.cloth) && !(m.material as THREE.Material).transparent) cloth.push(m); });
       const press = P.lie === 'back' ? (ms: M[]) => pressUnderCloth(ms, cloth, 0.006 * s, 0.004 * s, 0.3 * s, 0.15 * s, 0.02 * s) : (ms: M[]) => pressOnFloor(ms, 0.006 * s);
-      press(hair); clearOfCloth(hair, cloth, s, 0.006 * s, P.lie === 'back' ? press : undefined); if (P.lie !== 'back') sheetsOffCloth(hair, cloth, s);
-      coilsOffCloth(head, cloth, s); braidsOffCloth(up, cloth, s, press);
+      const pressBraids = P.lie === 'front' ? (ms: M[]) => pressOnFloor(ms, 0.001 * s) : press;
+      if (P.lie === 'front') { press(hair.filter((m) => !m.userData.braid)); pressBraids(hair.filter((m) => m.userData.braid)); } else press(hair);
+      clearOfCloth(hair, cloth, s, 0.006 * s, P.lie === 'back' ? press : undefined); if (P.lie !== 'back') sheetsOffCloth(hair, cloth, s);
+      coilsOffCloth(head, cloth, s); braidsOffCloth(up, cloth, s, pressBraids);
     }
     clearOfWings(head, up, s); // (and off the wings laid on the floor beside it)
     // (a harness's pieces, and the trims of its tassets and coat skirt, laid on them once they hung)

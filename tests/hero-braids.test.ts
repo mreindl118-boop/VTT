@@ -79,4 +79,19 @@ describe('braids on an NPC in a capelet or a mantle', () => {
       expect(crossings(trisOf(braids), trisOf(cloth), 0.06 * s), `berserker@${seed} ${state}: braids through the cloth`).toBe(0);
     }
   }, 120000);
+
+  it('on a body fallen on its front lie on the floor under what the chest wears: no face of a braid passes through the cloth, and none lies under the floor', () => {
+    // (the braids hang over what the chest wears, so a body fallen on its front lies on them; pressed onto the floor a
+    // hair above the mantle lying there, they passed through it where it rose off the floor)
+    for (const seed of ['d', 'g']) {
+      const g = figureFor(BESTIARY.find((e) => e.id === 'berserker')!, 'dead', seed); g.updateMatrixWorld(true);
+      const s = g.getObjectByName('neck')!.position.y / 2.24, all: THREE.Mesh[] = []; g.traverse((o) => { if ((o as THREE.Mesh).isMesh) all.push(o as THREE.Mesh); });
+      expect(new THREE.Vector3(0, 0, 1).transformDirection(g.getObjectByName('chest')!.matrixWorld).y, `berserker@${seed}: fallen on its front`).toBeLessThan(-0.5);
+      const braids = all.filter(braidOf), cloth = all.filter((m) => (m.userData.garment || m.userData.cloth) && !(m.material as THREE.Material).transparent);
+      expect(braids.length, `berserker@${seed}`).toBeGreaterThan(10);
+      expect(crossings(trisOf(braids), trisOf(cloth), 0.06 * s), `berserker@${seed}: braids through the cloth`).toBe(0);
+      const low = trisOf(braids).flat().reduce((y, p) => Math.min(y, p.y), Infinity);
+      expect(low, `berserker@${seed}: the braids' lowest point`).toBeGreaterThan(-0.001);
+    }
+  }, 120000);
 });
