@@ -6418,11 +6418,15 @@ function clearOfCloth(ms: M[], cloth: M[], s: number, floor: number, press?: (ms
     const O = ks.map((k) => C[k]); if (tip) O.push(tip);
     let best: THREE.BufferGeometry | undefined, least = hits(m, m.geometry, 0) + fat(O), free = m.userData.free as number, bestLine: THREE.Vector3[] = [];
     if (!least) continue;
+    // (a hairdo's own hair is never cut short by the walk, nor drawn out: a walk that ends its line before its end, or
+    // makes it longer or shorter by a tenth, is not taken)
+    const arc = (l: THREE.Vector3[]) => { let a = 0; for (let i = 1; i < l.length; i++) a += l[i].distanceTo(l[i - 1]); return a; }, arc0 = arc(ks.map((k) => C[k]));
     for (const room of [gap, 2.5 * gap, 5 * gap]) {
       const [E, F] = walkOut(O, (i) => (i < ks.length ? thick[i] : tipR) + room, faces, s, floor); let h = Infinity;
       for (const walked of E.every((p, i) => p.equals(F[i])) ? [F] : [E, F]) {
         // (the braid ends where it ended, short of the charm's point)
         const line = tip && walked.length === O.length ? walked.slice(0, -1) : walked;
+        if (m.userData.hair === 'do' && (line.length < ks.length || Math.abs(arc(line) - arc0) > 0.1 * arc0)) continue;
         const Q: THREE.Vector3[] = []; for (let k = 0; k < kF; k += 4) Q.push(C[k].clone().applyMatrix4(inv));
         for (const p of line) Q.push(p.clone().applyMatrix4(inv));
         const g = L.build(Q), f = freeFrom(Q, Q[Math.ceil(kF / 4)]); h = hits(m, g, 0) + fat(walked); const below = hits(m, g, fromHead(m, g, f));

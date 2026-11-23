@@ -373,7 +373,7 @@ describe('long hair on an NPC standing in a capelet or a hood', () => {
   }, 180000);
 });
 
-describe('a hairdo\'s own hair hanging from the head, on an NPC standing in a cloak', () => {
+describe('a hairdo\'s own hair hanging from the head, on an NPC in a cloak', () => {
   // (Baba Lysaga's braids hung with bones, Morgantha's wild ropes and Rahadin's swept length are combed straight down from
   // where they leave the scalp: they went through the mantle, the hood folded at the nape and the cloak, and walked out
   // of them from the head instead, a braid deep in the mantle bunched up at the neck. They hang again over what the body
@@ -408,6 +408,18 @@ describe('a hairdo\'s own hair hanging from the head, on an NPC standing in a cl
       const now = hanging(posed(entry(id), st)), was = hanging(posed(bare(entry(id)), st));
       expect(now.length, `${id} ${st}`).toBe(was.length);
       now.forEach((m, i) => { const a = lengthOf(m), b = lengthOf(was[i]); expect(a, `${id} ${st}: piece ${i} is ${a.toFixed(3)} long, combed ${b.toFixed(3)}`).toBeGreaterThan(0.9 * b); expect(a, `${id} ${st}: piece ${i}`).toBeLessThan(1.1 * b); });
+    }
+  }, 180000);
+
+  it('keeps its length on a body fallen on its face or on a side, where a walk out of the cloth would cut it short', () => {
+    // (fallen on her face, Baba Lysaga's braids run into the mantle and the cloak over her back: walked out of them from
+    // the head, two were cut short where they met them, one to nothing. A walk that ends a hairdo's own hair short of its
+    // end, or draws it out, is not taken: clearOfCloth)
+    const fallen = (e: (typeof BESTIARY)[number]) => { const g = figureFor(e, 'dead', ''); g.updateMatrixWorld(true); return g; };
+    for (const id of ['baba-lysaga', 'rahadin']) {
+      const now = hanging(fallen(entry(id))), was = hanging(fallen(bare(entry(id))));
+      expect(now.length, id).toBe(was.length);
+      now.forEach((m, i) => { const a = lengthOf(m), b = lengthOf(was[i]); expect(a, `${id} fallen: piece ${i} is ${a.toFixed(3)} long, combed ${b.toFixed(3)}`).toBeGreaterThan(0.9 * b); expect(a, `${id} fallen: piece ${i}`).toBeLessThan(1.1 * b); });
     }
   }, 180000);
 
