@@ -1015,8 +1015,8 @@ function fewer(pts: THREE.Vector3[], tol: number): THREE.Vector3[] {
  *  fall in front of the shoulders to the collarbone and lie on what the chest wears there, cast from behind. Built in
  *  the chest's frame, so the hair falls along the body however the head is turned, and its tops still meet the head.
  *  Without long hair, what of a hairdo's own hair hangs from the head through what the body wears (`cloth`) is hung
- *  again over it the same way (below). */
-function drapeLong(up: THREE.Object3D, neck: THREE.Object3D, head: THREE.Object3D, s: number, cloth: M[] = []): void {
+ *  again over it the same way (below). `also`: more for the hair to lie on, wherever on the body it hangs (hairOver). */
+function drapeLong(up: THREE.Object3D, neck: THREE.Object3D, head: THREE.Object3D, s: number, cloth: M[] = [], also: M[] = []): void {
   const L = head.userData.long as LongHair | undefined; if (!L && !cloth.length) return;
   up.updateWorldMatrix(true, true);
   // (without long hair, a hairdo's own hair that hangs from the head and passes through what the body wears: below)
@@ -1039,7 +1039,7 @@ function drapeLong(up: THREE.Object3D, neck: THREE.Object3D, head: THREE.Object3
   const bx = (x: number) => Math.min(NX - 1, Math.max(0, Math.floor((x + 1.2 * s) / XB)));
   const toUpM = new THREE.Matrix4().copy(up.matrixWorld).invert(), m4 = new THREE.Matrix4(), v = new THREE.Vector3();
   const { hang, centre: hc } = headWear(head, s); // (what hangs from the head beside the hair, an earring: below)
-  for (const m of hairRests([up, neck], head, s)) {
+  for (const m of new Set([...hairRests([up, neck], head, s), ...also])) {
     const g = m.geometry, pos = g.getAttribute('position') as THREE.BufferAttribute, idx = g.index, P = new Float32Array(pos.count * 3);
     m4.multiplyMatrices(toUpM, m.matrixWorld);
     for (let i = 0; i < pos.count; i++) { v.fromBufferAttribute(pos, i).applyMatrix4(m4); P[i * 3] = v.x; P[i * 3 + 1] = v.y; P[i * 3 + 2] = v.z; }
@@ -1311,6 +1311,20 @@ function freeFrom(Q: THREE.Vector3[], B: THREE.Vector3): number {
   let k = 0, best = Infinity; Q.forEach((p, i) => { const d = p.distanceToSquared(B); if (d < best) { best = d; k = i; } });
   let to = 0, all = 0; for (let i = 1; i < Q.length; i++) { const d = Q[i].distanceTo(Q[i - 1]); all += d; if (i <= k) to += d; }
   return all > 0 ? to / all : 0;
+}
+/** What is put on a figure once it is built (kit/costume.ts: a doublet's tall collar, the fur heaped on its shoulder,
+ *  its cloak) stood where its hairdo's own hair hangs from the head: that hair hangs again over it as over what the
+ *  body wears (drapeLong, `worn` to lie on as well, wherever on the body it hangs), and what of it still passes through
+ *  is kept out of it below the head (clearOfCloth). Built on a body standing or fighting: long hair hangs over what the
+ *  chest and the neck carry when it is draped, so this is for a hairdo's own hair, and a figure with long hair is left
+ *  as it is. */
+export function hairOver(g: THREE.Object3D, worn: THREE.Mesh[]): void {
+  const j = (g.userData.joints ?? {}) as Record<string, THREE.Object3D>, up = j.chest, neck = j.neck, head = j.head;
+  if (!up || !neck || !head || head.userData.long || !worn.length) return;
+  const s = neck.position.y / 2.24;
+  g.updateMatrixWorld(true); drapeLong(up, neck, head, s, worn, worn);
+  const hair: M[] = []; head.traverse((o) => { if ((o as M).isMesh && o.userData.hair) hair.push(o as M); });
+  g.updateMatrixWorld(true); clearOfCloth(hair, worn, s, 0.006 * s);
 }
 /** Curls kept off the wings once the figure is posed: a coil of curly hair that would pass through or touch a wing's
  *  membrane (an insect's wings, or spirit wings) is left out. The hair's cap under the coils still covers the scalp, so

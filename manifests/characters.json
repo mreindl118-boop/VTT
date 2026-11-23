@@ -912,6 +912,7 @@
     },
     "pose": "wide stoop R:staff L:claw eyes:glare",
     "battlePose": "curse",
+    "deadPose": "comic-broad",
     "frame": "feminine",
     "hairdo": {
      "style": "voodoo",

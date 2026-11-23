@@ -94,6 +94,10 @@ export const DEAD_POSES = {
   curled: { lie: 'side', spine: [0.55, 0, 0], neck: [0.35, 0, 0], shoulderR: [-0.97, 0, -0.3], elbowR: -1.6, shoulderL: [-0.98, 0, -0.3], elbowL: -1.5, hipR: [-1.2, 0, 0], kneeR: 1.57, hipL: [-0.9, 0, 0], kneeL: 1.4 },
   /** Face-planted with the rump in the air, the knees splayed (clear of a full belly or bust), the arms trailing behind. */
   comic: { lie: 'front', spine: [0.4, 0, 0], neck: [-0.5, 0.6, 0], shoulderR: [0.9, 0, 0.5], elbowR: -0.2, shoulderL: [0.8, 0, 0.6], elbowL: -0.3, hipR: [-1.9, 0, 0.6], kneeR: 1.57, hipL: [-1.77, 0, 0.55], kneeL: 1.57 },
+  /** The comic fall for a broad body: face-planted with the rump in the air, the arms trailing behind, the knees splayed
+   *  further than in the comic fall, so the thighs drawn up under a broad belly and hips pass beside them rather than
+   *  into them. */
+  'comic-broad': { lie: 'front', spine: [0.4, 0, 0], neck: [-0.5, 0.6, 0], shoulderR: [0.9, 0, 0.5], elbowR: -0.2, shoulderL: [0.8, 0, 0.6], elbowL: -0.3, hipR: [-1.9, 0, 0.8], kneeR: 1.57, hipL: [-1.77, 0, 0.75], kneeL: 1.57 },
   /** The classic: crumpled on its side in a heap, knees drawn up, one arm folded under, the other flopped out, the face in the dirt. */
   crumpled: { lie: 'side', spine: [0.35, 0.3, 0.15], neck: [0.2, 0.6, 0.2], shoulderR: [-0.7, 0, 0.3], elbowR: -1.7, wristR: [0.6, 0, 0], shoulderL: [-1.5, 0, 0.6], elbowL: -0.5, wristL: [0.8, 0, 0], hipR: [-0.9, 0, 0.1], kneeR: 1.5, hipL: [-0.45, 0, 0.25], kneeL: 1.0, ankleL: [0.5, 0, 0] },
   /** On the back with the back of one hand to the brow: a swoon held a little too long. */

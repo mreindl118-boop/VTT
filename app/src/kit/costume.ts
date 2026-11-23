@@ -8,7 +8,7 @@
 // masculine frame (a feminine frame's bust is not carried). Original geometry; no book art.
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
-import { frameFor, SIDE_X, type HeroFigure } from './heroes';
+import { frameFor, hairOver, SIDE_X, type HeroFigure } from './heroes';
 import { hangGarments, pointsOf, type DrapeWorld } from './cloth';
 import { THIGH, clipRings, forearmRings, loftGeometry, neckRings, pelvisRings, ringAt, ringPoint, shinRings, thighRings, torsoRings, upperArmRings, type Frame, type Ring } from './anatomy';
 import { ell, mirrorX, nets, seg, smax, smin, type Sdf } from './sdf';
@@ -226,6 +226,7 @@ function pushOut(P: V3[][], solids: Capsule[], gap: number): void {
 export function doublet(g: THREE.Group, recipe: HeroFigure, o: Doublet): THREE.Group {
   const j = (g.userData.joints ?? {}) as Joints, up = j.chest, pel = j.hips, neck = j.neck; if (!up || !pel || !neck) return g;
   g.updateMatrixWorld(true);
+  const had = new Set<THREE.Object3D>(); g.traverse((c) => had.add(c)); // (what the figure was built with: below)
   const s = neck.position.y / 2.24, fr = frameFor(recipe), tr = torsoRings(fr), b = bonesOf(j); if (!b) return g;
   const lying = Math.abs(V(0, 1, 0).transformDirection(up.matrixWorld).y) < 0.5;
   const placketC = o.placket, frogC = o.frogs ?? '#c8ccd4', front = o.skirts?.front ?? recipe.cloth ?? '#6a1a22';
@@ -253,13 +254,14 @@ export function doublet(g: THREE.Group, recipe: HeroFigure, o: Doublet): THREE.G
   };
   if (o.frogs) up.add(meshOf([1.9, 1.56, 1.22].flatMap((y) => frog((x, yy, out) => onChest(fr, tr, x, yy, out), y)), soft(frogC)));
 
-  // the collar: a tall band round the neck, open at the throat in a V that widens to the top, lower in front than behind,
-  // flaring a little; outside in its colour, its lining and edge darker. On the neck, so it turns with the head.
+  // the collar: a tall band round the neck, open at the throat in a V that widens to the top, a little lower in front than
+  // behind, flaring a little; outside in its colour, its lining and edge darker. On the neck, so it turns with the head.
+  // Behind, it stands no higher than under where the hair leaves the head, so what hangs from there falls over it (below)
   if (o.collar) {
     const nr = neckRings(fr), n0 = ringAt(nr, 0.08), t0 = ringAt(tr, 2.1), edgeC = o.collar.edge ?? tone(o.collar.color, '#000000', 0.5);
     const CR: Ring[] = [{ ...t0, y: -0.14, w: t0.w * 0.95, f: t0.f * 0.95, b: t0.b * 0.95, z: 0 }, { y: -0.03, w: n0.w * 1.85, f: n0.f * 1.3 + 0.02, b: n0.b * 1.32, z: -0.01 },
       { y: 0.1, w: n0.w * 1.5, f: n0.f * 1.35, b: n0.b * 1.34, z: -0.02 }, { y: 0.26, w: n0.w * 1.45, f: n0.f * 1.4, b: n0.b * 1.4, z: -0.025 }, { y: 0.42, w: n0.w * 1.5, f: n0.f * 1.45, b: n0.b * 1.46, z: -0.03 }];
-    const top = (th: number) => 0.22 + 0.1 * (1 - Math.cos(th)) / 2, gap = (v: number) => 0.1 + 0.28 * v * v, NU = 64, NV = 12;
+    const top = (th: number) => 0.19 + 0.01 * (1 - Math.cos(th)) / 2, gap = (v: number) => 0.1 + 0.28 * v * v, NU = 64, NV = 12;
     const pt = (u: number, v: number, k: number) => { const th = gap(v) + u * (Math.PI * 2 - 2 * gap(v)), y = -0.14 + v * (top(th) + 0.14), [x, z] = ringPoint(ringAt(CR, y), th, k); return V(x * s, y * s, z * s); };
     const sheet = (k: number) => Array.from({ length: NV + 1 }, (_, jj) => Array.from({ length: NU + 1 }, (_, i) => pt(i / NU, 1 - jj / NV, k)));
     neck.add(new THREE.Mesh(grid(sheet(1)), soft(o.collar.color)), new THREE.Mesh(grid(sheet(0.93), true), soft(edgeC)));
@@ -489,6 +491,11 @@ export function doublet(g: THREE.Group, recipe: HeroFigure, o: Doublet): THREE.G
       armLocks.forEach((geos, k) => { if (geos.length) furA.add(meshOf(geos, soft(tones[k], true))); });
     }
   }
+  // (what the doublet put on is known as its own, `dress`. Put on once the figure was built, its collar, fur and cloak
+  // stood in the hair hanging from the head behind: standing or fighting, the hair hangs again over them, heroes.ts
+  // hairOver)
+  const worn: THREE.Mesh[] = []; g.traverse((c) => { const m = c as THREE.Mesh; if (!m.isMesh || had.has(c)) return; c.userData.dress = 'doublet'; if (!(m.material as THREE.Material).transparent) worn.push(m); });
+  if (!lying) hairOver(g, worn);
   return g;
 }
 

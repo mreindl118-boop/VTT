@@ -373,6 +373,21 @@ describe('long hair on an NPC standing in a capelet or a hood', () => {
   }, 180000);
 });
 
+describe('a hairdo\'s own hair over what is put on once the figure is built', () => {
+  it('hangs over Strahd\'s doublet in every form that wears it, standing or fighting: none of his hair passes through its collar, its fur or its cloak', () => {
+    // (the doublet, kit/costume.ts, is put on once his figure is built and its hair hung: his swept hair ran through the
+    // tall collar standing up behind his neck, the fur heaped on his shoulder and the cloak, 792 faces at rest. It hangs
+    // again over them, hairOver, and the collar stands no higher behind than under where the hair leaves his head)
+    for (const id of ['strahd-von-zarovich', 'strahd-blade-drawn', 'strahd-mounted', 'strahd-mounted-charging', 'wintersplinter']) for (const st of ['rest', 'battle'] as const) {
+      const g = figureFor(BESTIARY.find((x) => x.id === id)!, st === 'battle', ''); g.updateMatrixWorld(true);
+      const s = scaleOf(g), all = meshes(g), dress = all.filter((m) => m.userData.dress === 'doublet' && !(m.material as THREE.Material).transparent);
+      expect(dress.length, `${id} ${st}`).toBeGreaterThan(10);
+      expect(all.filter((m) => m.userData.hair === 'do' && m.userData.free !== undefined).length, `${id} ${st}`).toBeGreaterThan(10);
+      expect(crossings(trisOf(all.filter(isHair)), trisOf(dress), 0.06 * s), `${id} ${st}: hair through the doublet`).toBe(0);
+    }
+  }, 300000);
+});
+
 describe('a hairdo\'s own hair hanging from the head, on an NPC in a cloak', () => {
   // (Baba Lysaga's braids hung with bones, Morgantha's wild ropes and Rahadin's swept length are combed straight down from
   // where they leave the scalp: they went through the mantle, the hood folded at the nape and the cloak, and walked out
@@ -421,6 +436,23 @@ describe('a hairdo\'s own hair hanging from the head, on an NPC in a cloak', () 
       expect(now.length, id).toBe(was.length);
       now.forEach((m, i) => { const a = lengthOf(m), b = lengthOf(was[i]); expect(a, `${id} fallen: piece ${i} is ${a.toFixed(3)} long, combed ${b.toFixed(3)}`).toBeGreaterThan(0.9 * b); expect(a, `${id} fallen: piece ${i}`).toBeLessThan(1.1 * b); });
     }
+  }, 180000);
+
+  it('lies clear of what she wears and of her own body once Baba Lysaga has fallen: face-planted, her arms trailing behind', () => {
+    // (the fall her token's seed gave her, face down with her right arm reaching on past her head, laid that arm through
+    // the spire of her hair and a braid, and her braids with their bones and charms through her chest, her mantle and her
+    // cloak: 322 faces in all. She falls face-planted instead, her arms behind her and her knees splayed wide round her
+    // broad belly and hips (kit/poses.ts 'comic-broad'). Her body here is all of it below the neck, which rises into her
+    // head under the hair as every neck does)
+    const g = figureFor(entry('baba-lysaga'), 'dead', ''); g.updateMatrixWorld(true);
+    const s = scaleOf(g), all = meshes(g), hair = all.filter(isHair), op = (m: M) => !(m.material as THREE.Material).transparent, neck = g.getObjectByName('neck')!;
+    const within = (o: THREE.Object3D | null) => { while (o) { if (o === neck) return true; o = o.parent; } return false; };
+    const cloth = all.filter((m) => (m.userData.garment || m.userData.cloth) && op(m)), body = all.filter((m) => !isHair(m) && !m.userData.garment && !m.userData.cloth && op(m) && !within(m));
+    const arms = body.filter((m) => { let o: THREE.Object3D | null = m; while (o && !/^collar/.test(o.name)) o = o.parent; return !!o; });
+    expect(hanging(g).length).toBeGreaterThan(5);
+    expect(arms.length).toBeGreaterThan(4);
+    expect(crossings(trisOf(hair), trisOf(cloth), 0.06 * s), 'hair through the cloth').toBe(0);
+    expect(crossings(trisOf(hair), trisOf(body), 0.06 * s), 'hair through the body').toBe(0);
   }, 180000);
 
   it('takes what is bound on a braid with it: each band, bone and charm sits on its braid as it was bound', () => {
