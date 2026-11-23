@@ -2302,59 +2302,178 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
           const k = cap(0.015 * s, 0.12 * s, tone(f.clasps, '#000000', 0.4)); k.quaternion.copy(d.quaternion); const q = p.clone().addScaledVector(n, 0.03 * s); up.add(at(k, q.x, q.y, q.z));
         }
         if (f.hood) {
-          const p = clothPoint(G, 0.5, 0.2, 0.12 * s), h = sph(0.5 * s, f.cloak!, 16, 10); h.scale.set(1, 0.5, 0.75); h.userData.hood = true; up.add(at(h, p.x, p.y + 0.05 * s, p.z));
+          const p = clothPoint(G, 0.5, HOOD_AT, 0.12 * s), h = sph(0.5 * s, f.cloak!, 16, 10); h.scale.set(1, 0.5, 0.75); h.userData.hood = true; up.add(at(h, p.x, p.y + 0.05 * s, p.z));
+          const HP = h.geometry.getAttribute('position') as THREE.BufferAttribute;
+          // (the hood kept out of the head with the hair on it, `off` (headRoom), never flatter than `least` of itself
+          // where squashed; `down` and `floor` as keepOut takes them; and, `fits` given, only so far as the hood so
+          // given way still fits it (its sphere carried into the world by the matrix it is given). Whether it moved)
+          const keepOff = (off: NonNullable<ReturnType<typeof headRoom>>, least: number, down: THREE.Vector3, floor: number, fits?: (m: THREE.Matrix4) => boolean, from?: THREE.Matrix4, thin = 1) => {
+            const toWorld = up.matrixWorld.clone().multiply(h.matrix), toHood = toWorld.clone().invert(), A = Float64Array.from(HP.array as ArrayLike<number>), first = A.slice();
+            // (the hood as it has given way so far, its sphere carried into the world (`from` it, where it was already
+            // drawn out of shape before, to `thin` of itself at the least): squashed and moved whole, it is still one;
+            // and whether `fits` has held it back)
+            const F = toWorld.clone(), S = new THREE.Matrix4(); let held = false;
+            if (from) F.multiply(from);
+            // (where the head lies deep in the hood, the hood first gives way before it whole, squashed toward its
+            // far side, away from the head, as far as brings its deepest point out to the head's room, never flatter
+            // than a third of itself, so that it keeps its round, where put out of it point by point alone, its side
+            // in the head folded over sharply. The head being round, a point squashed so can be left a little in that
+            // room: the hood is squashed again for it, a few times at the most, and all told, with what it was drawn
+            // flatter by before, never flatter than that third)
+            {
+              const W: THREE.Vector3[] = [], D: number[] = [], O: THREE.Vector3[] = [], o = new THREE.Vector3(), u = new THREE.Vector3(), c = new THREE.Vector3(), v = new THREE.Vector3();
+              for (let it = 0, flat = thin; it < 4; it++) {
+                W.length = 0; D.length = 0; O.length = 0; u.set(0, 0, 0); c.set(0, 0, 0);
+                for (let i = 0; i < A.length / 3; i++) { const w = new THREE.Vector3(A[i * 3], A[i * 3 + 1], A[i * 3 + 2]).applyMatrix4(toWorld), d = off.depth(w, o) + 0.015 * s; W.push(w); c.add(w); D.push(d); O.push(o.clone()); if (d > 0) u.addScaledVector(o, d); }
+                if (u.lengthSq() <= 1e-12) break;
+                u.normalize(); c.divideScalar(W.length);
+                let far = -Infinity; for (const w of W) far = Math.max(far, v.subVectors(w, c).dot(u));
+                let k = 1; for (let i = 0; i < W.length; i++) { const along = O[i].dot(u), room = far - v.subVectors(W[i], c).dot(u); if (D[i] > 0 && along > 0.2 && room > 1e-6) k = Math.min(k, 1 - D[i] / (along * room)); }
+                k = Math.max(least / flat, k);
+                if (k >= 1) break;
+                if (fits) {
+                  // (squashed by `k`, each point drawn along u toward the far side; no further than still fits)
+                  const e = far + u.dot(c), squash = (k: number) => S.set(1 - (1 - k) * u.x * u.x, -(1 - k) * u.x * u.y, -(1 - k) * u.x * u.z, (1 - k) * e * u.x, -(1 - k) * u.y * u.x, 1 - (1 - k) * u.y * u.y, -(1 - k) * u.y * u.z, (1 - k) * e * u.y, -(1 - k) * u.z * u.x, -(1 - k) * u.z * u.y, 1 - (1 - k) * u.z * u.z, (1 - k) * e * u.z, 0, 0, 0, 1).multiply(F);
+                  if (!fits(squash(k))) { let a = k, b = 1; for (let n = 0; n < 8; n++) { const m = (a + b) / 2; if (fits(squash(m))) b = m; else a = m; } k = b; held = true; if (k >= 1) break; }
+                  F.copy(squash(k));
+                }
+                for (let i = 0; i < W.length; i++) { W[i].addScaledVector(u, (1 - k) * (far - v.subVectors(W[i], c).dot(u))).applyMatrix4(toHood); A[i * 3] = W[i].x; A[i * 3 + 1] = W[i].y; A[i * 3 + 2] = W[i].z; }
+                flat *= k;
+                if (held) break;
+              }
+            }
+            // (where the head lies deeper in the hood than that takes it out of, the hood is then moved out of the
+            // head's room whole, as far as the point of it with the farthest to go is put out of it, a few times at
+            // the most: put out point by point, its side in the head was pushed out through its other side, the two
+            // folded over each other)
+            {
+              const B = new Float64Array(A.length), w = new THREE.Vector3(), t = new THREE.Vector3(), move = new THREE.Vector3();
+              for (let it = 0; it < 4; it++) {
+                B.set(A); keepOut(B, [off.depth], toWorld, toHood, down, floor, 0.03 * s);
+                let most = (1e-4 * s) ** 2; move.set(0, 0, 0);
+                for (let i = 0; i < A.length / 3; i++) { w.set(A[i * 3], A[i * 3 + 1], A[i * 3 + 2]).applyMatrix4(toWorld); t.set(B[i * 3], B[i * 3 + 1], B[i * 3 + 2]).applyMatrix4(toWorld).sub(w); if (t.lengthSq() > most) { most = t.lengthSq(); move.copy(t); } }
+                if (move.lengthSq() === 0) break; // (nothing in that room but by a hair, which the next step takes)
+                if (fits) {
+                  // (no further than still fits)
+                  const shift = (k: number) => S.makeTranslation(move.x * k, move.y * k, move.z * k).multiply(F);
+                  if (!fits(shift(1))) { let a = 0, b = 1; for (let n = 0; n < 8; n++) { const m = (a + b) / 2; if (fits(shift(m))) a = m; else b = m; } move.multiplyScalar(a); held = true; }
+                  if (move.lengthSq() === 0) break; // (held where it lies, left as it is)
+                  F.copy(shift(1));
+                }
+                for (let i = 0; i < A.length / 3; i++) { w.set(A[i * 3], A[i * 3 + 1], A[i * 3 + 2]).applyMatrix4(toWorld).add(move).applyMatrix4(toHood); A[i * 3] = w.x; A[i * 3 + 1] = w.y; A[i * 3 + 2] = w.z; }
+                if (held) break;
+              }
+            }
+            // (and what may still be left in that room, should moving it whole a few times not have taken it all out,
+            // is put out of it point by point; not where it was held back, when what is left may be deep: put out point
+            // by point, its side in the head is pushed out through its other side)
+            if (!held) keepOut(A, [off.depth], toWorld, toHood, down, floor, 0.03 * s);
+            let moved = false;
+            for (let i = 0; i < HP.count; i++) if (A[i * 3] !== first[i * 3] || A[i * 3 + 1] !== first[i * 3 + 1] || A[i * 3 + 2] !== first[i * 3 + 2]) { HP.setXYZ(i, A[i * 3], A[i * 3 + 1], A[i * 3 + 2]); moved = true; }
+            return moved;
+          };
           if (laid) {
             // (on a body laid out the hood lies on the floor: what of it would pass into the floor lies flat on it, as
             // high over it as hair lying under it needs, so that on a body laid on its back the hood lies over the hair
             // there as the rest of the cloth does; on one laid on its side or face down it keeps out of the head with
             // the hair on it, as the cloth it is laid on does, along the floor where it lies between the two)
-            const F = floorUnder(up), HP = h.geometry.getAttribute('position') as THREE.BufferAttribute, q = new THREE.Vector3(); h.updateMatrix(); const inv = h.matrix.clone().invert(); let moved = false;
-            if (headOff) {
-              const toWorld = up.matrixWorld.clone().multiply(h.matrix), toHood = toWorld.clone().invert(), A = Float64Array.from(HP.array as ArrayLike<number>), first = A.slice();
-              // (where the head lies deep in the hood, the hood first gives way before it whole, squashed toward its
-              // far side, away from the head, as far as brings its deepest point out to the head's room, never flatter
-              // than a third of itself, so that it keeps its round, where put out of it point by point alone, its side
-              // in the head folded over sharply. The head being round, a point squashed so can be left a little in that
-              // room: the hood is squashed again for it, a few times at the most, and all told never flatter than that
-              // third)
-              {
-                const W: THREE.Vector3[] = [], D: number[] = [], O: THREE.Vector3[] = [], o = new THREE.Vector3(), u = new THREE.Vector3(), c = new THREE.Vector3(), v = new THREE.Vector3();
-                for (let it = 0, flat = 1; it < 4; it++) {
-                  W.length = 0; D.length = 0; O.length = 0; u.set(0, 0, 0); c.set(0, 0, 0);
-                  for (let i = 0; i < A.length / 3; i++) { const w = new THREE.Vector3(A[i * 3], A[i * 3 + 1], A[i * 3 + 2]).applyMatrix4(toWorld), d = headOff.depth(w, o) + 0.015 * s; W.push(w); c.add(w); D.push(d); O.push(o.clone()); if (d > 0) u.addScaledVector(o, d); }
-                  if (u.lengthSq() <= 1e-12) break;
-                  u.normalize(); c.divideScalar(W.length);
-                  let far = -Infinity; for (const w of W) far = Math.max(far, v.subVectors(w, c).dot(u));
-                  let k = 1; for (let i = 0; i < W.length; i++) { const along = O[i].dot(u), room = far - v.subVectors(W[i], c).dot(u); if (D[i] > 0 && along > 0.2 && room > 1e-6) k = Math.min(k, 1 - D[i] / (along * room)); }
-                  k = Math.max(1 / 3 / flat, k);
-                  if (k >= 1) break;
-                  for (let i = 0; i < W.length; i++) { W[i].addScaledVector(u, (1 - k) * (far - v.subVectors(W[i], c).dot(u))).applyMatrix4(toHood); A[i * 3] = W[i].x; A[i * 3 + 1] = W[i].y; A[i * 3 + 2] = W[i].z; }
-                  flat *= k;
-                }
-              }
-              // (where the head lies deeper in the hood than that takes it out of, the hood is then moved out of the
-              // head's room whole, as far as the point of it with the farthest to go is put out of it, a few times at
-              // the most: put out point by point, its side in the head was pushed out through its other side, the two
-              // folded over each other)
-              {
-                const B = new Float64Array(A.length), w = new THREE.Vector3(), t = new THREE.Vector3(), move = new THREE.Vector3();
-                for (let it = 0; it < 4; it++) {
-                  B.set(A); keepOut(B, [headOff.depth], toWorld, toHood, F.n.clone().negate(), laid.lift - laid.low - 0.016 * s, 0.03 * s);
-                  let most = (1e-4 * s) ** 2; move.set(0, 0, 0);
-                  for (let i = 0; i < A.length / 3; i++) { w.set(A[i * 3], A[i * 3 + 1], A[i * 3 + 2]).applyMatrix4(toWorld); t.set(B[i * 3], B[i * 3 + 1], B[i * 3 + 2]).applyMatrix4(toWorld).sub(w); if (t.lengthSq() > most) { most = t.lengthSq(); move.copy(t); } }
-                  if (move.lengthSq() === 0) break; // (nothing in that room but by a hair, which the next step takes)
-                  for (let i = 0; i < A.length / 3; i++) { w.set(A[i * 3], A[i * 3 + 1], A[i * 3 + 2]).applyMatrix4(toWorld).add(move).applyMatrix4(toHood); A[i * 3] = w.x; A[i * 3 + 1] = w.y; A[i * 3 + 2] = w.z; }
-                }
-              }
-              // (and what may still be left in that room, should moving it whole a few times not have taken it all out,
-              // is put out of it point by point)
-              keepOut(A, [headOff.depth], toWorld, toHood, F.n.clone().negate(), laid.lift - laid.low - 0.016 * s, 0.03 * s);
-              for (let i = 0; i < HP.count; i++) if (A[i * 3] !== first[i * 3] || A[i * 3 + 1] !== first[i * 3 + 1] || A[i * 3 + 2] !== first[i * 3 + 2]) { HP.setXYZ(i, A[i * 3], A[i * 3 + 1], A[i * 3 + 2]); moved = true; }
-            }
+            const F = floorUnder(up), q = new THREE.Vector3(); h.updateMatrix(); const inv = h.matrix.clone().invert(); let moved = false;
+            if (headOff) moved = keepOff(headOff, 1 / 3, F.n.clone().negate(), laid.lift - laid.low - 0.016 * s);
             for (let i = 0; i < HP.count; i++) { q.fromBufferAttribute(HP, i).applyMatrix4(h.matrix); const d = 0.016 * s - F.height(q); if (d > 0) { q.addScaledVector(F.rise, d).applyMatrix4(inv); HP.setXYZ(i, q.x, q.y, q.z); moved = true; } }
             // (its normals found again across faces that meet gently only: what lies flat on the floor and what folds over
             // onto it are each shaded as it faces, and the sphere's seam closes)
             if (moved) { HP.needsUpdate = true; h.geometry = toCreasedNormals(h.geometry, Math.PI / 3); h.geometry.computeBoundingSphere(); h.geometry.computeBoundingBox(); }
+          } else {
+            // (on a body standing or fighting the hood rests on the capelet behind the neck, under the back of the head:
+            // where the head with the hair on it would come down into it there (a short neck, a head bowed back, long
+            // locks lying out from the scalp, where the head knows them), it rests further down the capelet's back, the
+            // least way down that keeps it out of the head's room (headRoom), a little gap kept, and never more than
+            // HOOD_LOWEST of the way to the hem; tipped as the capelet steepens under it, so it lies on the cloth there
+            // as it does where it was built to rest, and drawn up out of the cloak under the capelet where it would sink
+            // into it. It slides no further down than the back falls away under it (never up a capelet raised over a
+            // weapon stowed under it), nor than keeps it a little off what is worn on the back (gear stowed or slung
+            // there, wings), or no nearer that than it lay where it was built to rest. What of that room it would still
+            // lie in where it rests it gives way to as on a body laid on its side, squashed away from the head (all
+            // told, with what it was drawn up out of the cloak by, no flatter than a third of itself) and then moved out
+            // of its way, but no nearer what is worn on the back, and no further into the cloak than to touch it (or
+            // than it lay where it was built to rest))
+            const room = headRoom(head, f.skin ?? '#d9b899', s);
+            if (room) {
+              const w = new THREE.Vector3(), o = new THREE.Vector3(), lift = new THREE.Vector3();
+              // (the way down the capelet's back at `t`, seen from the side)
+              const along = (t: number, out = new THREE.Vector3()) => { out.copy(clothPoint(G, 0.5, Math.min(1, t + 0.05))).sub(clothPoint(G, 0.5, Math.max(0, t - 0.05))); out.x = 0; return out.lengthSq() > 1e-12 ? out.normalize() : out.set(0, -1, 0); };
+              const d0 = along(HOOD_AT), d = new THREE.Vector3();
+              const place = (t: number) => { const q = clothPoint(G, 0.5, t, 0.12 * s); h.quaternion.setFromUnitVectors(d0, along(t, d)); h.position.copy(q).add(lift.set(0, 0.05 * s, 0).applyQuaternion(h.quaternion)); h.updateMatrix(); };
+              // (the hood resting `t` of the way down, its sphere carried into the frame it rests in)
+              const M = new THREE.Matrix4();
+              let shape = (t: number) => (place(t), M.copy(h.matrix));
+              // (how deep in the head's room the deepest point of the hood lies, the hood resting `t` of the way down)
+              const deep = (t: number) => { const m = up.matrixWorld.clone().multiply(shape(t)); let most = -Infinity; for (let i = 0; i < HP.count; i++) most = Math.max(most, room.depth(w.fromBufferAttribute(HP, i).applyMatrix4(m), o) + 0.015 * s); return most; };
+              let fits: ((m: THREE.Matrix4) => boolean) | undefined, flat: THREE.Matrix4 | undefined, flatK = 1;
+              if (deep(HOOD_AT) > 0) {
+                // (what is worn on the back, and the cloak under the capelet: their faces in the frame the hood rests in,
+                // each with the ball round it; how far into the hood the deepest of them comes, of the way in from its
+                // skin to its middle (its sphere carried into that frame by `m`, its middle at `mid`); and how far each
+                // may come: what is worn on the back to a twentieth of the way short of its skin, the cloak, as the hood
+                // slides, to a thirtieth short of it, and as it then gives way, to its skin; or as far as it came where
+                // the hood was built to rest)
+                type Face = { t: THREE.Triangle; c: THREE.Vector3; r: number };
+                const gear: Face[] = [], under: Face[] = [], toUp = up.matrixWorld.clone().invert();
+                const faces = (o: THREE.Object3D, out: Face[]) => o.traverse((n) => {
+                  const m = n as M; if (!m.isMesh) return;
+                  const m4 = toUp.clone().multiply(m.matrixWorld), P = m.geometry.getAttribute('position') as THREE.BufferAttribute, ix = m.geometry.index, cnt = ix ? ix.count : P.count;
+                  for (let i = 0; i + 2 < cnt; i += 3) {
+                    const t = new THREE.Triangle(...[0, 1, 2].map((k) => new THREE.Vector3().fromBufferAttribute(P, ix ? ix.getX(i + k) : i + k).applyMatrix4(m4)) as [THREE.Vector3, THREE.Vector3, THREE.Vector3]);
+                    const c = t.getMidpoint(new THREE.Vector3()); out.push({ t, c, r: Math.max(c.distanceTo(t.a), c.distanceTo(t.b), c.distanceTo(t.c)) });
+                  }
+                });
+                for (const g of up.children) { if (g.name === 'back' || g.name === 'spiritWings' || g.userData.wing) faces(g, gear); else if (g.userData.garment === 'cloak') faces(g, under); }
+                const tri = new THREE.Triangle(), cp = new THREE.Vector3(), zero = new THREE.Vector3(), toSphere = new THREE.Matrix4(), mid = new THREE.Vector3();
+                const into = (m: THREE.Matrix4, fs: Face[]) => {
+                  toSphere.copy(m).invert(); mid.set(0, 0, 0).applyMatrix4(m); let most = -Infinity;
+                  for (const g of fs) {
+                    if (g.c.distanceTo(mid) - g.r > 0.55 * s) continue;
+                    tri.a.copy(g.t.a).applyMatrix4(toSphere); tri.b.copy(g.t.b).applyMatrix4(toSphere); tri.c.copy(g.t.c).applyMatrix4(toSphere);
+                    tri.closestPointToPoint(zero, cp); most = Math.max(most, 1 - cp.length() / (0.5 * s));
+                  }
+                  return most;
+                };
+                const built = under.length ? into(h.matrix, under) : -Infinity, near = gear.length ? Math.max(into(h.matrix, gear), -0.05) + 1e-6 : Infinity, below = Math.max(built, -1 / 30) + 1e-6, touch = Math.max(built, 0) + 1e-6;
+                if (gear.length || under.length) fits = (m) => { const u = toUp.clone().multiply(m); return (!gear.length || into(u, gear) <= near) && (!under.length || into(u, under) <= touch); };
+                // (sunk in the capelet as it was built to rest, lower down the hood's underside would sink into the cloak
+                // there: it is drawn up out of it, flattened toward its back as far as that asks, but never to less than
+                // half of itself)
+                if (under.length) {
+                  const Q = new THREE.Matrix4(), n = new THREE.Vector3(), e = new THREE.Vector3(), L = new THREE.Matrix3();
+                  shape = (t: number) => {
+                    place(t); M.copy(h.matrix); flatK = 1;
+                    if (into(M, under) <= below) return M;
+                    n.copy(clothPoint(G, 0.5, t, 1)).sub(clothPoint(G, 0.5, t)).normalize();
+                    const far = 0.5 * s * e.copy(n).applyMatrix3(L.setFromMatrix4(h.matrix).transpose()).length() + n.dot(h.position);
+                    const squash = (k: number) => { const a = 1 - k; return M.copy(Q.set(1 - a * n.x * n.x, -a * n.x * n.y, -a * n.x * n.z, a * far * n.x, -a * n.y * n.x, 1 - a * n.y * n.y, -a * n.y * n.z, a * far * n.y, -a * n.z * n.x, -a * n.z * n.y, 1 - a * n.z * n.z, a * far * n.z, 0, 0, 0, 1)).multiply(h.matrix); };
+                    let lo = 0.5, hi = 1;
+                    if (into(squash(lo), under) <= below) for (let it = 0; it < 8; it++) { const m = (lo + hi) / 2; if (into(squash(m), under) <= below) lo = m; else hi = m; }
+                    flatK = lo; return squash(lo);
+                  };
+                }
+                const clear = (t: number) => !gear.length || into(shape(t), gear) <= near;
+                // (the back falls away under the hood so long as it falls at all there, and is no less steep than where
+                // the hood was built to rest)
+                const falls = Math.min(d0.y + 0.1, -0.1);
+                let lo = HOOD_AT, hi = -1;
+                for (let t = HOOD_AT + 0.02; t <= HOOD_LOWEST + 1e-9; t += 0.02) {
+                  if (along(t, d).y > falls) break;
+                  if (!clear(t)) { let a = lo, b = t; for (let it = 0; it < 8; it++) { const m = (a + b) / 2; if (clear(m)) a = m; else b = m; } if (deep(a) <= 0) hi = a; else lo = a; break; }
+                  if (deep(t) <= 0) { hi = t; break; }
+                  lo = t;
+                }
+                if (hi > 0) for (let it = 0; it < 12; it++) { const m = (lo + hi) / 2; if (deep(m) > 0) lo = m; else hi = m; }
+                shape(hi > 0 ? hi : lo);
+                // (the hood drawn up out of the cloak so, its points flattened where it rests)
+                if (flatK < 1) { flat = h.matrix.clone().invert().multiply(M); const v = new THREE.Vector3(); for (let i = 0; i < HP.count; i++) { v.fromBufferAttribute(HP, i).applyMatrix4(flat); HP.setXYZ(i, v.x, v.y, v.z); } }
+              } else place(HOOD_AT);
+              if (keepOff(room, 1 / 3, new THREE.Vector3(0, -1, 0), Infinity, fits, flat, flatK) || flat) { HP.needsUpdate = true; h.geometry = toCreasedNormals(h.geometry, Math.PI / 3); h.geometry.computeBoundingSphere(); h.geometry.computeBoundingBox(); }
+            }
           }
         }
       } });
@@ -3811,6 +3930,9 @@ const HAIR_ROOM = 0.1;
  *  taken a quarter thicker than at its root: a margin, as no lock swells so thick along its run, so cloth keeps off the
  *  lock itself by more than this. */
 const LOCK_GAP = 0.02;
+/** Where a capelet's folded hood rests on it, of the way from its top down its back to its hem, and how far down it may
+ *  rest at the most on a body standing or fighting, out of the way of the head with the hair on it. */
+const HOOD_AT = 0.2, HOOD_LOWEST = 0.7;
 
 /** The head with the hair on it, as cloth on a body laid out keeps out of it (kit/cloth.ts
  *  `DrapeWorld.apart`): the head's own skin (what under it is the skin's colour, `skin`, or the face painted on the
