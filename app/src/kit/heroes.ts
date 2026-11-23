@@ -4653,6 +4653,8 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
     const cloth: M[] = [], hair: M[] = [];
     body.traverse((o) => { const m = o as M; if (!m.isMesh) return; if (o.userData.hair) hair.push(m); else if ((o.userData.garment || o.userData.cloth) && !(m.material as THREE.Material).transparent) cloth.push(m); });
     coilsOffCloth(head, cloth, s); body.updateMatrixWorld(true); clearOfCloth(hair, cloth, s, 0.006 * s); braidsOffCloth(up, cloth, s);
+    // (and round a bow slung on the back, where its upper limb rises among the locks: locksPastGear)
+    if (slung) locksPastGear(slung, hair, [...new Set([...cloth, ...hairRests([up, neck], head, s)])], s);
   }
   const joints: Record<string, THREE.Object3D> = {};
   body.traverse((o) => { if (o.name) joints[o.name] = o; });
@@ -6580,6 +6582,108 @@ function braidsOffCloth(up: THREE.Object3D, cloth: M[], s: number, lay?: (ms: M[
       if (!h) break;
     }
     if (best) drop(pieces);
+  }
+}
+/** How far along two stretches, `p0` to `p1` and `q0` to `q1`, their nearest points lie (0 to 1 each). */
+function nearestAlong(p0: THREE.Vector3, p1: THREE.Vector3, q0: THREE.Vector3, q1: THREE.Vector3): [number, number] {
+  const d1 = p1.clone().sub(p0), d2 = q1.clone().sub(q0), r = p0.clone().sub(q0), a = d1.dot(d1), e = d2.dot(d2), f = d2.dot(r), c01 = (x: number) => Math.min(1, Math.max(0, x));
+  if (a < 1e-12) return [0, e < 1e-12 ? 0 : c01(f / e)];
+  const c = d1.dot(r); if (e < 1e-12) return [c01(-c / a), 0];
+  const b = d1.dot(d2), den = a * e - b * b;
+  let u = den > 1e-12 ? c01((b * f - c * e) / den) : 0, t = (b * u + f) / e;
+  if (t < 0) { t = 0; u = c01(-c / a); } else if (t > 1) { t = 1; u = c01((b - c) / a); }
+  return [u, t];
+}
+/** Long hair hung down the back kept out of the bow slung there (`g`, the slung group), once it hangs clear of the cloth
+ *  (clearOfCloth). The bow lies where overCloth laid it, on the cloak, and its upper limb rises behind the shoulder among
+ *  the locks that fall there: a lock that would pass through it is bent round it instead, the least way, over or under
+ *  the stave where it crosses it, aside where it runs back from the head past the bow's tip. (Lifted over the hair, the
+ *  bow stood well off the back; the hair hung over the bow stood out level over its top.)
+ *  The gear is read as its tubes and rods (a bow's stave, grip and string), each a run of capsules as thick as it is round
+ *  its line; a lock (of `hair`, a tube of rings of 6, lockBuild, with nothing bound on it) as its rings' middles, each as
+ *  thick as the lock is there. Where a stretch of the lock below the head comes nearer a capsule than the two are thick
+ *  and a hair besides, the lock is moved off it there, square to both lines (straight away from it where the two run
+ *  alike), the move spread along the lock both ways, over and again until it is clear; the rings on the head never move.
+ *  It is walked so three ways (to which side of each capsule it goes: below), its rings are moved as its line was, and it
+ *  is kept the way that passes through the gear in the fewest places, then is moved least, of those that pass through it
+ *  in fewer places than it did and through what it lies on (`walls`: the cloth and the body) in no more. */
+function locksPastGear(g: THREE.Group, hair: M[], walls: M[], s: number): void {
+  g.updateWorldMatrix(true, true);
+  const caps: { a: THREE.Vector3; b: THREE.Vector3; r: number }[] = [], gear: M[] = [], v = new THREE.Vector3();
+  g.traverse((o) => {
+    const m = o as M; if (!m.isMesh || (m.material as THREE.Material).transparent) return;
+    const geo = m.geometry, sc = Math.max(...m.getWorldScale(v).toArray());
+    if (geo instanceof THREE.TubeGeometry) { const { path, tubularSegments: n, radius } = geo.parameters; for (let i = 0; i < n; i++) caps.push({ a: path.getPointAt(i / n).applyMatrix4(m.matrixWorld), b: path.getPointAt((i + 1) / n).applyMatrix4(m.matrixWorld), r: radius * sc }); }
+    else if (geo instanceof THREE.CylinderGeometry) { const { height: h, radiusTop, radiusBottom } = geo.parameters; caps.push({ a: new THREE.Vector3(0, -h / 2, 0).applyMatrix4(m.matrixWorld), b: new THREE.Vector3(0, h / 2, 0).applyMatrix4(m.matrixWorld), r: Math.max(radiusTop, radiusBottom) * sc }); }
+    else return;
+    gear.push(m);
+  });
+  if (!caps.length) return;
+  const reach = new THREE.Box3(); for (const c of caps) reach.expandByPoint(c.a).expandByPoint(c.b); reach.expandByScalar(0.15 * s);
+  const near: Hung[] = [];
+  for (const m of hair) {
+    if (m.userData.free === undefined) continue; const L = lockBuild(m); if (!L) continue;
+    m.updateWorldMatrix(true, false); if (!new THREE.Box3().setFromObject(m).intersectsBox(reach)) continue;
+    const h = hungOf(m, L, s); if (!h.on.length) near.push(h);
+  }
+  if (!near.length) return;
+  const box = new THREE.Box3(); for (const h of near) box.expandByObject(h.m); box.expandByScalar(0.3 * s);
+  const gf = clothFaces(gear, box, s); if (!gf) return;
+  const wf = clothFaces(walls, box, s), out = new THREE.Vector3(0, 0, -1).transformDirection((g.parent ?? g).matrixWorld), clear = 0.01 * s;
+  const tl = new THREE.Vector3(), tg = new THREE.Vector3(), n = new THREE.Vector3(), pl = new THREE.Vector3(), pg = new THREE.Vector3();
+  // (a tube's corners in the world, and how many of its stretches from ring `k0` on pass through these faces)
+  const corners = (m: M, geo: THREE.BufferGeometry) => { const p = geo.getAttribute('position'), A = new Float64Array(p.count * 3); for (let i = 0; i < p.count; i++) { v.fromBufferAttribute(p, i).applyMatrix4(m.matrixWorld); A[i * 3] = v.x; A[i * 3 + 1] = v.y; A[i * 3 + 2] = v.z; } return A; };
+  const through = (f: ClothFaces | undefined, A: Float64Array, k0: number, N: number) => { let c = 0; if (f) for (let k = k0; k < N; k++) if (f.sides(A, k * 18, A, (k + 1) * 18) >= 0) c++; return c; };
+  for (const { m, C, N, kF, rad } of near) {
+    const k0 = Math.max(0, kF - 1), A0 = corners(m, m.geometry), g0 = through(gf, A0, k0, N); if (!g0) continue;
+    const w0 = through(wf, A0, k0, N), lb = new THREE.Box3(); for (let k = k0; k <= N; k++) lb.expandByPoint(C[k]); lb.expandByScalar(0.3 * s);
+    const cs = caps.filter((c) => lb.intersectsBox(new THREE.Box3().setFromPoints([c.a, c.b])));
+    // (its line walked off the gear. Each push is spread along the lock as a raised cosine about the point pushed, `H`
+    // along it toward the head and `HD` on down it, and fades in from where it leaves the head: so the lock bends round
+    // in a smooth swell and comes back to where it hung slowly below, as hair hung over a peg does, rather than kinking)
+    const arc = [0]; for (let k = 1; k <= N; k++) arc.push(arc[k - 1] + C[k].distanceTo(C[k - 1]));
+    const H = 0.3 * s, HD = 0.9 * s, fade = (i: number) => (i < kF ? 0 : Math.min(1, (arc[i] - arc[kF - 1]) / H));
+    // (to which side of a capsule it goes, chosen where it first meets it: the side it lies on (0); out behind the stave,
+    // off the body, where it crosses it (1); or, where the lock first met it running along it, as it runs back from the
+    // head past the bow's tip, to its far side (2), where the near one is taken by the cloth)
+    const walk = (mode: number) => {
+      const P = C.map((c) => c.clone()), side = new Map<number, THREE.Vector3>();
+      for (let it = 0; it < 80; it++) {
+        let worst = 0;
+        for (let k = k0; k < N; k++) cs.forEach((c, j) => {
+          const [u, t] = nearestAlong(P[k], P[k + 1], c.a, c.b);
+          pl.copy(P[k]).lerp(P[k + 1], u); pg.copy(c.a).lerp(c.b, t); v.subVectors(pl, pg);
+          const need = rad[k] + (rad[k + 1] - rad[k]) * u + c.r + clear, d = v.length(); if (d >= need) return;
+          tl.subVectors(P[k + 1], P[k]).normalize(); tg.subVectors(c.b, c.a).normalize(); n.crossVectors(tl, tg);
+          if (n.lengthSq() > 0.09) n.normalize(); else if (d > 1e-6) n.copy(v).divideScalar(d); else n.copy(out);
+          const key = k * cs.length + j; let to = side.get(key);
+          if (!to) {
+            to = n.clone(); if (n.dot(v) < 0) to.negate();
+            const across = Math.abs(n.dot(out)) > 0.5;
+            if ((mode === 1 && across && to.dot(out) < 0) || (mode === 2 && !across && it === 0)) to.negate();
+            side.set(key, to);
+          }
+          if (n.dot(to) < 0) n.negate();
+          const def = need - n.dot(v); if (def <= 0) return;
+          const at = arc[k] + u * (arc[k + 1] - arc[k]);
+          for (let i = kF; i <= N; i++) { const x = arc[i] < at ? (at - arc[i]) / H : (arc[i] - at) / HD; if (x < 1) P[i].addScaledVector(n, def * (0.5 + 0.5 * Math.cos(Math.PI * x)) * fade(i)); }
+          worst = Math.max(worst, def);
+        });
+        if (worst < 1e-4 * s) break;
+      }
+      return P;
+    };
+    const inv = m.matrixWorld.clone().invert(); let best: { geo: THREE.BufferGeometry; through: number; moved: number } | undefined;
+    for (const mode of [0, 1, 2]) {
+      const P = walk(mode), geo = m.geometry.clone(), pos = geo.getAttribute('position') as THREE.BufferAttribute; let moved = 0;
+      const dl = P.map((p, k) => { moved = Math.max(moved, p.distanceTo(C[k])); return p.clone().applyMatrix4(inv).sub(C[k].clone().applyMatrix4(inv)); });
+      const shift = (i: number, d: THREE.Vector3) => pos.setXYZ(i, pos.getX(i) + d.x, pos.getY(i) + d.y, pos.getZ(i) + d.z);
+      for (let k = kF; k <= N; k++) for (let j = 0; j < 6; j++) shift(k * 6 + j, dl[k]);
+      if (pos.count === (N + 1) * 6 + 2) shift((N + 1) * 6 + 1, dl[N]); // (the cap at its end, lockGeometry)
+      const A = corners(m, geo), gn = through(gf, A, k0, N);
+      if (gn < g0 && through(wf, A, k0, N) <= w0 && (!best || gn < best.through || (gn === best.through && moved < best.moved))) { best?.geo.dispose(); best = { geo, through: gn, moved }; } else geo.dispose();
+    }
+    if (best) { best.geo.computeVertexNormals(); best.geo.computeBoundingBox(); best.geo.computeBoundingSphere(); m.geometry.dispose(); m.geometry = best.geo; }
   }
 }
 /** A wing of a body laid out: flat on the floor from its root when the root is down there (the body on its back lies on

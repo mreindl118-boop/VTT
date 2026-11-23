@@ -11,7 +11,8 @@
 // beside the head to the floor before the mantle's collar (clearOfCloth). Curls keep out of the cloth, standing and
 // fallen: a coil that would pass through a hood folded on the back or a mantle lying beside a fallen head ends short of
 // it (coilsOffCloth). Standing, an NPC's locks go round what stands up steeply beside the neck below the head, a capelet
-// lifted by an arm raised to strike or a hood folded at the nape (clearOfCloth).
+// lifted by an arm raised to strike or a hood folded at the nape (clearOfCloth), and bend round a bow slung on the back
+// where its upper limb rises among them behind the shoulder (locksPastGear).
 import { describe, expect, it } from 'vitest';
 import * as THREE from 'three';
 import { heroFigure, type HeroFigure } from '../app/src/kit/heroes';
@@ -371,6 +372,21 @@ describe('long hair on an NPC standing in a capelet or a hood', () => {
       expect(crossings(locks.flatMap(fallOf), trisOf(cloth), 0.06 * s), `${id}@${seed} ${st}: locks through the cloth below the head`).toBe(0);
     }
   }, 180000);
+});
+
+describe('long hair and a bow slung on the back', () => {
+  it('bends round the bow, standing or fighting: none of the hair passes through its stave, its grip or its string', () => {
+    // (the bow lies on the cloak where overCloth lays it, and its upper limb rises behind the shoulder among the side
+    // locks, standing off the cloak: on the code before, Davian's locks met it in 299 faces at rest and 365 fighting, a
+    // dusk elf's in 387, a scout's in 374, Szoldar's in 130, a wight's in 72)
+    for (const [id, seed] of [['davian-martikov', ''], ['szoldar-szoldarovich', ''], ['dusk-elf', ''], ['scout', 'd'], ['wight', '']]) for (const st of ['rest', 'battle'] as const) {
+      const g = figureFor(BESTIARY.find((x) => x.id === id)!, st === 'battle', seed); g.updateMatrixWorld(true);
+      const s = scaleOf(g), back = g.getObjectByName('back')!, gear = meshes(back).filter((m) => !(m.material as THREE.Material).transparent), hair = meshes(g).filter(isHair);
+      expect(gear.length, `${id}@${seed} ${st}: a bow on the back`).toBeGreaterThan(1);
+      expect(hair.filter((m) => m.userData.hair === 'lock').length, `${id}@${seed} ${st}`).toBeGreaterThan(10);
+      expect(crossings(trisOf(hair), trisOf(gear), 0.06 * s), `${id}@${seed} ${st}: hair through the bow`).toBe(0);
+    }
+  }, 240000);
 });
 
 describe('a hairdo\'s own hair over what is put on once the figure is built', () => {
