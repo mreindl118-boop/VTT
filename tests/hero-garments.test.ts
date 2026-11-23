@@ -29,8 +29,14 @@
 // neckline up beside it (its points came as near as 0.01 to the skin there, its faces as near as 0.001), its hood lying
 // flat on the floor under the head; there it falls past the head to the floor, held up beside it by the room for the
 // hair only where it would come to rest in it (stopped by that room everywhere, it stood up beside the head).
+// On a body standing or fighting the capelet's folded hood rests out of the head with the hair on it, which came down
+// into it where it was built to rest: as little way further down the capelet's back as that asks, or, with the head
+// bowed far back, giving way to it there, lying on the capelet as it was built to (never hidden under it), never through the
+// cloak, never squashed flatter than a third of itself (nor laid out on a body fallen with its head thrown back), and
+// no further down than what is worn on the back lets it (a weapon stowed there, spirit wings), never through that.
 import { describe, expect, it } from 'vitest';
 import * as THREE from 'three';
+import { ConvexHull, type HalfEdge } from 'three/examples/jsm/math/ConvexHull.js';
 import { AT_EASE, headRoom, heroFigure, POSES, tuckUnder, type HeroPose } from '../app/src/kit/heroes';
 import { frameOf, loftGeometry, ringAt, torsoRings } from '../app/src/kit/anatomy';
 import { describePokes, findPokes, type Poke } from '../app/src/kit/clothcheck';
@@ -174,6 +180,94 @@ function fallenCape(rec: Record<string, unknown>) {
   const H = points(head), covered = points([...gear.flatMap((g) => g.all), ...fig.getObjectByName('chest')!.children.filter((o) => flesh(o) && o.userData.skin)]);
   expect(H.length).toBeGreaterThan(500); expect(cape.length).toBeGreaterThan(2); expect(covered.length).toBeGreaterThan(500); // (the skull found; the capelet, the hood and the rest of it hung)
   return { fig, H, cape, covered, gear };
+}
+/** How thin the points `ps` lie: the least of their widths along any way through them, read exactly from their hull, as
+ *  that least width lies square to one of the hull's faces or square to two of its edges at once. (Read along 400
+ *  directions round a ball alone, a hood thinnest along a way between them was read up to some 16% thicker than it is.) */
+const leastWidth = (ps: THREE.Vector3[]) => {
+  const hull = new ConvexHull().setFromPoints(ps), on = new Set<THREE.Vector3>(), vs: THREE.Vector3[] = [], seen = new Set<HalfEdge>(), edges: THREE.Vector3[] = [];
+  for (const f of hull.faces) {
+    let e = f.edge;
+    do {
+      const p = e.head().point; if (!on.has(p)) { on.add(p); vs.push(p); }
+      if (!seen.has(e.twin)) { seen.add(e); edges.push(new THREE.Vector3().subVectors(p, e.tail().point)); }
+      e = e.next;
+    } while (e !== f.edge);
+  }
+  // (the width along the way `d`, kept where it is the least yet: read no further once it is no less)
+  let least = Infinity;
+  const along = (d: THREE.Vector3) => { let lo = Infinity, hi = -Infinity; for (const q of vs) { const v = q.dot(d); if (v < lo) lo = v; if (v > hi) hi = v; if (hi - lo >= least) return; } least = hi - lo; };
+  for (const f of hull.faces) if (f.normal.lengthSq() > 0.5) along(f.normal);
+  const d = new THREE.Vector3();
+  for (let i = 0; i < edges.length; i++) for (let j = i + 1; j < edges.length; j++) {
+    const l = d.crossVectors(edges[i], edges[j]).length(); if (l > 1e-9 * edges[i].length() * edges[j].length()) along(d.divideScalar(l));
+  }
+  expect(least, 'how thin the points lie, read from their hull').toBeLessThan(Infinity);
+  return least;
+};
+/** How much of the hood `hoods` shows on the figure `fig`: of the area of its faces, the share whose middles can be seen,
+ *  facing that way, along rays run out from them past every other opaque mesh of the figure but its hair where that is
+ *  marked as hair (it may hang over the hood; hair not marked so is counted as hiding it), from some way round the back
+ *  of the trunk it hangs from (`frame`), from a third of the way up to straight above it: as a miniature on the table is
+ *  seen. */
+function shown(fig: THREE.Object3D, hoods: THREE.Object3D[], frame: THREE.Object3D, s: number) {
+  const toUp = frame.matrixWorld.clone().invert(), inUp = (t: THREE.Triangle) => new THREE.Triangle(t.a.applyMatrix4(toUp), t.b.applyMatrix4(toUp), t.c.applyMatrix4(toUp));
+  const H = trianglesOf(hoods).map(inUp).filter((t) => t.getArea() > 1e-12), others: THREE.Object3D[] = [];
+  fig.traverse((m) => { if ((m as THREE.Mesh).isMesh && m.visible && !m.userData.hood && !m.userData.hair && !m.userData.braid && !m.userData.coil && !((m as THREE.Mesh).material as THREE.Material).transparent) others.push(m); });
+  const c = new THREE.Box3().setFromPoints(H.flatMap((t) => [t.a, t.b, t.c])).getCenter(new THREE.Vector3()), reach = new THREE.Box3().setFromCenterAndSize(c, new THREE.Vector3(3 * s, 3 * s, 3 * s));
+  const O = trianglesOf(others).map(inUp).filter((t) => t.getArea() > 1e-12 && reach.intersectsTriangle(t));
+  // (the faces in the way binned by where they lie seen from each way, so each ray is tried only against those in its bin)
+  const G = 48, half = 1.5 * s, seen = new Array(H.length).fill(false), d = new THREE.Vector3(), u = new THREE.Vector3(), v = new THREE.Vector3(), q = new THREE.Vector3(), nf = new THREE.Vector3(), m = new THREE.Vector3(), hit = new THREE.Vector3(), ray = new THREE.Ray();
+  const bin = (p: THREE.Vector3) => { q.subVectors(p, c); return [Math.floor((q.dot(u) / half * 0.5 + 0.5) * G), Math.floor((q.dot(v) / half * 0.5 + 0.5) * G)]; };
+  for (const el of [Math.PI / 6, Math.PI / 3, Math.PI / 2]) for (const az of el === Math.PI / 2 ? [0] : [-Math.PI / 3, -Math.PI / 6, 0, Math.PI / 6, Math.PI / 3]) {
+    d.set(Math.sin(az) * Math.cos(el), Math.sin(el), -Math.cos(az) * Math.cos(el)); u.crossVectors(Math.abs(d.y) < 0.95 ? new THREE.Vector3(0, 1, 0) : new THREE.Vector3(0, 0, -1), d).normalize(); v.crossVectors(d, u);
+    const bins = new Map<number, number[]>();
+    O.forEach((t, i) => {
+      const [ax, ay] = bin(t.a), [bx, by] = bin(t.b), [cx, cy] = bin(t.c);
+      for (let y = Math.max(0, Math.min(ay, by, cy)); y <= Math.min(G - 1, Math.max(ay, by, cy)); y++) for (let x = Math.max(0, Math.min(ax, bx, cx)); x <= Math.min(G - 1, Math.max(ax, bx, cx)); x++) { const k = y * G + x, l = bins.get(k); if (l) l.push(i); else bins.set(k, [i]); }
+    });
+    H.forEach((t, i) => {
+      if (seen[i] || t.getNormal(nf).dot(d) <= 0.05) return;
+      t.getMidpoint(m); const [x, y] = bin(m); ray.set(m, d);
+      for (const j of bins.get(y * G + x) ?? []) if (ray.intersectTriangle(O[j].a, O[j].b, O[j].c, false, hit) && hit.distanceTo(m) > 1e-6 * s) return;
+      seen[i] = true;
+    });
+  }
+  let all = 0, some = 0; H.forEach((t, i) => { all += t.getArea(); if (seen[i]) some += t.getArea(); });
+  return some / all;
+}
+/** A figure in a capelet with its hood folded (its skin a colour of its own), standing or fighting as given, and how the
+ *  hood rests on it, in the figure's size: how deep in the head's room the deepest point of it lies (`deep`, below nought
+ *  out of that room); its middle, the middle of the box round its points in the frame of the trunk it hangs from: how far
+ *  to the side of the middle of the back (`side`), how far out from the capelet's face nearest it (`out`, along that
+ *  face's normal turned away from the trunk); how much of it shows (`shown`, as the share `shown` gives); how near its
+ *  points come to the capelet's faces (`touch`), how
+ *  high its lowest point lies over the capelet's hem at the middle of the back (`hem`), how thin it lies (`width`), the
+ *  widest angle its faces meet at (`fold`), and how many edges of the one cross faces of the other between it and the
+ *  cloak under the capelet (`cloakX`) and between it and what is worn on the back (`wornX`: gear stowed or slung there,
+ *  wings; `worn`, how many meshes of that there are). */
+function standingHood(rec: Record<string, unknown>, st: 'rest' | 'battle') {
+  const skin = '#c8a07a', fig = heroFigure({ ...OUTFITS['cloak and capelet'], ...rec, skin } as never, 'medium', st); fig.updateMatrixWorld(true);
+  const s = fig.getObjectByName('neck')!.position.y / 2.24, room = headRoom(fig.getObjectByName('head')!, skin, s)!;
+  const hoods: THREE.Object3D[] = [], cape: THREE.Object3D[] = [], cloak: THREE.Object3D[] = [], worn: THREE.Object3D[] = [];
+  const within = (m: THREE.Object3D, f: (p: THREE.Object3D) => boolean) => { for (let p: THREE.Object3D | null = m; p; p = p.parent) if (f(p)) return true; return false; };
+  fig.traverse((m) => {
+    if (!(m as THREE.Mesh).isMesh || !m.visible) return;
+    if (m.userData.hood) hoods.push(m);
+    else if (within(m, (p) => p.name === 'back' || p.name === 'spiritWings' || !!p.userData.wing)) worn.push(m);
+    else if (m.userData.garment === 'mantle') cape.push(m);
+    else if (m.userData.garment === 'cloak') cloak.push(m);
+  });
+  expect(room).toBeTruthy(); expect(hoods.length).toBe(1); expect(cape.length).toBe(1); expect(cloak.length).toBeGreaterThan(0);
+  const H = points(hoods), o = new THREE.Vector3(); let deep = -Infinity; for (const q of H) deep = Math.max(deep, room.depth(q, o));
+  const toUp = hoods[0].parent!.matrixWorld.clone().invert(), Hu = H.map((q) => q.clone().applyMatrix4(toUp)), c = new THREE.Box3().setFromPoints(Hu).getCenter(new THREE.Vector3());
+  const T = trianglesOf(cape).filter((t) => t.getArea() > 1e-12).map((t) => new THREE.Triangle(t.a.applyMatrix4(toUp), t.b.applyMatrix4(toUp), t.c.applyMatrix4(toUp)));
+  const at = new THREE.Vector3(), cp = new THREE.Vector3(), n = new THREE.Vector3(); let best = Infinity;
+  for (const t of T) { t.closestPointToPoint(c, cp); if (cp.distanceTo(c) < best) { best = cp.distanceTo(c); at.copy(cp); t.getNormal(n); } }
+  if (n.dot(new THREE.Vector3(at.x, 0, at.z)) < 0) n.negate();
+  const back = points(cape).map((q) => q.applyMatrix4(toUp)).filter((q) => Math.abs(q.x) < 0.1 * s && q.z < 0); let hem = Infinity, low = Infinity; for (const q of back) hem = Math.min(hem, q.y); for (const q of Hu) low = Math.min(low, q.y);
+  return { s, worn: worn.length, deep: deep / s, side: Math.abs(c.x) / s, out: c.clone().sub(at).dot(n) / s, shown: shown(fig, hoods, hoods[0].parent!, s), touch: facesOff(cape, H) / s, hem: (low - hem) / s, width: leastWidth(H) / s, fold: worstFold(hoods),
+    cloakX: throughDepths(hoods, cloak).length, wornX: worn.length ? throughDepths(hoods, worn).length : 0 };
 }
 
 describe('hero garments', () => {
@@ -603,7 +697,9 @@ describe('hero garments', () => {
     // flatter than that third and moved whole, its faces meet at no more than a right angle, where squashed as far as the
     // head asked, past flat, it turned inside out, its faces meeting at up to 125 degrees, and where put out of the head
     // point by point for all the squash left, its side in the head came out through its other side, the two folded over
-    // each other at up to 178 degrees. On the falls above, that third is never reached)
+    // each other at up to 178 degrees. Squashed so and moved, it is still no thinner than a third of what it is across
+    // where thinnest as built, 0.497 of the figure's size (as its faces are flat; a third of that is 0.1657, and it lies
+    // 0.1659 thin at the least). On the falls above, that third is never reached)
     const bad: string[] = [], thrown: [string, HeroPose][] = [];
     for (const neck of [-1, -1.2, -1.4, -1.6]) thrown.push([`face down, the neck at ${neck}`, { lie: 'front', neck: [neck, 0, 0] }], [`on its side, the neck at ${neck}`, { lie: 'side', neck: [neck, 0, 0] }]);
     for (const frame of ['masculine', 'feminine']) for (const [label, deadPose] of thrown) {
@@ -612,10 +708,100 @@ describe('hero garments', () => {
       expect(hoods.length, at).toBe(1);
       let least = Infinity; for (const q of points(hoods)) least = Math.min(least, nearest(q, H));
       if (least < 0.09) bad.push(`${at}: the hood ${least.toFixed(4)} off the head`);
+      const thin = leastWidth(points(hoods)) / (fig.getObjectByName('neck')!.position.y / 2.24); if (thin < (0.5 / 3) * 0.99) bad.push(`${at}: the hood squashed to ${thin.toFixed(3)} thin, flatter than a third of itself`);
       const worst = worstFold(hoods); if (worst > 90) bad.push(`${at}: faces of the hood meeting at ${worst.toFixed(0)} degrees`);
     }
     expect(bad).toEqual([]);
   }, 120000);
+
+  it('read how thin a hood lies as thin as it is, whatever way it is thinnest along, squashed or pressed in', () => {
+    // (read along 400 directions round a ball alone, which leave a gap of 4 degrees round straight up and of nearly 7
+    // elsewhere, a hood squashed to a third of itself was read up to some 16% thicker than it is, 8.6% on the second turn
+    // tried here, so that one flattened to some 0.29 of itself could pass the bounds on it here; closed in on from the
+    // least few of those directions, a hood pressed in was still read up to half a percent thicker)
+    // (a ball of the hood's own faces squashed to a sixth along its height, so a third as thick as the hood: read the same
+    // however it is turned, 0.1665612 thin, along a way a little off its height, along which it is 1/6; and the hood as
+    // built, squashed to two thirds of itself along a way aslant, then pressed onto a floor aslant to that and out of a
+    // head's ball, as a laid hood is: read 0.4496931 thin, where closed in on from those directions it was read 0.6%
+    // thicker)
+    const g = new THREE.SphereGeometry(0.5, 16, 10).getAttribute('position');
+    const ball = (m: THREE.Matrix4) => { const ps: THREE.Vector3[] = []; for (let i = 0; i < g.count; i++) ps.push(new THREE.Vector3().fromBufferAttribute(g, i).applyMatrix4(m)); return ps; };
+    for (const [axis, turn] of [[new THREE.Vector3(1, 0, 0), 0], [new THREE.Vector3(1, 0, 0), 0.03], [new THREE.Vector3(0.6, 0, 0.8), 0.07], [new THREE.Vector3(0, 0, 1), 1.2]] as const)
+      expect(leastWidth(ball(new THREE.Matrix4().makeRotationAxis(axis, turn).multiply(new THREE.Matrix4().makeScale(1, 1 / 6, 0.75)))), `turned ${turn}`).toBeCloseTo(0.1665612, 6);
+    const u = new THREE.Vector3(Math.sin(1.3), Math.cos(1.3), 0.3 * Math.sin(2.6)).normalize(), q = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), u);
+    const ps = ball(new THREE.Matrix4().makeRotationFromQuaternion(q).multiply(new THREE.Matrix4().makeScale(1, 0.67, 1)).multiply(new THREE.Matrix4().makeRotationFromQuaternion(q.clone().invert())).multiply(new THREE.Matrix4().makeScale(1, 0.5, 0.75)));
+    const up = new THREE.Vector3(0.2, 1, -0.35).normalize(), heights = ps.map((p) => p.dot(up)), low = Math.min(...heights), floor = low + 0.1 * (Math.max(...heights) - low);
+    for (const p of ps) p.addScaledVector(up, Math.max(0, floor - p.dot(up)));
+    const head = new THREE.Vector3(-0.1, 0, 0.2).addScaledVector(u, -0.78);
+    for (const p of ps) { const d = p.distanceTo(head); if (d < 0.8) p.sub(head).multiplyScalar(0.8 / d).add(head); }
+    expect(leastWidth(ps), 'pressed in').toBeCloseTo(0.4496931, 6);
+  });
+
+  it('rest a capelet\'s folded hood out of the head with the hair on it on a body standing or fighting, as little way down the capelet\'s back as that asks, lying on the cloth there', () => {
+    // (the hood rests on the capelet behind the neck, under the back of the head, which came down into it: on every one
+    // of these bodies its deepest point lay in the head's room, as deep as 0.51 of the figure's size. It now rests as
+    // far down the capelet's back as keeps it out of that room, a little gap (0.015) kept, and no further, but where the
+    // head is bowed back so far that it gives way to the head there as on a body laid on its side; and it lies on the
+    // capelet there as it does where it was built to rest: its middle at the middle of the back, out from the capelet's
+    // face nearest it by 0.12 to 0.22 (it lay 0.16 out where it was built to rest, and gives way outward to a head bowed
+    // far back), never hidden under the capelet (two fifths of it and more shows from behind and above), its points as
+    // near the capelet as 0.02 at the most, all of it above the capelet's hem at the back, never squashed flatter than a
+    // third of itself, its faces never folded over sharply, and never through the cloak under the capelet. Long hair asks
+    // for more room where the head knows the locks lying out from its scalp)
+    const bad: string[] = [], looks: [string, Record<string, unknown>, 'rest' | 'battle', boolean][] = [];
+    for (const frame of ['masculine', 'feminine']) for (const hair of [{}, { hair: '#3a2a1a', hairStyle: 'long' }]) {
+      const base = { frame, ...hair }, tag = `${frame}${'hairStyle' in hair ? ', long hair' : ''}`;
+      for (const [stance, kit] of Object.entries(KIT)) looks.push([`${tag}, stance ${stance}`, { ...base, ...kit, stance }, 'battle', false]);
+      for (const p of Object.keys(POSES).filter((p) => !p.startsWith('dead'))) looks.push([`${tag}, pose ${p}`, { ...base, weapon: 'sword', battlePose: p }, 'battle', false]);
+      AT_EASE.forEach((a, i) => looks.push([`${tag}, at ease ${i}`, { ...base, weapon: 'mace', pose: a }, 'rest', false]));
+      for (const neck of [0, -0.4, -0.8, -1, -1.2]) looks.push([`${tag}, at rest, the head back ${-neck}`, { ...base, weapon: 'mace', pose: { neck: [neck, 0, 0] } }, 'rest', neck <= -0.8]);
+    }
+    for (const [at, rec, st, bowed] of looks) {
+      const h = standingHood(rec, st);
+      if (h.deep > -0.0145) bad.push(`${at}: the hood ${h.deep > 0 ? `${h.deep.toFixed(4)} into` : `only ${(-h.deep).toFixed(4)} out of`} the head's room`);
+      if (!bowed && h.deep < -0.0155) bad.push(`${at}: the hood ${(-h.deep).toFixed(4)} out of the head's room, further down the capelet than that asks`);
+      if (h.side > 0.05) bad.push(`${at}: the hood's middle ${h.side.toFixed(3)} to the side of the back's`);
+      if (h.out < 0.12 || h.out > 0.22) bad.push(`${at}: the hood's middle ${h.out.toFixed(3)} out from the capelet`);
+      if (h.shown < 0.4) bad.push(`${at}: the hood hidden, ${(h.shown * 100).toFixed(0)}% of it showing`);
+      if (h.touch > 0.02) bad.push(`${at}: the hood ${h.touch.toFixed(3)} off the capelet`);
+      if (h.hem < 0.03) bad.push(`${at}: the hood ${h.hem.toFixed(3)} over the capelet's hem at the back`);
+      if (h.width < (0.5 / 3) * 0.99) bad.push(`${at}: the hood squashed to ${h.width.toFixed(3)} thin, flatter than a third of itself`);
+      if (h.fold > 90) bad.push(`${at}: faces of the hood meeting at ${h.fold.toFixed(0)} degrees`);
+      if (h.cloakX) bad.push(`${at}: the hood through the cloak (${h.cloakX} crossings)`);
+    }
+    expect(bad).toEqual([]);
+  }, 240000);
+
+  it('rest a capelet\'s folded hood no further down its back than what is worn on the back lets it, never through that and never under the capelet', () => {
+    // (a long weapon stowed on the back, under the capelet, raises the capelet's back over it: the hood never climbs that
+    // way, and stays where it was built to rest; spirit wings rise from the shoulder blades, between the capelet's back
+    // and where the hood would slide to: it rests no further down than keeps it a little off them (or no nearer them
+    // than it lay where it was built to rest), never through them, and gives way to the head where it rests no nearer
+    // them than that. Either way it still
+    // lies on the capelet, its points as near it as 0.02 at the most, never hidden under it (drawn up out of the cloak
+    // by flattening alone, with the capelet raised over the weapon and the head bowed back, it was squashed in under the
+    // capelet: from behind and above none of it showed, or 3% of it, where as it was built to rest a quarter of it and
+    // more shows), never squashed flatter than a third of itself, its faces never folded over sharply; and with nothing
+    // stowed on the back, never through the cloak)
+    const bad: string[] = [], looks: [string, Record<string, unknown>, 'rest' | 'battle', boolean][] = [];
+    for (const frame of ['masculine', 'feminine']) {
+      const rests: [string, Record<string, unknown>][] = [['at rest', {}], ['at ease 0', { pose: AT_EASE[0] }], ['at rest, the head back 0.6', { pose: { neck: [-0.6, 0, 0] } }]];
+      for (const weapon of ['sword', 'axe', 'spear']) for (const [pk, pose] of rests) looks.push([`${frame}, ${weapon} stowed, ${pk}`, { frame, weapon, ...pose }, 'rest', true]);
+      for (const [pk, pose] of rests) looks.push([`${frame}, spirit wings, ${pk}`, { frame, weapon: 'mace', spiritWings: { color: '#e8f0ff' }, ...pose }, 'rest', false]);
+      for (const stance of ['two-handed', 'cast']) looks.push([`${frame}, spirit wings, stance ${stance}`, { frame, ...KIT[stance], stance, spiritWings: { color: '#e8f0ff' } }, 'battle', false]);
+    }
+    for (const [at, rec, st, stowed] of looks) {
+      const h = standingHood(rec, st);
+      if (!h.worn) bad.push(`${at}: nothing worn on the back`);
+      if (h.wornX) bad.push(`${at}: the hood through what is worn on the back (${h.wornX} crossings)`);
+      if (h.shown < 0.15) bad.push(`${at}: the hood hidden under the capelet, ${(h.shown * 100).toFixed(0)}% of it showing`);
+      if (h.touch > 0.02) bad.push(`${at}: the hood ${h.touch.toFixed(3)} off the capelet`);
+      if (h.width < (0.5 / 3) * 0.99) bad.push(`${at}: the hood squashed to ${h.width.toFixed(3)} thin, flatter than a third of itself`);
+      if (h.fold > 90) bad.push(`${at}: faces of the hood meeting at ${h.fold.toFixed(0)} degrees`);
+      if (!stowed && h.cloakX) bad.push(`${at}: the hood through the cloak (${h.cloakX} crossings)`);
+    }
+    expect(bad).toEqual([]);
+  }, 180000);
 
   it('lay a capelet over an arm flung out from the shoulder of a body on its back, not torn into shards round it with the arm through them', () => {
     expect(report([laid('cloak and capelet', 'sprawled', SPRAWL)], (p) => ARM.test(p.part) && CAPES.has(p.garment))).toEqual([]);
