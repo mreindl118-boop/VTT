@@ -372,3 +372,64 @@ describe('long hair on an NPC standing in a capelet or a hood', () => {
     }
   }, 180000);
 });
+
+describe('a hairdo\'s own hair hanging from the head, on an NPC standing in a cloak', () => {
+  // (Baba Lysaga's braids hung with bones, Morgantha's wild ropes and Rahadin's swept length are combed straight down from
+  // where they leave the scalp: they went through the mantle, the hood folded at the nape and the cloak, and walked out
+  // of them from the head instead, a braid deep in the mantle bunched up at the neck. They hang again over what the body
+  // wears, as long locks do: drapeLong, hairdoThrough)
+  const ids = ['baba-lysaga', 'morgantha', 'rahadin'], states = ['rest', 'battle'] as const;
+  const entry = (id: string) => BESTIARY.find((e) => e.id === id)!;
+  const posed = (e: (typeof BESTIARY)[number], st: 'rest' | 'battle') => { const g = figureFor(e, st === 'battle', ''); g.updateMatrixWorld(true); return g; };
+  // (the same figure with nothing on its shoulders, so its hair hangs as it was combed)
+  const bare = (e: (typeof BESTIARY)[number]) => ({ ...e, hero: { ...e.hero!, cloak: undefined } });
+  const hanging = (g: THREE.Object3D) => meshes(g).filter((m) => m.userData.hair === 'do' && m.userData.free !== undefined);
+  /** A hanging piece's line, the middles of its rings of 6 (a flat lock has no caps), and the first ring below where it
+   *  leaves the head. */
+  const lineOf = (m: M) => {
+    const p = m.geometry.getAttribute('position'), N = (m.userData.flatLock ? p.count / 6 : (p.count - 2) / 6) - 1, kF = Math.min(N, Math.max(1, Math.ceil((m.userData.free as number) * N))), C: THREE.Vector3[] = [];
+    for (let k = 0; k <= N; k++) { const c = new THREE.Vector3(); for (let j = 0; j < 6; j++) c.add(new THREE.Vector3().fromBufferAttribute(p, k * 6 + j)); C.push(c.multiplyScalar(1 / 6).applyMatrix4(m.matrixWorld)); }
+    return { C, kF };
+  };
+  // (how long a piece is, along its line: on the head it lies as it was combed, so what it hangs below the head is the rest)
+  const lengthOf = (m: M) => { const { C } = lineOf(m); let a = 0; for (let k = 1; k < C.length; k++) a += C[k].distanceTo(C[k - 1]); return a; };
+
+  it('hangs over what the body wears, standing or fighting: none of their hair passes through the cloth', () => {
+    for (const id of ids) for (const st of states) {
+      const g = posed(entry(id), st), s = scaleOf(g), all = meshes(g), cloth = all.filter((m) => (m.userData.garment || m.userData.cloth) && !(m.material as THREE.Material).transparent);
+      expect(hanging(g).length, `${id} ${st}`).toBeGreaterThan(5);
+      expect(cloth.length, `${id} ${st}`).toBeGreaterThan(0);
+      expect(crossings(trisOf(all.filter(isHair)), trisOf(cloth), 0.06 * s), `${id} ${st}: hair through the cloth`).toBe(0);
+    }
+  }, 180000);
+
+  it('keeps its length: each piece hangs below the head as long as it was combed, not bunched up at the neck', () => {
+    for (const id of ids) for (const st of states) {
+      const now = hanging(posed(entry(id), st)), was = hanging(posed(bare(entry(id)), st));
+      expect(now.length, `${id} ${st}`).toBe(was.length);
+      now.forEach((m, i) => { const a = lengthOf(m), b = lengthOf(was[i]); expect(a, `${id} ${st}: piece ${i} is ${a.toFixed(3)} long, combed ${b.toFixed(3)}`).toBeGreaterThan(0.9 * b); expect(a, `${id} ${st}: piece ${i}`).toBeLessThan(1.1 * b); });
+    }
+  }, 180000);
+
+  it('takes what is bound on a braid with it: each band, bone and charm sits on its braid as it was bound', () => {
+    // (each band round the braid's line, the bone and the charm hung from its end, as far from them as on the braid combed)
+    const sits = (g: THREE.Object3D) => {
+      const braids = hanging(g).filter((m) => m.userData.strand !== undefined), out: number[] = [];
+      for (const m of braids) {
+        const { C } = lineOf(m), seg = new THREE.Line3(), q = new THREE.Vector3();
+        for (const o of m.parent!.children) {
+          if (o.userData.onStrand !== m.userData.strand) continue;
+          const p = o.getWorldPosition(new THREE.Vector3());
+          if (o.userData.end) { out.push(p.distanceTo(C[C.length - 1])); continue; }
+          let d = Infinity; for (let k = 0; k + 1 < C.length; k++) { seg.set(C[k], C[k + 1]); d = Math.min(d, seg.closestPointToPoint(p, true, q).distanceTo(p)); } out.push(d);
+        }
+      }
+      return out;
+    };
+    for (const st of states) {
+      const g = posed(entry('baba-lysaga'), st), s = scaleOf(g), now = sits(g), was = sits(posed(bare(entry('baba-lysaga')), st));
+      expect(now.length, st).toBe(40); // (eight braids, each with three bands, a bone and a charm)
+      now.forEach((d, i) => expect(Math.abs(d - was[i]), `${st}: piece ${i} bound ${(d / s).toFixed(3)} off its braid, combed ${(was[i] / s).toFixed(3)}`).toBeLessThan(0.02 * s));
+    }
+  }, 180000);
+});

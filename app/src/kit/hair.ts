@@ -31,9 +31,10 @@ export const sheen = (c: string, k: number): string => {
 const R = 0.4;
 /** A lock along a path, wide across and thin through, lying flat on what it grows from (`nrm`, the outward normal where it
  *  is rooted): domed on top and flatter beneath, swelling a little past its root and narrowing to a point. Laid edge to
- *  edge and overlapping, such locks make one mass (long hair, a pelt) rather than separate strands. */
-export function flatLock(pts: THREE.Vector3[], nrm: THREE.Vector3, w: number, t: number, sides = 6): THREE.BufferGeometry {
-  const curve = new THREE.CatmullRomCurve3(pts), n = 10, pos: number[] = [], idx: number[] = [], T = new THREE.Vector3(), N = new THREE.Vector3(), A = new THREE.Vector3(), p = new THREE.Vector3();
+ *  edge and overlapping, such locks make one mass (long hair, a pelt) rather than separate strands. `n` stretches long
+ *  (more for a path that bends more). */
+export function flatLock(pts: THREE.Vector3[], nrm: THREE.Vector3, w: number, t: number, sides = 6, n = 10): THREE.BufferGeometry {
+  const curve = new THREE.CatmullRomCurve3(pts), pos: number[] = [], idx: number[] = [], T = new THREE.Vector3(), N = new THREE.Vector3(), A = new THREE.Vector3(), p = new THREE.Vector3();
   for (let i = 0; i <= n; i++) {
     const u = i / n, sw = (1 - u) ** 0.85 * (1 + 0.6 * Math.sin(Math.PI * Math.min(1, u * 1.6)));
     curve.getPointAt(u, p); curve.getTangentAt(u, T); N.copy(nrm).addScaledVector(T, -nrm.dot(T)).normalize(); A.crossVectors(N, T);
@@ -95,7 +96,21 @@ export function hairdo(h: Hairdo, color: string, s: number, hy: number, detail =
     g.add(new THREE.Mesh(cg, soft(tone(color, '#000000', 0.2), true)));
   }
   const shade = (i: number) => i % 3 === 0 ? sheen(color, 0.09) : i % 3 === 1 ? color : tone(color, '#000000', 0.16);
-  const lock = (pts: THREE.Vector3[], r0: number, r1: number, i: number, c?: string, flat = 0.45) => g.add(new THREE.Mesh(lockGeometry(pts, r0 * s, r1 * s, flat, 6, 0.3), soft(c ?? shade(i), true)));
+  /** Hair that hangs from the head from its point `at` on (where it leaves the scalp), marked so that once the body is
+   *  dressed what of it hangs below the head can be kept out of what the body wears (kit/heroes.ts clearOfCloth, as long
+   *  locks are): `free`, how far along it that is, and how it is built again along a new line (`r` and `shape`: its
+   *  thickness at each end, how flat it is and how it swells, as lockGeometry takes them; or `flatLock`: its width, its
+   *  thickness and the way it lies flat, as flatLock takes them). */
+  const hangs = (m: THREE.Mesh, pts: THREE.Vector3[], at: number, how: Record<string, unknown>) => {
+    let to = 0, all = 0; for (let i = 1; i < pts.length; i++) { const d = pts[i].distanceTo(pts[i - 1]); all += d; if (i <= at) to += d; }
+    m.userData.free = all > 0 ? to / all : 0; Object.assign(m.userData, how); return m;
+  };
+  /** A lock along `pts`; one that leaves the head at `pts[leaves]` hangs from there (`hangs`). */
+  const lock = (pts: THREE.Vector3[], r0: number, r1: number, i: number, c?: string, flat = 0.45, leaves?: number) => {
+    const m = new THREE.Mesh(lockGeometry(pts, r0 * s, r1 * s, flat, 6, 0.3), soft(c ?? shade(i), true));
+    if (leaves !== undefined) hangs(m, pts, leaves, { r: [r0 * s, r1 * s], shape: [flat, 0.3] });
+    g.add(m); return m;
+  };
   /** A lock laid over the skull from one direction to another along the shortest way round, with a little body. */
   const laid = (from: THREE.Vector3, to: THREE.Vector3, n: number, body: number): THREE.Vector3[] => {
     const q = new THREE.Quaternion().setFromUnitVectors(from, to), out: THREE.Vector3[] = [];
@@ -138,7 +153,9 @@ export function hairdo(h: Hairdo, color: string, s: number, hy: number, detail =
       const k = Math.min(1, (h.length ?? 0.25) / 0.5), L = len * (0.8 + 0.3 * rnd()) * (1 - 0.35 * Math.abs(u)), out = 1 + (0.06 + 0.06 * rnd()) * k;
       // each a flat lock lying on the ones beside it, so the length is one mass of hair, not separate strands
       const pts = [onScalp(root, 0.99), e, V(e.x * out, e.y - L * 0.55, e.z * out - 0.02 * k * s), V(e.x * (out + 0.06 * k), e.y - L, e.z * out - (0.05 + 0.04 * rnd()) * k * s)];
-      g.add(new THREE.Mesh(flatLock(pts, V(e.x, 0, e.z).normalize(), (0.052 + 0.012 * rnd()) * s, 0.026 * s), soft(shade(i), true)));
+      // (it leaves the head at the sculpted mass's edge, and hangs from there)
+      const nrm = V(e.x, 0, e.z).normalize(), w = (0.052 + 0.012 * rnd()) * s, th = 0.026 * s;
+      g.add(hangs(new THREE.Mesh(flatLock(pts, nrm, w, th), soft(shade(i), true)), pts, 1, { flatLock: [w, th, nrm.x, nrm.y, nrm.z] }));
     }
     if (h.temples) for (const sx of [-1, 1]) for (let k = 0; k < 3; k++) { const az = sx * (0.75 + 0.14 * k), from = dir(az, line(az) + 0.02); lock(laid(from, dir(Math.PI - sx * 0.9, -0.2 - 0.05 * k), 6, 0.02), 0.035, 0.012, k, h.temples); }
   } else if (h.style === 'bun') {
@@ -176,11 +193,14 @@ export function hairdo(h: Hairdo, color: string, s: number, hy: number, detail =
     braids.forEach(([az, L], i) => {
       const b = onScalp(dir(az, Math.max(line(az), -0.1) + 0.12), 1.1), len = L * R * 2.3 * s, fwd = Math.cos(az) > 0 ? 0.1 * s : -0.06 * s, pts = [onScalp(dir(az * 0.8, 0.9), 1.12), b];
       for (let k = 1; k <= 5; k++) { const t = k / 5; pts.push(V(b.x * (1.12 + 0.22 * t) + 0.012 * s * Math.sin(k * 2.4 + i), b.y - len * t, b.z + fwd * Math.sin(t * Math.PI * 0.6))); }
-      lock(pts, 0.052, 0.03, i, undefined, 0.85);
+      // (each hangs from where it leaves the head, with what is bound on it, `onStrand` of it, as far round it as it
+      // `reach`es, the charm at its end pointing down to its `tip`: kept out of what the body wears, the braid takes them
+      // with it)
+      lock(pts, 0.052, 0.03, i, undefined, 0.85, 1).userData.strand = i + 1;
       const e = pts[pts.length - 1];
-      for (let k = 1; k <= 3; k++) { const band = new THREE.Mesh(new THREE.TorusGeometry(0.04 * s, 0.012 * s, 5, 10), soft(k === 2 ? bone : cord)); band.rotation.x = Math.PI / 2; const q = pts[1 + k]; band.position.copy(q); g.add(band); }
-      const charm = new THREE.Mesh(new THREE.ConeGeometry(0.035 * s, 0.16 * s, 5), soft(bone)); charm.rotation.x = Math.PI; charm.position.set(e.x, e.y - 0.09 * s, e.z); g.add(charm);
-      const knob = new THREE.Mesh(new THREE.SphereGeometry(0.042 * s, 8, 6), soft(tone(bone, '#000000', 0.12))); knob.position.set(e.x, e.y - 0.005 * s, e.z); g.add(knob);
+      for (let k = 1; k <= 3; k++) { const band = new THREE.Mesh(new THREE.TorusGeometry(0.04 * s, 0.012 * s, 5, 10), soft(k === 2 ? bone : cord)); band.rotation.x = Math.PI / 2; const q = pts[1 + k]; band.position.copy(q); band.userData.onStrand = i + 1; band.userData.reach = 0.052 * s; g.add(band); }
+      const charm = new THREE.Mesh(new THREE.ConeGeometry(0.035 * s, 0.16 * s, 5), soft(bone)); charm.rotation.x = Math.PI; charm.position.set(e.x, e.y - 0.09 * s, e.z); charm.userData.onStrand = i + 1; charm.userData.end = true; charm.userData.reach = 0.035 * s; charm.userData.tip = [0, 0.08 * s, 0]; g.add(charm);
+      const knob = new THREE.Mesh(new THREE.SphereGeometry(0.042 * s, 8, 6), soft(tone(bone, '#000000', 0.12))); knob.position.set(e.x, e.y - 0.005 * s, e.z); knob.userData.onStrand = i + 1; knob.userData.end = true; knob.userData.reach = 0.042 * s; g.add(knob);
     });
   } else {
     const len = (h.length ?? 1.6) * R * 2.3 * s;
@@ -189,7 +209,7 @@ export function hairdo(h: Hairdo, color: string, s: number, hy: number, detail =
       const pts = laid(dir(0.3 * Math.sin(az), 1.45), dir(az, Math.max(line(az), -0.1) + 0.05), 4, 0.05 + 0.03 * rnd()), e = pts[pts.length - 1], L = len * (0.6 + 0.5 * rnd());
       const out = 1 + 0.25 * rnd(), wob = (rnd() - 0.5) * 0.16 * s;
       pts.push(V(e.x * out, e.y - L * 0.35, e.z * out + wob), V(e.x * out * 1.08 - wob, e.y - L * 0.7, e.z * out * 1.05), V(e.x * out * 1.02 + wob, e.y - L, e.z * out * 1.1 - 0.05 * s));
-      lock(pts, 0.04 + 0.02 * rnd(), 0.008, i, h.temples && a < 1.2 ? h.temples : undefined, 0.6);
+      lock(pts, 0.04 + 0.02 * rnd(), 0.008, i, h.temples && a < 1.2 ? h.temples : undefined, 0.6, 4);  // (leaving the head at the hairline)
     }
   }
   return g;
