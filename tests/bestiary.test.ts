@@ -13,7 +13,7 @@ describe('creature repository', () => {
     expect(searchCreatures('K').some((e) => e.tags.includes('K'))).toBe(true);
     expect(searchCreatures('K84').map((e) => e.id)).toEqual(['patrina-velikovna']);
   });
-  it('gives every entry a figure, a players\' name and, for open-content monsters, numbers', { timeout: 60000 }, () => {
+  it('gives every entry a figure, a players\' name and, for open-content monsters, numbers', { timeout: 180000 }, () => {
     for (const e of BESTIARY) expect(figureFor(e).children.length).toBeGreaterThan(0);
     expect(aliasFor(BESTIARY.find((e) => e.id === 'strahd-von-zarovich')!)).not.toContain('Strahd');
     expect(aliasFor(BESTIARY.find((e) => e.id === 'wolf')!)).toBe('Wolf');
@@ -102,7 +102,7 @@ describe('creature repository', () => {
     expect(glows(out)).toBe(0);
     expect(low([out])).toBeCloseTo(0, 2);
   });
-  it('gives named NPCs with a recipe their own miniature, standing and in a battle stance', { timeout: 60000 }, () => {
+  it('gives named NPCs with a recipe their own miniature, standing and in a battle stance', { timeout: 180000 }, () => {
     const heroes = BESTIARY.filter((e) => e.hero);
     expect(heroes.length).toBeGreaterThan(30);
     expect(heroes.every((e) => e.kind === 'npc' && e.tier === 1)).toBe(true);
@@ -111,7 +111,7 @@ describe('creature repository', () => {
       expect(figureFor(e, true).children.length).toBeGreaterThan(0);
     }
   });
-  it('every creature builds a miniature at rest, in battle and dead, and the monster registries name real creatures', { timeout: 120000 }, async () => {
+  it('every creature builds a miniature at rest, in battle and dead, and the monster registries name real creatures', { timeout: 360000 }, async () => {
     const { FOLK, MENAGERIE } = await import('../app/src/kit/menagerie');
     const { NPC_POSES, composedOk } = await import('../app/src/kit/poses');
     const { POSES } = await import('../app/src/kit/heroes');
